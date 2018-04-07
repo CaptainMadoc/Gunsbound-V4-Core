@@ -1,0 +1,17 @@
+[
+	"/gunsbound/modules/weapon.lua",
+	"/gunsbound/modules/attachment.lua",
+	"/gunsbound/modules/magazine.lua",
+	"/gunsbound/modules/camera.lua",
+	"/gunsbound/modules/aim.lua",
+	
+	"/gunsbound/modules/portraitprocessor.lua",
+	"/gunsbound/modules/arms.lua",
+	"/gunsbound/modules/transforms.lua",
+	"/gunsbound/modules/animation.lua",
+	
+	"/gunsbound/modules/portraitprocessor.lua",
+	"/gunsbound/modules/flashlightmanager.lua",
+	"/gunsbound/modules/lasermanager.lua",
+	"/gunsbound/modules/uimanager.lua"
+]
