@@ -80,7 +80,14 @@
 		"dry" : "dry",
 		"reload" : "reload"
 	},
-
+	
+	"casing" : {
+		"part" : "gun",
+		"tag"  : "casing_begin"
+	},
+	
+	"burstCooldown" : 0.2,
+	
 	"animation" : "/gunsbound/base/base.animation",
 	"animationCustom" : {
 		"globalTagDefaults" : {
@@ -134,10 +141,11 @@
 
 						"attachment_grip_pos" : [9.375, 3],
 						"attachment_grip_end" : [9.5, 3], //for rotation
-
-
+						
 						"muzzle_begin" : [13.7500, 3.6250],
 						"muzzle_end" : [19, 3.6250],
+						
+						"casing_begin" : [6.25, 3.75],
 						"transformationGroups" : ["gun", "base"]
 					}
 				},

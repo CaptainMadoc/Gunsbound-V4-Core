@@ -21,6 +21,15 @@ function weapon:lerpr(value, to, ratio)
 	return value + ((to - value ) * ratio ) 
 end
 
+function weapon:casingPosition()
+	local casingConfig = config.getParameter("casing")
+	local offset = {0,0}
+	if casingConfig then
+		offset = animator.partPoint(casingConfig.part, casingConfig.tag)
+	end
+	return vec2.add(mcontroller.position(), activeItem.handPosition(offset))
+end
+
 function weapon:init()
 	message.setHandler("isLocal", function(_, loc) return loc end )
 	activeItem.setScriptedAnimationParameter("entityID", activeItem.ownerEntityId())
@@ -28,6 +37,7 @@ function weapon:init()
 	self.fireSounds = config.getParameter("fireSounds",jarray())
 	animator.setSoundPool("fireSounds",self.fireSounds or jarray())
 	self.load = config.getParameter("gunLoad")
+	self.burstDelay = config.getParameter("burstCooldown", 0.4)
 	self.fireTypes = config.getParameter("fireTypes")
 	self.animations = config.getParameter("gunAnimations")
 	self.bypassShellEject = config.getParameter("bypassShellEject", false)
@@ -156,7 +166,7 @@ function weapon:eject_ammo()
 			
 			world.spawnProjectile(
 				self.load.parameters.casingProjectile, 
-				vec2.add(mcontroller.position(), activeItem.handPosition()), 
+				self:casingPosition(), 
 				activeItem.ownerEntityId(), 
 				vec2.rotate({0,1}, math.rad(math.random(90) - 45)), 
 				false,
