@@ -11,7 +11,7 @@ function uimanager:update(dt)
 	--to fix
 	local t = false
 	
-	if weapon.load and weapon.load.fired then
+	if weapon.load and weapon.load.parameters.fired then
 		t = true
 		activeItem.setScriptedAnimationParameter("fired", true)
 	end

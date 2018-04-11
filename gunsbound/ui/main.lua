@@ -101,8 +101,9 @@ function data:update(dt)
 end
 
 function realInit(dt)
-	data["magazine"] = 30
+	data["magazine"] = {}
 	data["maxMagazine"] = 30
+	data["selected"] = false
 	data["load"] = false
 	data["fired"] = false
 	data["fireSelect"] = "auto"
@@ -141,10 +142,18 @@ function realUpdate(dt)
 	if data["load"] == "table" then
 		localAnimator.addDrawable({image = "/gunsbound/ui/ammo.png", position = vec2.add(position, {0, -3}), transformation = matt, fullbright = true, color = {255,255 / ratio1,255 / ratio1,255}}, "overlay")
 		shift = 0
+		
 	end
-	
-	for i = 1,data["magazine"] do
-		localAnimator.addDrawable({image = "/gunsbound/ui/ammo.png", position = vec2.add(position, {((3.75 / data["maxMagazine"]) * i) + shift, -3.25}), transformation = matt, fullbright = true}, "overlay")
+	if data.selected then
+		shift = -((3.75 / data["maxMagazine"]) * data.selected)
+	end
+	local aa = 1
+	for i,v in pairs(data["magazine"]) do
+		if v.parameters.fired then
+			localAnimator.addDrawable({image = "/gunsbound/ui/ammo.png", position = vec2.add(position, {((3.75 / data["maxMagazine"]) * i) + shift, -3.25}), transformation = matt, fullbright = true, color = {255,255 / 2,255 / 2,255}}, "overlay")
+		else                                                                                                                                       
+			localAnimator.addDrawable({image = "/gunsbound/ui/ammo.png", position = vec2.add(position, {((3.75 / data["maxMagazine"]) * i) + shift, -3.25}), transformation = matt, fullbright = true}, "overlay")
+		end
 	end
 	
 	--Fire mode display

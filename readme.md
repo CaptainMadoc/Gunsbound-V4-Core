@@ -8,8 +8,8 @@ for Items attachments etc.
 - Download this repo
 - Extract zip into mods folder.
 - /admin
-- /spawnitem ak47
-- /spawnitem 762x39mmAmmo 5000
+- /spawnitem gbak47
+- /spawnitem gb762x39mmAmmo 5000
 
 # Controls
 - Left Click to shoot

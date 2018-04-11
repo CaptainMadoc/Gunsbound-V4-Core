@@ -5,7 +5,7 @@ weapon = {
 	load = nil,
 	reloadLoop = false,
 	stats = {},
-	global = {autoCock = true},
+	global = {autoReload = true},
 	animations = {}, --animation Names
 	burstCount = 0,
 	burstDelay = 0.4,
@@ -42,6 +42,18 @@ function weapon:init()
 	self.animations = config.getParameter("gunAnimations")
 	self.bypassShellEject = config.getParameter("bypassShellEject", false)
 	activeItem.setCursor("/gunsbound/crosshair/crosshair2.cursor")
+	animation:addEvent("eject_ammo", function() weapon:eject_ammo() end)
+	animation:addEvent("load_ammo", function() weapon:load_ammo() end)
+	animation:addEvent("reload_loop", function() weapon.reloadLoop = true end)
+	animation:addEvent("reloadLoop", function() weapon.reloadLoop = true end)
+end
+
+function weapon:lateinit()
+	if weapon:isDry() and self.animations["draw_dry"] then
+		animation:play(self.animations["draw_dry"])
+	else
+		animation:play(self.animations.draw or "draw")
+	end
 end
 
 function weapon:activate(fireMode, shiftHeld)
@@ -106,7 +118,7 @@ function weapon:calculateInAccuracy(pos)
 end
 
 function weapon:fire()
-	if self.load and not self.load.fired then
+	if self.load and not self.load.parameters.fired then
 		local newConfig = root.itemConfig({name = self.load.name, count = 1, parameters = self.load.parameters})
 		if not newConfig then
 			weapon:eject_ammo()
@@ -126,7 +138,8 @@ function weapon:fire()
 				self.load.parameters.projectileConfig or {}
 			)
 		end
-		self.load.fired = true
+		self.load.parameters.fired = true
+		
 		if not self.bypassShellEject then
 			weapon:eject_ammo()
 			self.hasToLoad = true
@@ -146,21 +159,16 @@ function weapon:fire()
 		self.delay = weapon:calculateRPM(self.stats.rpm or 600)
 	else
 		animator.playSound("dry")
+		if not animation:isAnyPlaying() then
+			animation:play(self.animations.shoot_null)
+		end
 		self.delay = weapon:calculateRPM(self.stats.rpm or 600)
 	end
 end
 
-function weapon:lateinit()
-	animation:addEvent("eject_ammo", function() weapon:eject_ammo() end)
-	animation:addEvent("load_ammo", function() weapon:load_ammo() end)
-	animation:addEvent("reload_loop", function() weapon.reloadLoop = true end)
-	animation:addEvent("reloadLoop", function() weapon.reloadLoop = true end)
-	animation:play("draw")
-end
-
 function weapon:eject_ammo()
 	if self.load then
-		if not self.load.fired then
+		if not self.load.parameters.fired then
 			player.giveItem(self.load)
 		elseif self.load.parameters.casingProjectile then
 			
@@ -191,10 +199,25 @@ function weapon:isDry()
 	return (not self.load and #magazine.storage == 0)
 end
 
+function weapon:shouldAutoReload()
+	if not self.global.autoReload then
+		return false
+	end
+	if self.load and not self.load.parameters.fired then
+		return false
+	end
+	for i,v in pairs(magazine.storage) do
+		if v.parameters and not v.parameters.fired then
+			return false
+		end
+	end
+	return true and self.global.autoReload
+end
+
 function weapon:update(dt)
 
-	if (updateInfo.shiftHeld and updateInfo.moves.up and not self.reloadLoop and not animation:isAnyPlaying() and #magazine.storage < self.stats.maxMagazine)
-		or (not self.load and #magazine.storage == 0 and not animation:isAnyPlaying() and not self.reloadLoop and magazine:playerHasAmmo() and self.global.autoCock and self.delay == 0) then
+	if (updateInfo.shiftHeld and updateInfo.moves.up and not self.reloadLoop and not animation:isAnyPlaying())
+		or (self:shouldAutoReload() and not animation:isAnyPlaying() and not self.reloadLoop and magazine:playerHasAmmo() and self.delay == 0) then
 		if weapon:isDry() and self.animations["reload_dry"] then
 			animation:play(self.animations["reload_dry"])
 		else
@@ -203,7 +226,7 @@ function weapon:update(dt)
 	end
 	
 	if (not updateInfo.shiftHeld and updateInfo.moves.up and not self.reloadLoop and not animation:isAnyPlaying())
-		or (not self.load and #magazine.storage > 0 and not self.reloadLoop and not animation:isAnyPlaying() and self.global.autoCock and self.delay == 0) then
+		or ((not self.load or self.load.parameters.fired) and #magazine.storage > 0 and not self.reloadLoop and not animation:isAnyPlaying() and self.global.autoReload and self.delay == 0) then
 		if not self.load and self.animations["cock_dry"] then
 			animation:play(self.animations["cock_dry"])
 		else
