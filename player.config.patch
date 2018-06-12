@@ -3,5 +3,10 @@
         "path" : "/defaultBlueprints/tier1/-",
         "op" : "add",
         "value" : {"item" : "gbgunpart"}
+    },
+    {
+        "path" : "/defaultBlueprints/tier1/-",
+        "op" : "add",
+        "value" : {"item" : "gbammobox"}
     }
 ]
