@@ -9,7 +9,10 @@ for Items attachments etc.
 - Extract zip into mods folder.
 - /admin
 - /spawnitem gbak47
-- /spawnitem gb762x39mmAmmo 5000
+- /spawnitem gbammobox 10
+- Place the Ammo box down
+- Hold the Ak47
+- press E to the ammo box
 
 # Controls
 - Left Click to shoot
