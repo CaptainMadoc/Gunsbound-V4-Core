@@ -11,7 +11,7 @@ animation = {
 	}
 }
 
-function randomHash()
+function animation:randomHash()
 	local str1 = ""
 	for i = 1,8 do
 		str1 = str1..string.format("%X", math.random(255))
@@ -21,11 +21,11 @@ end
 
 function animation:interpolateTransforms(tr, timing)
 	if self.current then
-		self.from = dp(self.current)
+		self.from = copycat(self.current)
 	end
 	animation:initTC()
 	
-	self.to = sb.jsonMerge(transforms.original, dp(tr))
+	self.to = sb.jsonMerge(transforms.original, copycat(tr))
 	
 	for i,v in pairs(self.to) do
 		self.to[i].time = timing
@@ -34,12 +34,12 @@ end
 
 function animation:forceTransforms(tr, timing)
 	animation:initTC()
-	self.current = sb.jsonMerge(self.current, dp(tr))
+	self.current = sb.jsonMerge(self.current, copycat(tr))
 	for i,v in pairs(self.current) do
 		self.current[i].time = 0
 	end
-	self.from = dp(tr)
-	self.to = dp(tr)
+	self.from = copycat(tr)
+	self.to = copycat(tr)
 	
 	for i,v in pairs(self.to) do
 		self.to[i].time = timing
@@ -50,14 +50,14 @@ function animation:forceTransforms(tr, timing)
 end
 
 function animation:initTC()
-	self.current = dp(transforms.original)
+	self.current = copycat(transforms.original)
 	for i,v in pairs(self.current) do
 		self.current[i].time = 0
 	end
 end
 
 function animation:initTF()
-	self.from = dp(transforms.original)
+	self.from = copycat(transforms.original)
 end
 
 function animation:add(name, keyFrames, delete)
@@ -69,11 +69,11 @@ function animation:add(name, keyFrames, delete)
 		deleteOnFinished = delete,
 		keyFrames = keyFrames
 	}
-end
+end	
 
 function animation:play(str)
 	if type(str) == "table" then
-		local randhash = randomHash()
+		local randhash = self:randomHash()
 		animation:add(randhash, str, true)
 		animation:play(randhash)
 		return randhash
@@ -133,9 +133,9 @@ function animation:applykeyFrames(key,timing,force)
 	end
 
 	if force then
-		self:forceTransforms(dp(key.transforms), timing)
+		self:forceTransforms(copycat(key.transforms), timing)
 	else
-		self:interpolateTransforms(dp(key.transforms), timing)
+		self:interpolateTransforms(copycat(key.transforms), timing)
 	end
 	
 	for i,v in pairs(key.playSounds or {}) do
@@ -274,11 +274,11 @@ function animation:update(dt)
 	
 	for i,v in pairs(self.current) do
 		if not self.to[i] then
-			self.to[i] = dp(transforms.original[i])
+			self.to[i] = copycat(transforms.original[i])
 			self.to[i].time = 1
 		end
 		if not self.from[i] then
-			self.from[i] = dp(transforms.original[i])
+			self.from[i] = copycat(transforms.original[i])
 			self.from[i].time = 1
 		end
 		

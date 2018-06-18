@@ -83,14 +83,6 @@ function weapon:angle()
 	return vec2.sub(self:rel(animator.partPoint("gun", "muzzle_end")),self:rel(animator.partPoint("gun", "muzzle_begin")))
 end
 
-function whichhigh(a,b)
-	if a > b then
-		return a
-	else
-		return b
-	end
-end
-
 function weapon:calculateRPM(r)
 	return 60 / r
 end

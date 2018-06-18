@@ -23,6 +23,14 @@ function pSound(sounddata) --Single Sound by projectile
 	)
 end
 
+function whichhigh(a,b)
+	if a > b then
+		return a
+	else
+		return b
+	end
+end
+
 function strStarts(str, start)
 	return string.sub(str,1,string.len(start)) == start
 end
@@ -100,17 +108,15 @@ function projectileAngle(at) --Aim angle imported from chucklefish weapons, {1 ,
 end
 
 function copycat(var)
-	if type(var) == "number" then
-		return 0 + var
-	end
 	if type(var) == "table" then
 		local newtab = {}
 		for i,v in pairs(var) do
-			newtab[i] = v
+			newtab[i] = copycat(v)
 		end
 		return newtab
+	else
+		return var
 	end
-	return var
 end
 
 

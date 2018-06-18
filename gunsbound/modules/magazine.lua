@@ -34,7 +34,6 @@ function magazine:insert(co)
 end
 
 function magazine:playerHasAmmo()
-
 	local compat = config.getParameter("compatibleAmmo", jarray())
 	if type(compat) == "string" then
 		compat = processDirectory(compat)
@@ -74,7 +73,6 @@ end
 
 function magazine:init()
 	self.storage = config.getParameter("magazine", jarray())
-	
 end
 
 function magazine:lateinit()

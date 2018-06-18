@@ -21,7 +21,7 @@ function dp(orig)
     return copy
 end
 
-function vec2lerpR(a,b,r)
+function vec2.lerpR(a,b,r)
 	return {
 		a[1] + (b[1] - a[1]) * r[1],
 		a[2] + (b[2] - a[2]) * r[2]	
@@ -44,7 +44,7 @@ function transforms.calculateTransform(tab)
 		scalePoint = tab.scalePoint or {0,0},
 		position = vec2.mul(tab.position or {0,0}, tab.scale or {1,1}),
 		rotation = tab.rotation or 0,
-		rotationPoint = vec2lerpR(tab.scalePoint, tab.rotationPoint, tab.scale)
+		rotationPoint = vec2.lerpR(tab.scalePoint, tab.rotationPoint, tab.scale)
 	}
 	return new
 end

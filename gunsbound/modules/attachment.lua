@@ -67,7 +67,7 @@ function attachment:lateinit() --item check
 					animator.setPartTag(v.part, "selfimage", fp.attachment.image)
 					attachment:createTransform(i,fp.attachment.offset, fp.attachment.scale, v.attachPart, v.gunTag, v.gunTagEnd)
 					if fp.attachment.script then
-						self.modules[i] = self:loadmodule(fp.attachment.script):create(fp.attachment, i)
+						self.modules[i] = requireUni:load(fp.attachment.script, fp.attachment.class or "module"):create(fp.attachment, i)
 						if self.modules[i].special then
 							self.special = i
 						end
