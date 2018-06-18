@@ -36,7 +36,7 @@ function attachment:init()
 	activeItem.setInstanceValue("giveback", jarray())
 end
 
-function attachment:createTransform(name, offset, scale, attachPart, gunTag, gunTagEnd)
+function attachment:createTransform(namee, offset, scale, attachPart, gunTag, gunTagEnd)
 	if not animator.partPoint(attachPart, gunTag) or not animator.partPoint(attachPart, gunTagEnd) then return end
 	local somenewTransform = function(name, this, dt)
 		if animator.hasTransformationGroup(name) then --Check to prevent crashing
@@ -53,10 +53,11 @@ function attachment:createTransform(name, offset, scale, attachPart, gunTag, gun
 			animator.translateTransformationGroup(name, setting.position)
 		end
 	end
-	transforms:lateAdd("attachment_"..name, {}, somenewTransform)
+	transforms:lateAdd(namee, {}, somenewTransform)
 end
 
 function attachment:lateinit() --item check
+	local attachmentsConfig = root.itemConfig({name = item.name(), count = 1}).config.attachments
 	for i,v in pairs(self.config) do
 		if v.item then
 			local originalItem = root.itemConfig({name = v.item.name, count = 1})
@@ -66,7 +67,7 @@ function attachment:lateinit() --item check
 				local current;
 				if fp.attachment then
 					animator.setPartTag(v.part, "selfimage", vDir(fp.attachment.image, originalItem.directory))
-					attachment:createTransform(i,fp.attachment.offset, fp.attachment.scale, v.attachPart, v.gunTag, v.gunTagEnd)
+					attachment:createTransform(v.transformationGroup or attachmentsConfig[i].transformationGroup, fp.attachment.offset, fp.attachment.scale, v.attachPart or attachmentsConfig[i].attachPart, v.gunTag or attachmentsConfig[i].gunPart, v.gunTagEnd or attachmentsConfig[i].gunTagEnd)
 					fp.attachment.directory = originalItem.directory
 					if fp.attachment.script then
 						self.modules[i] = requireUni:load(vDir(fp.attachment.script, originalItem), fp.attachment.class or "module"):create(fp.attachment, i)
