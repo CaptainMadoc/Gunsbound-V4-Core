@@ -10,8 +10,8 @@ function apply(input)
 		input.parameters.attachments = oItem.attachments
 	end
 	for i,v in pairs(oItem.attachments) do
-		if not input.parameters.attachments[i] then
-			input.parameters.attachments[i] = v
+		if not input.parameters.attachments[i].item then
+			input.parameters.attachments[i].item = v.item
 		end
 	end
 	

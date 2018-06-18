@@ -97,7 +97,7 @@ function magazine:update(dt)
 end
 
 function magazine:uninit()
-	activeItem.setInstanceValue("magazine", self.storage)
+	self:saveData()
 end
 
 addClass("magazine", -2)

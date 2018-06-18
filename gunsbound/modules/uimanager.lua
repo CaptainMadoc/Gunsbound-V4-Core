@@ -3,6 +3,14 @@ uimanager = {}
 function uimanager:init()
 end
 
+function uimanager:lateinit()
+	local uiShell =  config.getParameter("uiShell")
+	if uiShell then
+		activeItem.setScriptedAnimationParameter("uiShell", vDir(uiShell, selfItem.rootDirectory))
+		
+	end
+end
+
 function uimanager:update(dt)
 	
 	activeItem.setScriptedAnimationParameter("load", type(weapon.load))

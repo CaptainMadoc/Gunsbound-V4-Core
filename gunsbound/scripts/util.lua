@@ -93,6 +93,13 @@ function itemDir(str)
 	return itemConfig.directory..str
 end
 
+function vDir(str, dir)
+	if string.sub(str,1,1) == "/" then
+		return str
+	end
+	return dir..str
+end
+
 function better(v1, v2)
 	if math.abs(v1) > math.abs(v2) then
 		return math.abs(v1)

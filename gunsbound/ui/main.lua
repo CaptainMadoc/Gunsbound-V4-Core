@@ -108,6 +108,7 @@ function realInit(dt)
 	data["fired"] = false
 	data["althanded"] = false
 	data["fireSelect"] = "auto"
+	data["uiShell"] = "/gunsbound/ui/ammo.png"
 	data["inAccuracy"] = 1
 	data["muzzleDistance"] = {0,0}
 	position = activeItemAnimation.ownerPosition()
@@ -144,7 +145,7 @@ function realUpdate(dt)
 	end
 	
 	if data["load"] == "table" then
-		localAnimator.addDrawable({image = "/gunsbound/ui/ammo.png", position = vec2.add(position, {0, -3}), transformation = matt, fullbright = true, color = {255,255 / ratio1,255 / ratio1,255}}, "overlay")
+		localAnimator.addDrawable({image = data["uiShell"], position = vec2.add(position, {0, -3}), transformation = matt, fullbright = true, color = {255,255 / ratio1,255 / ratio1,255}}, "overlay")
 		shift = 0
 		
 	end
@@ -154,9 +155,9 @@ function realUpdate(dt)
 	local aa = 1
 	for i,v in pairs(data["magazine"]) do
 		if v.parameters.fired then
-			localAnimator.addDrawable({image = "/gunsbound/ui/ammo.png", position = vec2.add(position, {((3.75 / data["maxMagazine"]) * i) + shift, -3.25}), transformation = matt, fullbright = true, color = {255,255 / 2,255 / 2,255}}, "overlay")
+			localAnimator.addDrawable({image = data["uiShell"], position = vec2.add(position, {((3.75 / data["maxMagazine"]) * i) + shift, -3.25}), transformation = matt, fullbright = true, color = {255,255 / 2,255 / 2,255}}, "overlay")
 		else                                                                                                                                       
-			localAnimator.addDrawable({image = "/gunsbound/ui/ammo.png", position = vec2.add(position, {((3.75 / data["maxMagazine"]) * i) + shift, -3.25}), transformation = matt, fullbright = true}, "overlay")
+			localAnimator.addDrawable({image = data["uiShell"], position = vec2.add(position, {((3.75 / data["maxMagazine"]) * i) + shift, -3.25}), transformation = matt, fullbright = true}, "overlay")
 		end
 	end
 	
