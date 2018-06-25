@@ -137,7 +137,7 @@ function weapon:fire()
 			self.hasToLoad = true
 		end
 		
-		if #magazine.storage == 0 then
+		if magazine:count() == 0 then
 			animation:play(self.animations["shoot_dry"] or self.animations.shoot)
 		else
 			animation:play(self.animations.shoot)
@@ -176,7 +176,7 @@ function weapon:eject_ammo()
 		self.load = nil
 		activeItem.setInstanceValue("gunLoad", self.load)
 	end
-	if #magazine.storage == 0 then
+	if magazine:count() == 0 then
 		
 		animation:play(self.animations.dry)
 	end
@@ -188,7 +188,7 @@ function weapon:load_ammo()
 end
 
 function weapon:isDry()
-	return (not self.load and #magazine.storage == 0)
+	return (not self.load and magazine:count() == 0)
 end
 
 function weapon:shouldAutoReload()
@@ -198,9 +198,11 @@ function weapon:shouldAutoReload()
 	if self.load and not self.load.parameters.fired then
 		return false
 	end
-	for i,v in pairs(magazine.storage) do
-		if v.parameters and not v.parameters.fired then
-			return false
+	if magazine:count() > 0 then
+		for i,v in pairs(magazine.storage) do
+			if v.parameters and not v.parameters.fired then
+				return false
+			end
 		end
 	end
 	return true and self.global.autoReload
@@ -218,7 +220,7 @@ function weapon:update(dt)
 	end
 	
 	if (not updateInfo.shiftHeld and updateInfo.moves.up and not self.reloadLoop and not animation:isAnyPlaying())
-		or ((not self.load or self.load.parameters.fired) and #magazine.storage > 0 and not self.reloadLoop and not animation:isAnyPlaying() and self.global.autoReload and self.delay == 0) then
+		or ((not self.load or self.load.parameters.fired) and magazine:count() > 0 and not self.reloadLoop and not animation:isAnyPlaying() and self.global.autoReload and self.delay == 0) then
 		if not self.load and self.animations["cock_dry"] then
 			animation:play(self.animations["cock_dry"])
 		else
@@ -226,7 +228,7 @@ function weapon:update(dt)
 		end
 	end
 	
-	if (self.reloadLoop and not animation:isAnyPlaying() and #magazine.storage < weapon.stats.maxMagazine and magazine:playerHasAmmo()) then
+	if (self.reloadLoop and not animation:isAnyPlaying() and magazine:count() < weapon.stats.maxMagazine and magazine:playerHasAmmo()) then
 		if weapon:isDry() and self.animations["reloadLoop_dry"] then
 			animation:play(self.animations["reloadLoop_dry"])
 		else
