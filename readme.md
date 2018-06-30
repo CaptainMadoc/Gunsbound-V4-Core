@@ -1,6 +1,9 @@
 # Gunsbound Core Alpha
 >> It is currently in alpha. features may change during developpement.
 
+# Discord
+https://discord.gg/42PN2np
+
 This is the core of gunsbound weapons system. Which allows to use contents created for it.
 # How to use
 - Download GunsBound Standard here: https://github.com/CaptainMadoc/Gunsbound-V4-Standard
