@@ -52,8 +52,9 @@ function magazine:playerHasAmmo()
 	return false
 end
 
-function magazine:remove()
+function magazine:remove(specific)
 	local togive = jarray()
+	local toremove = specific or self:count() -- todo
 	for i,v in pairs(self.storage) do
 		if #togive == 0 then
 			table.insert(togive,v)
@@ -85,6 +86,9 @@ function magazine:lateinit()
 	animation:addEvent("insert_mag", function() magazine:insert() end)
 	animation:addEvent("insert_bullet", function() magazine:insert(1) end)
 	animation:addEvent("remove_mag", function() magazine:remove() end)
+	if self:count() > weapon.stats.maxMagazine then
+		self:remove()
+	end
 end
 
 function magazine:take()
