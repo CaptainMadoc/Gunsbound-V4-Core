@@ -1,26 +1,26 @@
 weapon = {
 	recoil = 0,
 	recoilCamera = {0,0},
+
 	delay = 0.5,
-	load = nil,
-	reloadLoop = false,
+	burstDelay = 0.4,
+
 	stats = {},
 	global = {autoReload = true},
+
+	load = nil,
 	animations = {}, --animation Names
+	reloadLoop = false,
 	burstCount = 0,
-	burstDelay = 0.4,
 	fireSelect = 1,
 	bypassShellEject = false
 }
 
-function weapon:lerp(value, to, speed)
-	return value + ((to - value ) / speed ) 
-end
+--why 2
+function weapon:lerp(value, to, speed) return value + ((to - value ) / speed )  end
+function weapon:lerpr(value, to, ratio) return value + ((to - value ) * ratio ) end
 
-function weapon:lerpr(value, to, ratio)
-	return value + ((to - value ) * ratio ) 
-end
-
+--eject casing
 function weapon:casingPosition()
 	local casingConfig = config.getParameter("casing")
 	local offset = {0,0}
@@ -30,63 +30,29 @@ function weapon:casingPosition()
 	return vec2.add(mcontroller.position(), activeItem.handPosition(offset))
 end
 
-function weapon:init()
-	message.setHandler("isLocal", function(_, loc) return loc end )
-	activeItem.setScriptedAnimationParameter("entityID", activeItem.ownerEntityId())
-	self.stats = config.getParameter("gunStats")
-	self.fireSounds = config.getParameter("fireSounds",jarray())
-	for i,v in pairs(self.fireSounds) do
-		self.fireSounds[i] = processDirectory(v)
-	end
-	animator.setSoundPool("fireSounds", self.fireSounds)
-	self.load = config.getParameter("gunLoad")
-	self.burstDelay = config.getParameter("burstCooldown", 0.4)
-	self.fireTypes = config.getParameter("fireTypes")
-	self.animations = config.getParameter("gunAnimations")
-	self.bypassShellEject = config.getParameter("bypassShellEject", false)
-	activeItem.setCursor("/gunsbound/crosshair/crosshair2.cursor")
-	animation:addEvent("eject_ammo", function() weapon:eject_ammo() end)
-	animation:addEvent("load_ammo", function() weapon:load_ammo() end)
-	animation:addEvent("reload_loop", function() weapon.reloadLoop = true end)
-	animation:addEvent("reloadLoop", function() weapon.reloadLoop = true end)
-end
-
-function weapon:lateinit()
-	if weapon:isDry() and self.animations["draw_dry"] then
-		animation:play(self.animations["draw_dry"])
-	else
-		animation:play(self.animations.draw or "draw")
-	end
-end
-
-function weapon:activate(fireMode, shiftHeld)
-	if shiftHeld and fireMode == "alt" then
-		self.fireSelect = self.fireSelect + 1
-		animator.playSound("dry")
-		if #self.fireTypes < self.fireSelect then
-			self.fireSelect = 1
-		end
-	end
-end
-
+--quick calculation from arm offset
 function weapon:rel(pos)
 	return vec2.add(mcontroller.position(), activeItem.handPosition(pos))
 end
 
+--bug repellent
 function weapon:debug(dt)
 	world.debugPoint(self:rel(animator.partPoint("gun", "muzzle_begin")), "green")
 	world.debugPoint(self:rel(animator.partPoint("gun", "muzzle_end")), "red")
 	world.debugLine(self:rel(animator.partPoint("gun", "muzzle_begin")),self:rel(weapon:calculateInAccuracy(animator.partPoint("gun", "muzzle_end"))), "red")
 end
 
+--Angle from muzzle parttag
 function weapon:angle()
 	return vec2.sub(self:rel(animator.partPoint("gun", "muzzle_end")),self:rel(animator.partPoint("gun", "muzzle_begin")))
 end
 
+--
 function weapon:calculateRPM(r)
 	return 60 / r
 end
 
+--value for spread butter 
 function weapon:getInAccuracy()
 	local crouchMult = 1
 	if mcontroller.crouching() then
@@ -97,6 +63,7 @@ function weapon:getInAccuracy()
 	return self:lerpr(self.stats.standingInaccuracy, self.stats.movingInaccuracy, percent) * crouchMult
 end
 
+--angle calculation thingthatdoesthings
 function weapon:calculateInAccuracy(pos)
 	local angle = (math.random(0,2000) - 1000) / 1000
 	local crouchMult = 1
@@ -109,17 +76,21 @@ function weapon:calculateInAccuracy(pos)
 	return vec2.rotate(pos, math.rad((angle * self:getInAccuracy())))
 end
 
+--ultimate function (requires explaining)
 function weapon:fire()
-	if self.load and not self.load.parameters.fired then
+	if self.load and not self.load.parameters.fired then -- self.load must be a valid bullet without a parameter fired as true
+
 		local newConfig = root.itemConfig({name = self.load.name, count = 1, parameters = self.load.parameters})
-		if not newConfig then
-			weapon:eject_ammo()
-			return
-		end
-		self.load.parameters = sb.jsonMerge(newConfig.config, newConfig.parameters)
 		
-		self.recoil = self.recoil + self.stats.recoil
-		self.recoilCamera = {math.sin(math.rad(self.recoil * 80)) * ((self.recoil / 5) ^ 1.25), self.recoil / 2}
+		if not newConfig then weapon:eject_ammo() return end
+
+		self.load.parameters = sb.jsonMerge(newConfig.config, newConfig.parameters)
+
+		local finalProjectileConfig = self.load.parameters.projectileConfig or {}
+		if not finalProjectileConfig.power then
+			finalProjectileConfig.power = (root.projectileConfig(self.load.parameters.projectile or "bullet-4").power or 5.0) * (self.stats.damageMultiplier or 1.0)
+		end
+
 		for i=1,self.load.parameters.projectileCount or 1 do
 			world.spawnProjectile(
 				self.load.parameters.projectile or "bullet-4", 
@@ -127,29 +98,36 @@ function weapon:fire()
 				activeItem.ownerEntityId(), 
 				self:calculateInAccuracy(self:angle()), 
 				false,
-				self.load.parameters.projectileConfig or {}
+				finalProjectileConfig
 			)
 		end
 		self.load.parameters.fired = true
 		
+		--used by action lever style
 		if not self.bypassShellEject then
 			weapon:eject_ammo()
 			self.hasToLoad = true
 		end
 		
+		--
 		if magazine:count() == 0 then
 			animation:play(self.animations["shoot_dry"] or self.animations.shoot)
 		else
 			animation:play(self.animations.shoot)
 		end
 		
-		animator.playSound("fireSounds")
+		--emits FX muzzle flash sometimes changed by a silencer/flash hider
 		if self.stats.muzzleFlash == 1 then
 			animator.setAnimationState("firing", "on")
 		end
-		activeItem.setInstanceValue("gunLoad", self.load)
+
+		animator.playSound("fireSounds")
 		self.delay = weapon:calculateRPM(self.stats.rpm or 600)
-	else
+		self.recoil = self.recoil + self.stats.recoil
+		self.recoilCamera = {math.sin(math.rad(self.recoil * 80)) * ((self.recoil / 5) ^ 1.25), self.recoil / 2}
+
+		activeItem.setInstanceValue("gunLoad", self.load)
+	else --else plays a dry sound
 		animator.playSound("dry")
 		if not animation:isAnyPlaying() then
 			animation:play(self.animations.shoot_null)
@@ -158,6 +136,7 @@ function weapon:fire()
 	end
 end
 
+--removes ammo from mags
 function weapon:eject_ammo()
 	if self.load then
 		if not self.load.parameters.fired then
@@ -182,15 +161,18 @@ function weapon:eject_ammo()
 	end
 end
 
+--loads ammo into mag
 function weapon:load_ammo()
 	self.load = magazine:take()
 	activeItem.setInstanceValue("gunLoad", self.load)
 end
 
+--check if chamber is dry
 function weapon:isDry()
 	return (not self.load and magazine:count() == 0)
 end
 
+--use for people who rely on auto reload
 function weapon:shouldAutoReload()
 	if not self.global.autoReload then
 		return false
@@ -208,8 +190,56 @@ function weapon:shouldAutoReload()
 	return true and self.global.autoReload
 end
 
+
+
+--framework api callback--
+
+function weapon:init()
+	message.setHandler("isLocal", function(_, loc) return loc end )
+	activeItem.setScriptedAnimationParameter("entityID", activeItem.ownerEntityId())
+	activeItem.setCursor("/gunsbound/crosshair/crosshair2.cursor")
+
+	self.fireSounds = config.getParameter("fireSounds",jarray())
+	for i,v in pairs(self.fireSounds) do
+		self.fireSounds[i] = processDirectory(v)
+	end
+
+	self.stats = config.getParameter("gunStats")
+	self.load = config.getParameter("gunLoad")
+	self.burstDelay = config.getParameter("burstCooldown", 0.4)
+	self.fireTypes = config.getParameter("fireTypes")
+	self.animations = config.getParameter("gunAnimations")
+	self.bypassShellEject = config.getParameter("bypassShellEject", false)
+
+	animator.setSoundPool("fireSounds", self.fireSounds)
+	animation:addEvent("eject_ammo", function() weapon:eject_ammo() end)
+	animation:addEvent("load_ammo", function() weapon:load_ammo() end)
+	animation:addEvent("reload_loop", function() weapon.reloadLoop = true end)
+	animation:addEvent("reloadLoop", function() weapon.reloadLoop = true end)
+end
+
+function weapon:lateinit()
+	if weapon:isDry() and self.animations["draw_dry"] then
+		animation:play(self.animations["draw_dry"])
+	else
+		animation:play(self.animations.draw or "draw")
+	end
+end
+
+function weapon:activate(fireMode, shiftHeld)
+	if shiftHeld and fireMode == "alt" then
+		self.fireSelect = self.fireSelect + 1
+		animator.playSound("dry")
+		if #self.fireTypes < self.fireSelect then
+			self.fireSelect = 1
+		end
+	end
+end
+
+
 function weapon:update(dt)
 
+	--reload when the gun chamber is dry
 	if (updateInfo.shiftHeld and updateInfo.moves.up and not self.reloadLoop and not animation:isAnyPlaying())
 		or (self:shouldAutoReload() and not animation:isAnyPlaying() and not self.reloadLoop and magazine:playerHasAmmo() and self.delay == 0) then
 		if weapon:isDry() and self.animations["reload_dry"] then
@@ -219,6 +249,7 @@ function weapon:update(dt)
 		end
 	end
 	
+	--afterfire when no bullet are present in the magazine or ammo storage
 	if (not updateInfo.shiftHeld and updateInfo.moves.up and not self.reloadLoop and not animation:isAnyPlaying())
 		or ((not self.load or self.load.parameters.fired) and magazine:count() > 0 and not self.reloadLoop and not animation:isAnyPlaying() and self.global.autoReload and self.delay == 0) then
 		if not self.load and self.animations["cock_dry"] then
@@ -228,6 +259,7 @@ function weapon:update(dt)
 		end
 	end
 	
+	--Used in shotgun or single bullet loading type
 	if (self.reloadLoop and not animation:isAnyPlaying() and magazine:count() < weapon.stats.maxMagazine and magazine:playerHasAmmo()) then
 		if weapon:isDry() and self.animations["reloadLoop_dry"] then
 			animation:play(self.animations["reloadLoop_dry"])
@@ -243,18 +275,22 @@ function weapon:update(dt)
 		self.reloadLoop = false
 	end
 	
+
+	-- FIRING --
+
+	--auto fire
 	if updateInfo.fireMode == "primary" and self.fireTypes[self.fireSelect] == "auto" and (not animation:isAnyPlaying() or animation:isPlaying({self.animations.shoot, self.animations["shoot_dry"]})) and self.delay <= 0 then
 		self:fire()
 	end
-	
+	--semi fire
 	if updateInfo.fireMode == "primary" and updateLast.fireMode ~= "primary" and self.fireTypes[self.fireSelect] == "semi" and (not animation:isAnyPlaying() or animation:isPlaying({self.animations.shoot, self.animations["shoot_dry"]})) and self.delay <= 0 then
 		self:fire()
 	end
-	
+
+	--burst fire
 	if updateInfo.fireMode == "primary" and self.fireTypes[self.fireSelect] == "burst" and self.burstCount <= 0 and self.delay <= 0 then
 		self.burstCount = self.stats.burst or 3
 	end
-	
 	if self.delay == 0 and self.burstCount > 0 then
 		self:fire()
 		self.burstCount = self.burstCount - 1
@@ -262,11 +298,13 @@ function weapon:update(dt)
 			self.delay = self.burstDelay
 		end
 	end
-	
+
+	--
+
 	--camerasystem
 	local distance = world.distance(activeItem.ownerAimPosition(), mcontroller.position())
 	camera.target = vec2.add({distance[1] * util.clamp(self.stats.aimLookRatio, 0, 0.5),distance[2] * util.clamp(self.stats.aimLookRatio, 0, 0.5)}, self.recoilCamera)
-	camera.smooth = 4
+	camera.smooth = 8
 	self.recoilCamera = {self:lerp(self.recoilCamera[1],0,self.stats.recoilRecovery),self:lerp(self.recoilCamera[2],0,self.stats.recoilRecovery)}
 	self.recoil = self:lerp(self.recoil, 0, self.stats.recoilRecovery + self.delay)
 	
@@ -281,7 +319,9 @@ function weapon:update(dt)
 		self.hasToLoad = false
 		weapon:load_ammo()
 	end
+
 	weapon:debug(dt)
+
 end
 
 function weapon:uninit()
