@@ -240,8 +240,9 @@ end
 function weapon:update(dt)
 
 	--reload when the gun chamber is dry
-	if (updateInfo.shiftHeld and updateInfo.moves.up and not self.reloadLoop and not animation:isAnyPlaying())
-		or (self:shouldAutoReload() and not animation:isAnyPlaying() and not self.reloadLoop and magazine:playerHasAmmo() and self.delay == 0) then
+	if (updateInfo.shiftHeld and updateInfo.moves.up and not self.reloadLoop and not animation:isAnyPlaying() and magazine:playerHasAmmo()) or 
+	   (self:shouldAutoReload() and not animation:isAnyPlaying() and not self.reloadLoop and magazine:playerHasAmmo() and self.delay == 0) then
+		
 		if weapon:isDry() and self.animations["reload_dry"] then
 			animation:play(self.animations["reload_dry"])
 		else
