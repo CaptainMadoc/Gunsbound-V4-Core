@@ -1,19 +1,33 @@
 weapon = {
+	global = {autoReload = true},
+
 	recoil = 0,
 	recoilCamera = {0,0},
-
 	delay = 0.5,
-	burstDelay = 0.4,
 
-	stats = {},
-	global = {autoReload = true},
+	burstDelay = 0.4,
+	stats = {
+		damageMultiplier = 2,
+		maxMagazine = 30,
+		aimLookRatio = 0.125,
+		burst = 3,
+		recoil = 4,
+		recoilRecovery = 2,
+		movingInaccuracy = 5,
+		standingInaccuracy = 1,
+		crouchInaccuracyMultiplier = 0.25,
+		muzzleFlash = 1,
+		rpm = 600
+	},
 
 	load = nil,
 	animations = {}, --animation Names
+
 	reloadLoop = false,
 	burstCount = 0,
 	fireSelect = 1,
-	bypassShellEject = false
+	bypassShellEject = false,
+	casingFX = true,
 }
 
 --why 2
@@ -136,13 +150,12 @@ function weapon:fire()
 	end
 end
 
---removes ammo from mags
+--removes ammo from chamber
 function weapon:eject_ammo()
 	if self.load then
 		if not self.load.parameters.fired then
 			player.giveItem(self.load)
-		elseif self.load.parameters.casingProjectile then
-			
+		elseif self.load.parameters.casingProjectile and self.casingFX then
 			world.spawnProjectile(
 				self.load.parameters.casingProjectile, 
 				self:casingPosition(), 
@@ -204,12 +217,15 @@ function weapon:init()
 		self.fireSounds[i] = processDirectory(v)
 	end
 
-	self.stats = config.getParameter("gunStats")
+	local defStats = copycat(self.stats)
+	self.stats = default(config.getParameter("gunStats", self.stats), defStats)
+
 	self.load = config.getParameter("gunLoad")
-	self.burstDelay = config.getParameter("burstCooldown", 0.4)
-	self.fireTypes = config.getParameter("fireTypes")
+	self.burstDelay = config.getParameter("burstCooldown", self.burstDelay)
+	self.fireTypes = config.getParameter("fireTypes", self.fireTypes)
 	self.animations = config.getParameter("gunAnimations")
-	self.bypassShellEject = config.getParameter("bypassShellEject", false)
+	self.bypassShellEject = config.getParameter("bypassShellEject", self.bypassShellEject)
+	self.casingFX = config.getParameter("casingFX", self.casingFX)
 
 	animator.setSoundPool("fireSounds", self.fireSounds)
 	animation:addEvent("eject_ammo", function() weapon:eject_ammo() end)

@@ -114,6 +114,24 @@ function projectileAngle(at) --Aim angle imported from chucklefish weapons, {1 ,
 	return aimVector
 end
 
+function default(val,defs)
+	local t = type(val)
+	if t ~= "nil" then
+		if t == "table" then
+			for i,v in pairs(defs) do
+				if not val[i] then
+					val[i] = v
+				end
+			end
+			return val
+		else
+			return val
+		end
+	else
+		return defs
+	end
+end
+
 function copycat(var)
 	if type(var) == "table" then
 		local newtab = {}
