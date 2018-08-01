@@ -327,7 +327,7 @@ function weapon:update(dt)
 	
 	--aiming system
 	local angle, dir = activeItem.aimAngleAndDirection(0, vec2.add(activeItem.ownerAimPosition(), vec2.div(mcontroller.velocity(), 28)))
-	aim.target = math.deg(angle)
+	aim.target = math.deg(angle) + self.recoil * 3
 	aim.dir = dir
 	
 	--timers
