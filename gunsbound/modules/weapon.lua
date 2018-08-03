@@ -162,7 +162,7 @@ function weapon:eject_ammo()
 				activeItem.ownerEntityId(), 
 				vec2.rotate({0,1}, math.rad(math.random(90) - 45)), 
 				false,
-				self.load.parameters.casingProjectileConfig or {}
+				self.load.parameters.casingProjectileConfig or {speed = 10}
 			)
 		end
 		self.load = nil
