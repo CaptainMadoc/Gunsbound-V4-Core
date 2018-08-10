@@ -81,7 +81,7 @@ function animation:play(str)
 
 	if not self.list[str] then return end
 	if not self.list[str].keyFrames then sb.logWarn("keyFrames is nil") return end
-	if #self.list[str].keyFrames == 0 then sb.logWarn("keyFrames contains nothing") return end
+	if #self.list[str].keyFrames == 0 then  return end
 
 	if self.list[str].playing then self:skip(str) end --Skip since its already playing
 

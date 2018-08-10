@@ -96,7 +96,7 @@ function weapon:fire()
 
 		local newConfig = root.itemConfig({name = self.load.name, count = 1, parameters = self.load.parameters})
 		
-		if not newConfig then weapon:eject_ammo() return end
+		if not newConfig then self:eject_ammo() return end
 
 		self.load.parameters = sb.jsonMerge(newConfig.config, newConfig.parameters)
 
@@ -119,7 +119,7 @@ function weapon:fire()
 		
 		--used by action lever style
 		if not self.bypassShellEject then
-			weapon:eject_ammo()
+			self:eject_ammo()
 			self.hasToLoad = true
 		end
 		
@@ -136,7 +136,7 @@ function weapon:fire()
 		end
 
 		animator.playSound("fireSounds")
-		self.delay = weapon:calculateRPM(self.stats.rpm or 600)
+		self.delay = self:calculateRPM(self.stats.rpm or 600)
 		self.recoil = self.recoil + self.stats.recoil
 		self.recoilCamera = {math.sin(math.rad(self.recoil * 80)) * ((self.recoil / 5) ^ 1.25), self.recoil / 2}
 
@@ -146,7 +146,7 @@ function weapon:fire()
 		if not animation:isAnyPlaying() then
 			animation:play(self.animations.shoot_null)
 		end
-		self.delay = weapon:calculateRPM(self.stats.rpm or 600)
+		self.delay = self:calculateRPM(self.stats.rpm or 600)
 	end
 end
 
@@ -162,7 +162,7 @@ function weapon:eject_ammo()
 				activeItem.ownerEntityId(), 
 				vec2.rotate({0,1}, math.rad(math.random(90) - 45)), 
 				false,
-				self.load.parameters.casingProjectileConfig or {speed = 10}
+				self.load.parameters.casingProjectileConfig or {speed = 10, timeToLive = 1}
 			)
 		end
 		self.load = nil
@@ -259,7 +259,7 @@ function weapon:update(dt)
 	if (updateInfo.shiftHeld and updateInfo.moves.up and not self.reloadLoop and not animation:isAnyPlaying() and magazine:playerHasAmmo()) or 
 	   (self:shouldAutoReload() and not animation:isAnyPlaying() and not self.reloadLoop and magazine:playerHasAmmo() and self.delay == 0) then
 		
-		if weapon:isDry() and self.animations["reload_dry"] then
+		if self:isDry() and self.animations["reload_dry"] then
 			animation:play(self.animations["reload_dry"])
 		else
 			animation:play(self.animations.reload)
@@ -337,7 +337,7 @@ function weapon:update(dt)
 		weapon:load_ammo()
 	end
 
-	weapon:debug(dt)
+	self:debug(dt)
 
 end
 
