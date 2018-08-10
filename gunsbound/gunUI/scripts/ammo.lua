@@ -9,7 +9,7 @@ module = {
     fireSelect = "semi",
     position = {1,-1},
     direction = -1,
-
+    ownerPosition = {0,0},
     mag1 = 0,
 }
 
@@ -23,6 +23,7 @@ function module:refreshData()
     self.rotatingMagazine = animationConfig.animationParameter("rotatingMagazine")
     self.fireSelect = animationConfig.animationParameter("fireSelect")
     self.uiShell = "/gunsbound/ui/ammo.png"
+    self.ownerPosition = activeItemAnimation.ownerPosition()
 end
 
 function module:init()
@@ -34,17 +35,17 @@ function module:update(dt)
 
 
     if self["fireSelect"] then
-        local offset = {-1.5,-2}
+        local offset = {-1.5,-6}
         local directive = ""
 		if self["althanded"] then
-            offset = {1.5,-2}
+            offset = {1.5,-6}
             directive = "?flipx"
             self.direction = 1
 		end
 		localAnimator.addDrawable(
             {
                 image = lp(self["fireSelect"]..".png"..directive),
-                position = vec2.add( vec2.add(activeItemAnimation.ownerPosition(), {0, -4}), offset ),
+                position = vec2.add( self.ownerPosition, offset ),
                 fullbright = true
             },
             "overlay"
@@ -70,33 +71,37 @@ function module:drawMag()
     end
 
     self.mag1 = lerp(self.mag1, countedAmmo, 0.125)
-    
     localAnimator.addDrawable(
         {
             line = {
-                vec2.add(activeItemAnimation.ownerPosition(), {(2.25)  * self.direction , -5}),
-                vec2.add(activeItemAnimation.ownerPosition(), {(2.25 + (8 * (self.mag1 / self.maxMagazine))) * self.direction, -5})
+                {(2.25)  * self.direction , -5},
+                {(2.25 + (8 * (self.mag1 / self.maxMagazine))) * self.direction, -5}
             },
+            position = self.ownerPosition,
             width = 2,
-            color = {255,255,255},
+            color = {255,255,255,255},
             fullbright = true
         },
         "overlay"
     )
 
     if self["load"] == "table" then
+        local chambercolor = {255,255,255}
+        if  self["fired"] then chambercolor = {255,0,0} end
+
         localAnimator.addDrawable(
-        {
-            line = {
-                vec2.add(activeItemAnimation.ownerPosition(), {(1)  * self.direction , -5}),
-                vec2.add(activeItemAnimation.ownerPosition(), {(2) * self.direction, -5})
+            {
+                line = {
+                    {(1)  * self.direction , -5},
+                    {(2) * self.direction, -5}
+                },
+                position = self.ownerPosition,
+                width = 2,
+                color = chambercolor,
+                fullbright = true
             },
-            width = 2,
-            color = {255,255,255},
-            fullbright = true
-        },
-        "overlay"
-    )
+            "overlay"
+        )
     end
 
 end
@@ -117,8 +122,6 @@ function module:drawMagR()
 
 
         local color = {255,255,255}
-        world.debugText(sb.print(self.magazine), activeItemAnimation.ownerPosition(), "green")
-
         if not self.magazine[i] and i ~= self.selected or i == self.selected and self["load"] ~= "table" then
             color = {0,0,0}
         elseif  self.magazine[i] and self.magazine[i].parameters and self.magazine[i].parameters.fired or i == self.selected and self["fired"] then
@@ -129,9 +132,10 @@ function module:drawMagR()
             lines,
             {
                 line = {
-                    vec2.add(activeItemAnimation.ownerPosition(),vec2.add( vec2.rotate(a,ang), {3 *self.direction, -5})),
-                    vec2.add(activeItemAnimation.ownerPosition(),vec2.add( vec2.rotate(b,ang), {3 *self.direction, -5}))
+                    vec2.add( vec2.rotate(a,ang), {3 *self.direction, -5}),
+                    vec2.add( vec2.rotate(b,ang), {3 *self.direction, -5})
                 },
+                position = self.ownerPosition,
                 width = 2,
                 color = color,
                 fullbright = true
