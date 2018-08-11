@@ -6,19 +6,6 @@ attachment = {
 	special = nil
 }
 
-function attachment:loadmodule(script)
-	if not self.loadedScripts[script] then
-		require(script)
-	end
-	if module then
-		self.loadedScripts[script] = module
-		module = nil
-	end
-	if self.loadedScripts[script] then
-		return self.loadedScripts[script]
-	end
-end
-
 function attachment:activate(fireMode, shiftHeld)
 	if fireMode == "alt" and not shiftHeld then
 		if self.special and self.modules[self.special] and self.modules[self.special].fireSpecial then

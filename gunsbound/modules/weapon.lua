@@ -23,6 +23,9 @@ weapon = {
 	load = nil,
 	animations = {}, --animation Names
 
+	muzzlePosition = {part = "gun", tag = "muzzle_begin", tag_end = "muzzle_end"},
+	--casing = {},
+
 	reloadLoop = false,
 	burstCount = 0,
 	fireSelect = 1,
@@ -36,10 +39,9 @@ function weapon:lerpr(value, to, ratio) return value + ((to - value ) * ratio ) 
 
 --eject casing
 function weapon:casingPosition()
-	local casingConfig = config.getParameter("casing")
 	local offset = {0,0}
-	if casingConfig then
-		offset = animator.partPoint(casingConfig.part, casingConfig.tag)
+	if self.casingConfig then
+		offset = animator.partPoint(self.casingConfig.part, self.casingConfig.tag)
 	end
 	return vec2.add(mcontroller.position(), activeItem.handPosition(offset))
 end
@@ -51,15 +53,12 @@ end
 
 --bug repellent
 function weapon:debug(dt)
-	world.debugPoint(self:rel(animator.partPoint("gun", "muzzle_begin")), "green")
-	world.debugPoint(self:rel(animator.partPoint("gun", "muzzle_end")), "red")
-	world.debugLine(self:rel(animator.partPoint("gun", "muzzle_begin")),self:rel(weapon:calculateInAccuracy(animator.partPoint("gun", "muzzle_end"))), "red")
+	world.debugPoint(self:rel(animator.partPoint(self.muzzlePosition.part, self.muzzlePosition.tag)), "green")
+	world.debugPoint(self:rel(animator.partPoint(self.muzzlePosition.part, self.muzzlePosition.tag_end)), "red")
+	world.debugPoint(weapon:casingPosition(), "yellow")
+	world.debugLine(self:rel(animator.partPoint(self.muzzlePosition.part, self.muzzlePosition.tag)),self:rel(weapon:calculateInAccuracy(animator.partPoint(self.muzzlePosition.part, self.muzzlePosition.tag_end))), "red")
 end
 
---Angle from muzzle parttag
-function weapon:angle()
-	return vec2.sub(self:rel(animator.partPoint("gun", "muzzle_end")),self:rel(animator.partPoint("gun", "muzzle_begin")))
-end
 
 --
 function weapon:calculateRPM(r)
@@ -75,6 +74,11 @@ function weapon:getInAccuracy()
 	local velocity = whichhigh(math.abs(mcontroller.xVelocity()), math.abs(mcontroller.yVelocity() + 1.28))
 	local percent = math.min(velocity / 14, 1)
 	return self:lerpr(self.stats.standingInaccuracy, self.stats.movingInaccuracy, percent) * crouchMult
+end
+
+--Angle from muzzle parttag
+function weapon:angle()
+	return vec2.sub(self:rel(animator.partPoint(self.muzzlePosition.part, self.muzzlePosition.tag_end)),self:rel(animator.partPoint(self.muzzlePosition.part, self.muzzlePosition.tag)))
 end
 
 --angle calculation thingthatdoesthings
@@ -108,7 +112,7 @@ function weapon:fire()
 		for i=1,self.load.parameters.projectileCount or 1 do
 			world.spawnProjectile(
 				self.load.parameters.projectile or "bullet-4", 
-				self:rel(animator.partPoint("gun", "muzzle_begin")), 
+				self:rel(animator.partPoint(self.muzzlePosition.part, self.muzzlePosition.tag)), 
 				activeItem.ownerEntityId(), 
 				self:calculateInAccuracy(self:angle()), 
 				false,
@@ -226,6 +230,8 @@ function weapon:init()
 	self.animations = config.getParameter("gunAnimations")
 	self.bypassShellEject = config.getParameter("bypassShellEject", self.bypassShellEject)
 	self.casingFX = config.getParameter("casingFX", self.casingFX)
+	self.muzzlePosition = config.getParameter("muzzlePosition", self.muzzlePosition)
+	self.casingConfig = config.getParameter("casing")
 
 	animator.setSoundPool("fireSounds", self.fireSounds)
 	animation:addEvent("eject_ammo", function() weapon:eject_ammo() end)
