@@ -60,6 +60,22 @@ function animation:initTF()
 	self.from = copycat(transforms.original)
 end
 
+function animation:validate(k)
+	local newkf = {}
+	for i,frame in ipairs(k) do
+		table.insert(newkf, {
+			transforms = frame.transforms or {},
+			playSounds = frame.playSounds or jarray(),
+			animationState = frame.animationState or {},
+			burstParticle = frame.burstParticle or jarray(),
+			lights = frame.lights or {},
+			fireEvents = frame.fireEvents or jarray(),
+			wait = frame.wait or 0.1,
+		})
+	end
+	return newkf
+end
+
 function animation:add(name, keyFrames, delete)
 	self.list[name] = {
 		playing = false,
@@ -67,7 +83,7 @@ function animation:add(name, keyFrames, delete)
 		current = 1,
 		waiting = 0,
 		deleteOnFinished = delete,
-		keyFrames = keyFrames
+		keyFrames = self:validate(keyFrames)
 	}
 end	
 
@@ -114,6 +130,7 @@ end
 
 function animation:addEvent(str,func)
 	self.events[str] = func
+	sb.logInfo("new animation event: "..str)
 end
 
 function animation:fireEvent(str)
@@ -125,7 +142,7 @@ end
 function animation:applykeyFrames(key,timing,force)
 	self.transforms = {}
 	if not key then return end
-	for transformName,transform in pairs(key.transforms) do
+	for transformName,transform in pairs(key.transforms or {}) do
 		if not self.transforms[transformName] then self.transforms[transformName] = {} end
 		for property, value in pairs(transform) do
 			self.transforms[transformName][property] = value
@@ -133,9 +150,9 @@ function animation:applykeyFrames(key,timing,force)
 	end
 
 	if force then
-		self:forceTransforms(copycat(key.transforms), timing)
+		self:forceTransforms(copycat(key.transforms or {}) , timing)
 	else
-		self:interpolateTransforms(copycat(key.transforms), timing)
+		self:interpolateTransforms(copycat(key.transforms or {}), timing)
 	end
 	
 	for i,v in pairs(key.playSounds or {}) do
@@ -207,6 +224,9 @@ function animation:init()
 	message.setHandler("setTransforms", function(_, loc, tr) if loc then self:forceTransforms(tr, 0) end end)
 end
 
+function animation:lateinit()
+end
+
 function animation:update(dt)
 	for str,v in pairs(self.list) do
 		if v.playing then
@@ -249,7 +269,7 @@ function animation:update(dt)
 		
 		if self.to[i] then
 			self.current[i].time = math.min(self.current[i].time + dt, self.to[i].time)
-			local timeRatio = (self.current[i].time / self.to[i].time) ^ (self.to[i].curve or 0)
+			local timeRatio = (self.current[i].time / self.to[i].time) ^ (self.to[i].curve or 1)
 			for property, value in pairs(v) do
 				if property ~= "time" and property ~= "curve" and self.from[i][property] then
 					if not self.to[i][property] then

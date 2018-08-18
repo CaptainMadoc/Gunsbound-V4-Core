@@ -138,6 +138,7 @@ function copycat(var)
 		for i,v in pairs(var) do
 			newtab[i] = copycat(v)
 		end
+		setmetatable(newtab, getmetatable(var))
 		return newtab
 	else
 		return var
