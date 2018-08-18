@@ -193,9 +193,11 @@ end
 
 function animation:init()
 	local ani = config.getParameter("animationsKeyFrames", {})
+	
 	if type(ani) == "string" then
 		ani = root.assetJson(pD(ani), {})
 	end
+
 	for i,v in pairs(ani) do
 		self:add(i,v)
 	end
