@@ -26,6 +26,7 @@ weapon = {
 	muzzlePosition = {part = "gun", tag = "muzzle_begin", tag_end = "muzzle_end"},
 	--casing = {},
 
+	reloadInterrupt = false,
 	reloadLoop = false,
 	burstCount = 0,
 	fireSelect = 1,
@@ -55,8 +56,8 @@ end
 function weapon:debug(dt)
 	world.debugPoint(self:rel(animator.partPoint(self.muzzlePosition.part, self.muzzlePosition.tag)), "green")
 	world.debugPoint(self:rel(animator.partPoint(self.muzzlePosition.part, self.muzzlePosition.tag_end)), "red")
-	world.debugPoint(weapon:casingPosition(), "yellow")
-	world.debugLine(self:rel(animator.partPoint(self.muzzlePosition.part, self.muzzlePosition.tag)),self:rel(weapon:calculateInAccuracy(animator.partPoint(self.muzzlePosition.part, self.muzzlePosition.tag_end))), "red")
+	world.debugPoint(self:casingPosition(), "yellow")
+	world.debugLine(self:rel(animator.partPoint(self.muzzlePosition.part, self.muzzlePosition.tag)),self:rel(self:calculateInAccuracy(animator.partPoint(self.muzzlePosition.part, self.muzzlePosition.tag_end))), "red")
 end
 
 
@@ -142,7 +143,7 @@ function weapon:fire()
 		animator.playSound("fireSounds")
 		self.delay = self:calculateRPM(self.stats.rpm or 600)
 		self.recoil = self.recoil + self.stats.recoil
-		self.recoilCamera = {math.sin(math.rad(self.recoil * 80)) * ((self.recoil / 5) ^ 1.25), self.recoil / 2}
+		self.recoilCamera = {math.sin(math.rad(self.recoil * 80)) * ((self.recoil / 8) ^ 1.25), self.recoil / 8}
 
 		activeItem.setInstanceValue("gunLoad", self.load)
 	else --else plays a dry sound
@@ -234,10 +235,10 @@ function weapon:init()
 	self.casingConfig = config.getParameter("casing")
 
 	animator.setSoundPool("fireSounds", self.fireSounds)
-	animation:addEvent("eject_ammo", function() weapon:eject_ammo() end)
-	animation:addEvent("load_ammo", function() weapon:load_ammo() end)
-	animation:addEvent("reload_loop", function() weapon.reloadLoop = true end)
-	animation:addEvent("reloadLoop", function() weapon.reloadLoop = true end)
+	animation:addEvent("eject_ammo", function() self:eject_ammo() end)
+	animation:addEvent("load_ammo", function() self:load_ammo() end)
+	animation:addEvent("reload_loop", function() self.reloadLoop = true end)
+	animation:addEvent("reloadLoop", function() self.reloadLoop = true end)
 end
 
 function weapon:lateinit()
@@ -283,31 +284,40 @@ function weapon:update(dt)
 	end
 	
 	--Used in shotgun or single bullet loading type
-	if (self.reloadLoop and not animation:isAnyPlaying() and magazine:count() < weapon.stats.maxMagazine and magazine:playerHasAmmo()) then
-		if weapon:isDry() and self.animations["reloadLoop_dry"] then
+	if (self.reloadLoop and not animation:isAnyPlaying() and magazine:count() < weapon.stats.maxMagazine and magazine:playerHasAmmo()) and not self.reloadInterrupt then
+		if self:isDry() and self.animations["reloadLoop_dry"] then
 			animation:play(self.animations["reloadLoop_dry"])
 		else
 			animation:play(self.animations.reloadLoop)
 		end
 	elseif self.reloadLoop and not animation:isAnyPlaying() then
-		if weapon:isDry() and self.animations["reloadEnd_dry"] then
+		if self:isDry() and self.animations["reloadEnd_dry"] then
 			animation:play(self.animations["reloadEnd_dry"])
 		else
 			animation:play(self.animations.reloadEnd)
 		end
 		self.reloadLoop = false
+		self.reloadInterrupt = false
 	end
 	
 
 	-- FIRING --
+
+	--reloadloop interrupt
+	if updateInfo.fireMode == "primary" and self.reloadLoop and not self.reloadInterrupt then
+		self.reloadInterrupt = true
+	end
 
 	--auto fire
 	if updateInfo.fireMode == "primary" and self.fireTypes[self.fireSelect] == "auto" and (not animation:isAnyPlaying() or animation:isPlaying({self.animations.shoot, self.animations["shoot_dry"]})) and self.delay <= 0 then
 		self:fire()
 	end
 	--semi fire
-	if updateInfo.fireMode == "primary" and updateLast.fireMode ~= "primary" and self.fireTypes[self.fireSelect] == "semi" and (not animation:isAnyPlaying() or animation:isPlaying({self.animations.shoot, self.animations["shoot_dry"]})) and self.delay <= 0 then
+	if updateInfo.fireMode == "primary" and self.fireTypes[self.fireSelect] == "semi" and not self.semiDebounce and (not animation:isAnyPlaying() or animation:isPlaying({self.animations.shoot, self.animations["shoot_dry"]})) and self.delay <= 0 then
 		self:fire()
+		self.semiDebounce = true
+	elseif self.semiDebounce and updateInfo.fireMode ~= "primary" then --2018 improved semi resposiveness
+		self.semiDebounce = false
 	end
 
 	--burst fire
@@ -340,7 +350,7 @@ function weapon:update(dt)
 	self.delay = math.max(self.delay - dt, 0)
 	if self.delay == 0 and self.hasToLoad then
 		self.hasToLoad = false
-		weapon:load_ammo()
+		self:load_ammo()
 	end
 
 	self:debug(dt)
