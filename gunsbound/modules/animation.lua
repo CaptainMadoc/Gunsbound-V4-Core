@@ -201,43 +201,6 @@ function animation:init()
 	for i,v in pairs(ani) do
 		self:add(i,v)
 	end
-	
-	local configanimation = config.getParameter("animation")
-	local animations = {}
-	
-	if configanimation then
-		animations = root.assetJson(itemDir(configanimation), {})
-	end
-	local animationCustom = config.getParameter("animationCustom", {})
-	local animationTranformationGroup = sb.jsonMerge(animationCustom, animations).transformationGroups or {} 
-	
-	for i,v in pairs(animationTranformationGroup) do
-		if not v.ignore then
-			local newtrans = {position = {0,0}, scale = {1,1}, scalePoint = {0,0}, rotation = 0, rotationPoint = {0,0}}
-			if v.transform then
-				newtrans = sb.jsonMerge(newtrans, v.transform)
-			end
-			transforms:add(i, newtrans,
-				function(name,thisTransform, dt) 
-					if animator.hasTransformationGroup(name) then --Check to prevent crashing
-						local setting  = transforms.calculateTransform({
-							position = thisTransform.position or {0,0},
-							scale = thisTransform.scale or {1,1},
-							scalePoint = thisTransform.scalePoint or {0,0},
-							rotation = thisTransform.rotation or 0,
-							rotationPoint = thisTransform.rotationPoint or {0,0}
-						})
-						
-						animator.resetTransformationGroup(name) 
-						animator.scaleTransformationGroup(name, setting.scale, setting.scalePoint)
-						animator.rotateTransformationGroup(name, util.toRadians(setting.rotation), setting.rotationPoint)
-						animator.translateTransformationGroup(name, setting.position)
-					end
-				end
-			)
-		end
-	end
-
 
 	message.setHandler("play", function(_, loc, tr) if loc then self:play(tr) end end)
 	message.setHandler("isAnyPlaying", function(_, loc) if loc then return self:isAnyPlaying() end end)
