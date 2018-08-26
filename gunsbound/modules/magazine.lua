@@ -1,5 +1,6 @@
 magazine = {
 	type = "normal",
+	size = 30,
 	storage = {
 	}
 }
@@ -17,7 +18,7 @@ function magazine:insert(co)
 		compat = processDirectory(compat)
 	end
 	if not co then
-		co = weapon.stats.maxMagazine - self:count()
+		co = self.size - self:count()
 	end
 	for i,v in pairs(self:processCompatible(compat)) do
 		if co > 0 then
@@ -86,7 +87,7 @@ function magazine:lateinit()
 	animation:addEvent("insert_mag", function() magazine:insert() end)
 	animation:addEvent("insert_bullet", function() magazine:insert(1) end)
 	animation:addEvent("remove_mag", function() magazine:remove() end)
-	if self:count() > weapon.stats.maxMagazine then
+	if self:count() > self.size then
 		self:remove()
 	end
 end
@@ -109,7 +110,7 @@ end
 function magazine:update(dt)
 	activeItem.setScriptedAnimationParameter("magazine", self.storage)
 	activeItem.setScriptedAnimationParameter("magazineType", self.type)
-	activeItem.setScriptedAnimationParameter("maxMagazine", weapon.stats.maxMagazine or 30)
+	activeItem.setScriptedAnimationParameter("maxMagazine", self.size or 30)
 end
 
 function magazine:uninit()

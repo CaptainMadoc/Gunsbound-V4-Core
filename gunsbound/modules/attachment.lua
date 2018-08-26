@@ -56,6 +56,10 @@ function attachment:createTransform(namee, offset, scale, attachPart, gunTag, gu
 	transforms:lateAdd(namee, {}, somenewTransform)
 end
 
+function attachment:rel(pos)
+	return
+end
+
 function attachment:lateinit() --item check
 	local attachmentsConfig = root.itemConfig({name = item.name(), count = 1}).config.attachments -- original attachment config from weapon
 

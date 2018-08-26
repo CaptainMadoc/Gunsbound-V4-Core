@@ -60,7 +60,6 @@ function weapon:debug(dt)
 	world.debugLine(self:rel(animator.partPoint(self.muzzlePosition.part, self.muzzlePosition.tag)),self:rel(self:calculateInAccuracy(animator.partPoint(self.muzzlePosition.part, self.muzzlePosition.tag_end))), "red")
 end
 
-
 --
 function weapon:calculateRPM(r)
 	return 60 / r

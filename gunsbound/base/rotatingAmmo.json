@@ -10,6 +10,7 @@
 	"/gunsbound/modules/arms.lua",
 	"/gunsbound/modules/transforms.lua",
 	"/gunsbound/modules/animation.lua",
+	"/gunsbound/modules/timers.lua",
 	
 	"/gunsbound/modules/portraitprocessor.lua",
 	"/gunsbound/modules/flashlightmanager.lua",
