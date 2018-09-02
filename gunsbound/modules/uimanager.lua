@@ -13,13 +13,13 @@ end
 
 function uimanager:update(dt)
 	
-	activeItem.setScriptedAnimationParameter("load", type(weapon.load))
+	activeItem.setScriptedAnimationParameter("load", type(data.gunLoad))
 	
 	
 	--to fix
 	local t = false
 	
-	if weapon.load and weapon.load.parameters.fired then
+	if data.gunLoad and data.gunLoad.parameters.fired then
 		t = true
 		activeItem.setScriptedAnimationParameter("fired", true)
 	end
@@ -28,10 +28,10 @@ function uimanager:update(dt)
 		activeItem.setScriptedAnimationParameter("fired", false)
 	end
 	
-	activeItem.setScriptedAnimationParameter("fireSelect",  weapon.fireTypes[weapon.fireSelect])
-	activeItem.setScriptedAnimationParameter("inAccuracy",  weapon:getInAccuracy())
+	activeItem.setScriptedAnimationParameter("fireSelect",  data.fireTypes[gun.fireMode])
+	activeItem.setScriptedAnimationParameter("inAccuracy",  gun:inaccuracy())
 	activeItem.setScriptedAnimationParameter("althanded",  activeItem.hand() == "alt")
-	activeItem.setScriptedAnimationParameter("muzzleDistance",  world.distance(activeItem.ownerAimPosition(),weapon:rel(animator.partPoint("gun", "muzzle_begin"))))
+	activeItem.setScriptedAnimationParameter("muzzleDistance",  world.distance(activeItem.ownerAimPosition(),gun:rel(animator.partPoint("gun", "muzzle_begin"))))
 
 end
 

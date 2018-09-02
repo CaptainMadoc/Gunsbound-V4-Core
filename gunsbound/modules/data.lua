@@ -5,8 +5,11 @@ datamanager = {
     }
 }
 
-function datamanager:load(name, autosave)
+function datamanager:load(name, autosave, tabdef)
     data[name] = config.getParameter(name)
+    if tabdef then
+        data[name] = sb.jsonMerge(tabdef, data[name])
+    end
     if autosave then
         table.insert(self.savelist, name)
     end

@@ -173,7 +173,6 @@ function weapon:eject_ammo()
 		activeItem.setInstanceValue("gunLoad", self.load)
 	end
 	if magazine:count() == 0 then
-		
 		animation:play(self.animations.dry)
 	end
 end

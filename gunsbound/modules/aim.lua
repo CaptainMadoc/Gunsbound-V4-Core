@@ -1,7 +1,7 @@
 aim = {
 	current = 0,
 	target = 0,
-	dir = 1,
+	direction = 1,
 	disabled = false,
 	anglesmooth = 1,
 	armoffset = 0
@@ -23,7 +23,7 @@ function aim:update(dt)
 	end
 	self.current = self:lerp(self.current, self.target, math.max(self.anglesmooth / (dt * 60), 1)) --smoothing aim
 	activeItem.setArmAngle(math.rad(self.current + self.armoffset)) --applies aiming
-	activeItem.setFacingDirection(self.dir)
+	activeItem.setFacingDirection(self.direction)
 end
 
 addClass("aim", 500)

@@ -1,5 +1,5 @@
 [
-	"/gunsbound/modules/weapon.lua",
+	"/gunsbound/modules/gun.lua",
 	"/gunsbound/modules/attachment.lua",
 	"/gunsbound/modules/magazine.lua",
 	"/gunsbound/modules/camera.lua",
