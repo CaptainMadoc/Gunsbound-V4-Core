@@ -8,7 +8,7 @@ function main:init()
 end
 
 function main:fire()
-
+    gun:fire()
 end
 
 function main:updateFire(firemode)

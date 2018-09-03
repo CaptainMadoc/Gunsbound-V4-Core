@@ -22,7 +22,13 @@ pD = processDirectory
 
 updateInfo = {dt = 1/62, fireMode = "none", shiftHeld = false, moves = {up = false, left = false, right = false, down = false}}
 updateLast = {dt = 1/62, fireMode = "none", shiftHeld = false, moves = {up = false, left = false, right = false, down = false}}
-selfItem = {classes = {},toCondense = false, condensedClasses = {}, rootDirectory = "/", hasLateInited = false}
+selfItem = {
+	classes = {},
+	toCondense = false,
+	condensedClasses = {},
+	rootDirectory = "/",
+	hasLateInited = false
+}
 
 function init()	
 	
@@ -83,6 +89,8 @@ function update(dt, fireMode, shiftHeld, moves)
 		for i,v in ipairs(selfItem.condensedClasses) do --the reason behind of this, is because i use this when all the modules are properly inited. also cannot be recalled after loading another script in runtime.
 			if _ENV[v] and _ENV[v].lateinit then
 				_ENV[v]:lateinit(updateInfo.dt, fireMode, shiftHeld, moves)
+			elseif _ENV[v] and ENV[v].lateInit then
+				_ENV[v]:lateInit(updateInfo.dt, fireMode, shiftHeld, moves)
 			end
 		end
 		selfItem.hasLateInited = true

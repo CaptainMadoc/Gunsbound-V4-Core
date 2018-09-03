@@ -15,10 +15,8 @@ function gun:lerp(value, to, speed) return value + ((to - value ) / speed )  end
 function gun:lerpr(value, to, ratio) return value + ((to - value ) * ratio ) end
 
 function gun:init()
-	message.setHandler("isLocal", function(_, loc) return loc end )
-	activeItem.setScriptedAnimationParameter("entityID", activeItem.ownerEntityId())
-	activeItem.setCursor("/gunsbound/crosshair/crosshair2.cursor")
     datamanager:load("gunLoad", true)
+    datamanager:load("gunScript", false, "/gunsbound/base/default.lua")
 	datamanager:load("gunStats", false, 
 		{
 			damageMultiplier = 2,
@@ -42,11 +40,13 @@ function gun:init()
     datamanager:load("gunAnimations")
     datamanager:load("compatibleAmmo")
 
+	message.setHandler("isLocal", function(_, loc) return loc end )
+	activeItem.setScriptedAnimationParameter("entityID", activeItem.ownerEntityId())
+	activeItem.setCursor("/gunsbound/crosshair/crosshair2.cursor")
     self.fireSounds = config.getParameter("fireSounds",jarray())
 	for i,v in pairs(self.fireSounds) do
 		self.fireSounds[i] = processDirectory(v)
     end
-
 	animator.setSoundPool("fireSounds", self.fireSounds)
 	animation:addEvent("eject_ammo", function() self:eject_ammo() end)
 	animation:addEvent("load_ammo", function() self:load_ammo() end)
@@ -54,7 +54,25 @@ function gun:init()
 	animation:addEvent("reloadLoop", function() self.reloadLoop = true end)
 end
 
-function gun:update()
+function gun:lateinit()
+	if main and main.init then
+		main:init()
+	end
+end
+
+function gun:uninit()
+	if main and main.uninit then
+		main:uninit(...)
+	end
+end
+
+function gun:activate(...)
+	if main and main.activate then
+		main:activate(...)
+	end
+end
+
+function gun:update(dt, fireMode, shiftHeld, moves)
 
 	--camerasystem
 	if self.features.cameraAim then
@@ -80,6 +98,10 @@ function gun:update()
 		self:load_chamber()
 	end
 	
+	if main and main.update then
+		main:update(dt, fireMode, shiftHeld, moves)
+	end
+
 end
 
 function gun:rpm(rpm)

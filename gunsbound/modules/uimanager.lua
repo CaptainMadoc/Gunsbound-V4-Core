@@ -15,16 +15,9 @@ function uimanager:update(dt)
 	
 	activeItem.setScriptedAnimationParameter("load", type(data.gunLoad))
 	
-	
-	--to fix
-	local t = false
-	
 	if data.gunLoad and data.gunLoad.parameters.fired then
-		t = true
 		activeItem.setScriptedAnimationParameter("fired", true)
-	end
-	
-	if not t then
+	elseif data.gunLoad then
 		activeItem.setScriptedAnimationParameter("fired", false)
 	end
 	
