@@ -15,8 +15,8 @@ end
 
 
 function module:refreshData()
-    self.inAccuracy = animationConfig.animationParameter("inAccuracy")
-    self.muzzleDistance = animationConfig.animationParameter("muzzleDistance")
+    self.inAccuracy = animationConfig.animationParameter("inAccuracy") or 0
+    self.muzzleDistance = animationConfig.animationParameter("muzzleDistance") or {0,0}
 end
 
 function module:init()

@@ -8,7 +8,8 @@ gun = {
 		recoilRecovery = true,
 		cameraAim = true,
 		aim = true --disable this if you want to override things
-	}
+	},
+	camera = {0,0}
 }
 function gun:lerp(value, to, speed) return value + ((to - value ) / speed )  end
 function gun:lerpr(value, to, ratio) return value + ((to - value ) * ratio ) end
@@ -56,28 +57,29 @@ end
 function gun:update()
 
 	--camerasystem
-	if self.enabled.cameraAim then
+	if self.features.cameraAim then
 		local distance = world.distance(activeItem.ownerAimPosition(), mcontroller.position())
 		camera.target = vec2.add({distance[1] * util.clamp(data.gunStats.aimLookRatio, 0, 0.5),distance[2] * util.clamp(data.gunStats.aimLookRatio, 0, 0.5)}, self.camera)
 		camera.smooth = 8
 		self.camera = {self:lerp(self.camera[1],0,data.gunStats.recoilRecovery),self:lerp(self.camera[2],0,data.gunStats.recoilRecovery)}
 	end
 	
-	if self.enabled.recoilRecovery then
+	if self.features.recoilRecovery then
 	self.recoil = self:lerp(self.recoil, 0, data.gunStats.recoilRecovery)	
 	end
 
-	if self.aim then
+	if self.features.aim then
 		local angle, dir = activeItem.aimAngleAndDirection(0, vec2.add(self.aimPos or activeItem.ownerAimPosition(), vec2.div(mcontroller.velocity(), 28)))
 		aim.target = math.deg(angle) + self.recoil
 		aim.direction = dir
 	end
 
 	
-	self.delay = math.max(self.delay - dt, 0)
-	if self.delay == 0 then
-		self:load_ammo()
+	self.cooldown = math.max(self.cooldown - updateInfo.dt, 0)
+	if self.cooldown == 0 and self:dry() then
+		self:load_chamber()
 	end
+	
 end
 
 function gun:rpm(rpm)
@@ -87,11 +89,11 @@ end
 function gun:inaccuracy()
 	local crouchMult = 1
 	if mcontroller.crouching() then
-		crouchMult = data.stats.crouchInaccuracyMultiplier
+		crouchMult = data.gunStats.crouchInaccuracyMultiplier
 	end
 	local velocity = whichhigh(math.abs(mcontroller.xVelocity()), math.abs(mcontroller.yVelocity() + 1.28))
 	local percent = math.min(velocity / 14, 1)
-	return self:lerpr(data.stats.standingInaccuracy, data.stats.movingInaccuracy, percent) * crouchMult
+	return self:lerpr(data.gunStats.standingInaccuracy, data.gunStats.movingInaccuracy, percent) * crouchMult
 end
 
 function gun:rel()	
@@ -144,14 +146,14 @@ function gun:fire(force)
 		end
 
 		animator.playSound("fireSounds")
-		self.delay = self:calculateRPM(data.gunStats.rpm or 600)
+		self.cooldown = self:calculateRPM(data.gunStats.rpm or 600)
 		self.recoil = self.recoil + data.gunStats.recoil
 		self.recoilCamera = {math.sin(math.rad(self.recoil * 80)) * ((self.recoil / 8) ^ 1.25), self.recoil / 8}
 
 		activeItem.setInstanceValue("gunLoad", data.gunLoad)
 	else --else plays a dry sound
 		animator.playSound("dry")
-		self.delay = self:calculateRPM(data.gunStats.rpm or 600)
+		self.cooldown = self:calculateRPM(data.gunStats.rpm or 600)
 	end
 end
 
@@ -207,7 +209,7 @@ function gun:switchFireModes(custom)
 end
 
 function gun:ready()
-	if self.delay == 0 and not animation:isAnyPlaying() then
+	if self.cooldown == 0 and not animation:isAnyPlaying() then
 		return true
 	end
 	return false
