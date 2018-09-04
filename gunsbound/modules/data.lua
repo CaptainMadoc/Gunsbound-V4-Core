@@ -16,9 +16,7 @@ function datamanager:load(name, autosave, tabdef)
 end
 
 function datamanager:save(name)
-    if data[name] then
-        activeItem.setInstanceValue(name, data[name])
-    end
+    activeItem.setInstanceValue(name, data[name])
 end
 
 function datamanager:uninit()

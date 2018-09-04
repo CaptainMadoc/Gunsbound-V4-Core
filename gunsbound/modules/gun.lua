@@ -1,6 +1,6 @@
 --another prototype for gun design
 gun = {
-    fireMode = 1,
+    fireModeInt = 1,
 	recoil = 0,
 	cooldown = 0,
 	aimPos = nil,
@@ -32,11 +32,11 @@ function gun:init()
 			rpm = 600
 		}
 	)
-    datamanager:load("fireTypes")
-    datamanager:load("casingFX")
-    datamanager:load("bypassShellEject")
-    datamanager:load("muzzlePosition")
-    datamanager:load("casing")
+    datamanager:load("fireTypes", false, {"auto"})
+    datamanager:load("casingFX", false, true)
+    datamanager:load("bypassShellEject", false, false)
+    datamanager:load("muzzlePosition", false, {part = "gun", tag = "muzzle_begin", tag_end = "muzzle_end"})
+    datamanager:load("casing", false, {part = "gun", tag  = "casing_pos"})
     datamanager:load("gunAnimations")
     datamanager:load("compatibleAmmo")
 
@@ -48,22 +48,25 @@ function gun:init()
 		self.fireSounds[i] = processDirectory(v)
     end
 	animator.setSoundPool("fireSounds", self.fireSounds)
-	animation:addEvent("eject_ammo", function() self:eject_ammo() end)
-	animation:addEvent("load_ammo", function() self:load_ammo() end)
+	animation:addEvent("eject_chamber", function() self:eject_chamber() end)
+	animation:addEvent("load_ammo", function() self:load_chamber() end)
 	animation:addEvent("reload_loop", function() self.reloadLoop = true end)
 	animation:addEvent("reloadLoop", function() self.reloadLoop = true end)
+
+	require(processDirectory(data.gunScript))
 end
 
-function gun:lateinit()
+function gun:lateinit(...)
 	if main and main.init then
-		main:init()
+		main:init(...)
 	end
 end
 
-function gun:uninit()
+function gun:uninit(...)
 	if main and main.uninit then
 		main:uninit(...)
 	end
+	datamanager:save("gunLoad")
 end
 
 function gun:activate(...)
@@ -94,18 +97,20 @@ function gun:update(dt, fireMode, shiftHeld, moves)
 
 	
 	self.cooldown = math.max(self.cooldown - updateInfo.dt, 0)
-	if self.cooldown == 0 and self:dry() then
-		self:load_chamber()
-	end
 	
 	if main and main.update then
 		main:update(dt, fireMode, shiftHeld, moves)
 	end
 
+	if self.hasToLoad and gun:ready() then
+		self.hasToLoad = false
+        gun:load_chamber()
+    end
+
 end
 
-function gun:rpm(rpm)
-    return 60/rpm
+function gun:rpm()
+    return 60/(data.gunStats.rpm or 666)
 end
 
 function gun:inaccuracy()
@@ -118,13 +123,41 @@ function gun:inaccuracy()
 	return self:lerpr(data.gunStats.standingInaccuracy, data.gunStats.movingInaccuracy, percent) * crouchMult
 end
 
-function gun:rel()	
+function gun:calculateInAccuracy(pos)
+	local angle = (math.random(0,2000) - 1000) / 1000
+	local crouchMult = 1
+	if mcontroller.crouching() then
+		crouchMult = data.gunStats.crouchInaccuracyMultiplier
+	end
+	if not pos then
+		return math.rad((angle * self:inaccuracy()))
+	end
+	return vec2.rotate(pos, math.rad((angle * self:inaccuracy())))
+end
+
+function gun:rel(pos)	
 	return vec2.add(mcontroller.position(), activeItem.handPosition(pos))
 end
 
-function gun:fire(force)
-	if data.gunLoad and not data.gunLoad.parameters.fired then -- data.gunLoad must be a valid bullet without a parameter fired as true
+function gun:angle()
+	return vec2.sub(self:rel(animator.partPoint(data.muzzlePosition.part, data.muzzlePosition.tag_end)),self:rel(animator.partPoint(data.muzzlePosition.part, data.muzzlePosition.tag)))
+end
 
+function gun:casingPosition()
+	local offset = {0,0}
+	if data.casing then
+		offset = animator.partPoint(data.casing.part, data.casing.tag)
+	end
+	return vec2.add(mcontroller.position(), activeItem.handPosition(offset))
+end
+
+function gun:aimAt(pos)
+	if not pos then self.aimPos = nil return end self.aimPos = pos
+end
+
+function gun:fire()
+	if data.gunLoad and not data.gunLoad.parameters.fired then -- data.gunLoad must be a valid bullet without a parameter fired as true
+		
 		local newConfig = root.itemConfig({name = data.gunLoad.name, count = 1, parameters = data.gunLoad.parameters})		
 		if not newConfig then self:eject_chamber() return end
 
@@ -138,7 +171,7 @@ function gun:fire(force)
 		for i=1,data.gunLoad.parameters.projectileCount or 1 do
 			world.spawnProjectile(
 				data.gunLoad.parameters.projectile or "bullet-4", 
-				self:rel(animator.partPoint(self.muzzlePosition.part, self.muzzlePosition.tag)), 
+				self:rel(animator.partPoint(data.muzzlePosition.part, data.muzzlePosition.tag)), 
 				activeItem.ownerEntityId(), 
 				self:calculateInAccuracy(self:angle()), 
 				false,
@@ -150,17 +183,12 @@ function gun:fire(force)
 		data.gunLoad.parameters.fired = true
 		
 		--used by action lever style
-		if not self.bypassShellEject then
-			self:eject_ammo()
+		if not data.bypassShellEject then
+			self:eject_chamber()
 			self.hasToLoad = true
 		end
 		
 		--
-		if magazine:count() == 0 then
-			animation:play(self.animations["shoot_dry"] or self.animations.shoot)
-		else
-			animation:play(self.animations.shoot)
-		end
 		
 		--emits FX muzzle flash sometimes changed by a silencer/flash hider
 		if data.gunStats.muzzleFlash == 1 then
@@ -168,37 +196,36 @@ function gun:fire(force)
 		end
 
 		animator.playSound("fireSounds")
-		self.cooldown = self:calculateRPM(data.gunStats.rpm or 600)
-		self.recoil = self.recoil + data.gunStats.recoil
+		self.cooldown = self:rpm()
+		self:addRecoil()
 		self.recoilCamera = {math.sin(math.rad(self.recoil * 80)) * ((self.recoil / 8) ^ 1.25), self.recoil / 8}
 
-		activeItem.setInstanceValue("gunLoad", data.gunLoad)
+		datamanager:save("gunLoad")
+
+		return true
 	else --else plays a dry sound
 		animator.playSound("dry")
-		self.cooldown = self:calculateRPM(data.gunStats.rpm or 600)
+		self.cooldown = self:rpm()
+		return false
 	end
-end
-
-function gun:aimAt(pos)
-	if not pos then self.aimPos = nil return end self.aimPos = pos
 end
 
 function gun:eject_chamber()
 	if data.gunLoad then
-		if not data.load.parameters.fired then
-			player.giveItem(data.load)
-		elseif data.gunLoad.parameters.casingProjectile and data.casingFX then
+		if data.gunLoad.parameters and data.gunLoad.parameters.fired and data.gunLoad.parameters.casingProjectile and data.casingFX then
 			world.spawnProjectile(
 				data.gunLoad.parameters.casingProjectile, 
-				data:casingPosition(), 
+				self:casingPosition(), 
 				activeItem.ownerEntityId(), 
 				vec2.rotate({0,1}, math.rad(math.random(90) - 45)), 
 				false,
 				data.gunLoad.parameters.casingProjectileConfig or {speed = 10, timeToLive = 1}
 			)
+		elseif not data.gunLoad.parameters or not data.gunLoad.parameters.fired then
+			player.giveItem(data.gunLoad)
 		end
 		data.gunLoad = nil
-		activeItem.setInstanceValue("gunLoad", data.gunLoad)
+		datamanager:save("gunLoad")
 	end
 end
 
@@ -209,8 +236,12 @@ function gun:load_chamber()
 	data.gunLoad = magazine:take()
 end
 
+function gun:chamberDry()
+	return type(data.gunLoad) ~= "table"
+end
+
 function gun:dry()
-	return type(data.gunLoad) == "table"
+	return type(data.gunLoad) ~= "table"
 end
 
 function gun:addRecoil(custom)
@@ -218,20 +249,24 @@ function gun:addRecoil(custom)
 	if not custom then
 		a = data.gunStats.recoil
 	end
-	self.recoil = self.recoil + a
+	self.recoil = self.recoil + a * 2
+end
+
+function gun:fireMode()
+	return data.fireTypes[self.fireModeInt]
 end
 
 function gun:switchFireModes(custom)
 	if not data.fireTypes then data.fireTypes = {"semi"} end
-	if self.fireMode > #data.fireTypes then
-		self.fireMode = 1
+	if self.fireModeInt > #data.fireTypes then
+		self.fireModeInt = 1
 	else
-		self.fireMode = self.fireMode + 1
+		self.fireModeInt = self.fireModeInt + 1
 	end
 end
 
 function gun:ready()
-	if self.cooldown == 0 and not animation:isAnyPlaying() then
+	if self.cooldown == 0 then
 		return true
 	end
 	return false

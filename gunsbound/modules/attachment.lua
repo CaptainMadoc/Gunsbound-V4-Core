@@ -3,14 +3,13 @@ attachment = {
 	config = {},
 	modules = {},
 	loadedScripts = {},
+	originalStats = false,
 	special = nil
 }
 
-function attachment:activate(fireMode, shiftHeld)
-	if fireMode == "alt" and not shiftHeld then
-		if self.special and self.modules[self.special] and self.modules[self.special].fireSpecial then
-			self.modules[self.special]:fireSpecial(fireMode, shiftHeld)
-		end
+function attachment:triggerSpecial()
+	if self.special and self.modules[self.special] and self.modules[self.special].fireSpecial then
+		self.modules[self.special]:fireSpecial(fireMode, shiftHeld)
 	end
 end
 
@@ -22,6 +21,10 @@ function attachment:init()
 		player.giveItem(v)
 	end
 	activeItem.setInstanceValue("giveback", jarray())
+end
+
+function attachment:rel(pos)	
+	return vec2.add(mcontroller.position(), activeItem.handPosition(pos))
 end
 
 function attachment:createTransform(namee, offset, scale, attachPart, gunTag, gunTagEnd) -- for transforms.lua
@@ -46,18 +49,14 @@ function attachment:createTransform(namee, offset, scale, attachPart, gunTag, gu
 
 			local pos = animator.partPoint(attachPart, gunTag)
 			
-			world.debugPoint(weapon:rel(pos), "blue")
-			world.debugText(name.." = "..sb.printJson(pos,0), vec2.add(weapon:rel(pos), {0.05, 0.05}), "#00000010")
-			world.debugText(name.." = "..sb.printJson(pos,0), vec2.add(weapon:rel(pos), {0,0}), "#ffffff40")
+			world.debugPoint(self:rel(pos), "blue")
+			world.debugText(name.." = "..sb.printJson(pos,0), vec2.add(self:rel(pos), {0.05, 0.05}), "#00000010")
+			world.debugText(name.." = "..sb.printJson(pos,0), vec2.add(self:rel(pos), {0,0}), "#ffffff40")
 		end
 
 	end
 
 	transforms:lateAdd(namee, {}, somenewTransform)
-end
-
-function attachment:rel(pos)
-	return
 end
 
 function attachment:lateinit() --item check
@@ -124,5 +123,36 @@ function attachment:uninit()
 		end
 	end
 end
+
+--stats
+
+function attachment:addStats(stats)
+	if not self.originalStats then
+		self.originalStats = copycat(data.gunStats)
+	end
+	for i,v in pairs(stats) do
+		if data.gunStats[i] then
+			data.gunStats[i] = math.max(data.gunStats[i] + v, 0)
+		end
+	end
+end
+
+function attachment:setStats(stats)
+	if not self.originalStats then
+		self.originalStats = copycat(data.gunStats)
+	end
+	for i,v in pairs(stats) do
+		if data.gunStats[i] then
+			data.gunStats[i] = v
+		end
+	end
+end
+
+function attachment:getStat(name)
+	return data.gunStats[name]
+end
+
+--
+
 
 addClass("attachment", 25)

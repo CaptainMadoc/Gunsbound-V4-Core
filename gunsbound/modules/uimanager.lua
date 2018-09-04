@@ -21,7 +21,7 @@ function uimanager:update(dt)
 		activeItem.setScriptedAnimationParameter("fired", false)
 	end
 	
-	activeItem.setScriptedAnimationParameter("fireSelect",  data.fireTypes[gun.fireMode])
+	activeItem.setScriptedAnimationParameter("fireSelect",  gun:fireMode())
 	activeItem.setScriptedAnimationParameter("inAccuracy",  gun:inaccuracy())
 	activeItem.setScriptedAnimationParameter("althanded",  activeItem.hand() == "alt")
 	activeItem.setScriptedAnimationParameter("muzzleDistance",  world.distance(activeItem.ownerAimPosition(),gun:rel(animator.partPoint("gun", "muzzle_begin"))))
