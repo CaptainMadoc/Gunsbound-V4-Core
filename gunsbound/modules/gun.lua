@@ -11,8 +11,6 @@ gun = {
 	},
 	camera = {0,0}
 }
-function gun:lerp(value, to, speed) return value + ((to - value ) / speed )  end
-function gun:lerpr(value, to, ratio) return value + ((to - value ) * ratio ) end
 
 function gun:init()
     datamanager:load("gunLoad", true)
@@ -82,11 +80,11 @@ function gun:update(dt, fireMode, shiftHeld, moves)
 		local distance = world.distance(activeItem.ownerAimPosition(), mcontroller.position())
 		camera.target = vec2.add({distance[1] * util.clamp(data.gunStats.aimLookRatio, 0, 0.5),distance[2] * util.clamp(data.gunStats.aimLookRatio, 0, 0.5)}, self.camera)
 		camera.smooth = 8
-		self.camera = {self:lerp(self.camera[1],0,data.gunStats.recoilRecovery),self:lerp(self.camera[2],0,data.gunStats.recoilRecovery)}
+		self.camera = {lerp(self.camera[1],0,data.gunStats.recoilRecovery),lerp(self.camera[2],0,data.gunStats.recoilRecovery)}
 	end
 	
 	if self.features.recoilRecovery then
-	self.recoil = self:lerp(self.recoil, 0, data.gunStats.recoilRecovery)	
+	self.recoil = lerp(self.recoil, 0, data.gunStats.recoilRecovery)	
 	end
 
 	if self.features.aim then
@@ -104,7 +102,7 @@ function gun:update(dt, fireMode, shiftHeld, moves)
 
 	if self.hasToLoad and gun:ready() then
 		self.hasToLoad = false
-        gun:load_chamber()
+        self:load_chamber()
     end
 
 end
@@ -120,7 +118,7 @@ function gun:inaccuracy()
 	end
 	local velocity = whichhigh(math.abs(mcontroller.xVelocity()), math.abs(mcontroller.yVelocity() + 1.28))
 	local percent = math.min(velocity / 14, 1)
-	return self:lerpr(data.gunStats.standingInaccuracy, data.gunStats.movingInaccuracy, percent) * crouchMult
+	return lerpr(data.gunStats.standingInaccuracy, data.gunStats.movingInaccuracy, percent) * crouchMult
 end
 
 function gun:calculateInAccuracy(pos)
@@ -229,18 +227,14 @@ function gun:eject_chamber()
 	end
 end
 
-function gun:load_chamber()
+function gun:load_chamber(bullet)
 	if data.gunLoad then 
 		self:eject_chamber()
 	end
-	data.gunLoad = magazine:take()
+	data.gunLoad = bullet or magazine:take()
 end
 
 function gun:chamberDry()
-	return type(data.gunLoad) ~= "table"
-end
-
-function gun:dry()
 	return type(data.gunLoad) ~= "table"
 end
 

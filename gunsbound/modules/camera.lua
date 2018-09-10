@@ -15,8 +15,8 @@ end
 
 function camera:update(dt) 
 	self.current = {
-		self:lerp(self.current[1], self.target[1],self.smooth),
-		self:lerp(self.current[2], self.target[2],self.smooth)
+		lerp(self.current[1], self.target[1],self.smooth),
+		lerp(self.current[2], self.target[2],self.smooth)
 	}
 	
 	if self.projID and world.entityExists(self.projID) then
