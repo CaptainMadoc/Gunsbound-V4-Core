@@ -12,7 +12,7 @@ end
 function main:activate(fireMode, shiftHeld)
     if fireMode == "alt" and not shiftHeld then
         attachment:triggerSpecial()
-    elseif updateInfo.fireMode == "alt" and shiftHeld then
+    elseif fireMode == "alt" and shiftHeld then
         gun:switchFireModes()
     end
 end

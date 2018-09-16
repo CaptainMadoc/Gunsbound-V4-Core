@@ -269,11 +269,12 @@ end
 
 --todo
 function gun:switchFireModes(custom)
-	if not data.fireTypes then data.fireTypes = {"semi"} end
-	if self.fireModeInt > #data.fireTypes then
+	if not data.fireTypes then data.fireTypes = {"semi"} end --verify
+	animator.playSound("dry")
+	if self.fireModeInt == #data.fireTypes then
 		self.fireModeInt = 1
 	else
-		self.fireModeInt = self.fireModeInt + 1
+		self.fireModeInt = math.max(math.min((custom or self.fireModeInt + 1),#data.fireTypes),1)
 	end
 end
 

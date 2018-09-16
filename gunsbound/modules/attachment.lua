@@ -132,9 +132,10 @@ function attachment:refreshStats()
 	self:resetStats()
 	for i,v in pairs(self.modules) do
 		if self.modules[i].refreshStats then
-			self.modules[i]:refreshStats(dt)
+			self.modules[i]:refreshStats()
 		end
 	end
+	magazine.size = data.gunStats.maxMagazine
 end
 
 function attachment:addStats(stats)
