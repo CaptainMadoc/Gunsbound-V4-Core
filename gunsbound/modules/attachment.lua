@@ -91,7 +91,7 @@ function attachment:lateinit() --item check
 						)
 						fp.attachment.directory = originalItem.directory
 						if fp.attachment.script then
-							self.modules[i] = requireUni:load(vDir(fp.attachment.script, originalItem), fp.attachment.class or "module"):create(fp.attachment, i)
+							self.modules[i] = requireUni:load(vDir(fp.attachment.script, originalItem), fp.attachment.class or "module"):create(fp.attachment, i, fp)
 							if self.modules[i].special then
 								self.special = i
 							end
@@ -101,6 +101,8 @@ function attachment:lateinit() --item check
 			end
 		end
 	end
+
+	self:refreshStats()
 end
 
 function attachment:debug(dt)
@@ -124,7 +126,16 @@ function attachment:uninit()
 	end
 end
 
---stats
+--stats API
+
+function attachment:refreshStats()
+	self:resetStats()
+	for i,v in pairs(self.modules) do
+		if self.modules[i].refreshStats then
+			self.modules[i]:refreshStats(dt)
+		end
+	end
+end
 
 function attachment:addStats(stats)
 	if not self.originalStats then
@@ -137,19 +148,31 @@ function attachment:addStats(stats)
 	end
 end
 
+-- do not use this. other attachments are not notified by this
+function attachment:resetStats()
+	if self.originalStats then
+		data.gunStats = copycat(self.originalStats)
+		self.originalStats = false
+	end
+end
+
 function attachment:setStats(stats)
 	if not self.originalStats then
 		self.originalStats = copycat(data.gunStats)
 	end
 	for i,v in pairs(stats) do
 		if data.gunStats[i] then
-			data.gunStats[i] = v
+			data.gunStats[i] = copycat(v)
 		end
 	end
 end
 
+function attachment:getStats(name)
+	return copycat(data.gunStats)
+end
+
 function attachment:getStat(name)
-	return data.gunStats[name]
+	return copycat(data.gunStats[name])
 end
 
 --

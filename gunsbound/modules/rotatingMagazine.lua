@@ -15,7 +15,7 @@ end
 function magazine:saveData()
 	activeItem.setInstanceValue("magazine", self.storage)
 	activeItem.setInstanceValue("selected", self.selected)
-	activeItem.setInstanceValue("gunLoad", weapon.load)
+	activeItem.setInstanceValue("gunLoad", data.gunLoad)
 end
 
 function magazine:insert(co)
@@ -24,7 +24,7 @@ function magazine:insert(co)
 		compat = processDirectory(compat)
 	end
 	if not co then
-		co = weapon.stats.maxMagazine - #self.storage
+		co = data.gunStats.maxMagazine - #self.storage
 	end
 	for i,v in pairs(self:processCompatible(compat)) do
 		if co > 0 then
@@ -40,7 +40,7 @@ function magazine:insert(co)
 	end
 	
 	if self.storage[self.selected] then
-		weapon.load = self.storage[self.selected]
+		data.gunLoad = self.storage[self.selected]
 		self.storage[self.selected] = nil
 	end
 	
@@ -48,16 +48,16 @@ function magazine:insert(co)
 end
 
 function magazine:rotate()
-	if weapon.load then
-		self.storage[self.selected] = weapon.load
-		weapon.load = nil
+	if data.gunLoad then
+		self.storage[self.selected] = data.gunLoad
+		data.gunLoad = nil
 	end
 	self.selected = self.selected + 1
-	if self.selected > weapon.stats.maxMagazine then
+	if self.selected > data.gunStats.maxMagazine then
 		self.selected = 1
 	end
 	if self.storage[self.selected] then
-		weapon.load = self.storage[self.selected]
+		data.gunLoad = self.storage[self.selected]
 		self.storage[self.selected] = nil
 	end
 	magazine:saveData()
@@ -79,9 +79,9 @@ end
 function magazine:remove()
 	local togive = jarray()
 	
-	if weapon.load then
-		self.storage[self.selected] = weapon.load
-		weapon.load = nil
+	if data.gunLoad then
+		self.storage[self.selected] = data.gunLoad
+		data.gunLoad = nil
 	end
 	
 	for i,v in pairs(self.storage) do
@@ -89,7 +89,7 @@ function magazine:remove()
 			if v.parameters.casingProjectile then
 				world.spawnProjectile(
 					v.parameters.casingProjectile, 
-					weapon:casingPosition(), 
+					gun:casingPosition(), 
 					activeItem.ownerEntityId(), 
 					vec2.rotate({0,1}, math.rad(math.random(90) - 45)), 
 					false,
@@ -127,7 +127,7 @@ end
 
 function magazine:verify()
 	for i,v in pairs(self.storage) do
-		if i > weapon.stats.maxMagazine then
+		if i > data.gunStats.maxMagazine then
 			self.storage[i] = nil
 		end
 	end
@@ -155,6 +155,16 @@ end
 function magazine:count()
 	local c = 0
 	for i,v in pairs(self.storage) do
+		if not v.parameters or (v.parameters and not v.parameters.fired) then
+			c = c + v.count
+		end
+	end
+	return c
+end
+
+function magazine:rawcount()
+	local c = 0
+	for i,v in pairs(self.storage) do
 		c = c + v.count
 	end
 	return c
@@ -165,7 +175,7 @@ function magazine:update(dt)
 	activeItem.setScriptedAnimationParameter("magazine", self.storage)
 	activeItem.setScriptedAnimationParameter("magazineType", self.type)
 	activeItem.setScriptedAnimationParameter("selected", self.selected)
-	activeItem.setScriptedAnimationParameter("maxMagazine", weapon.stats.maxMagazine or 30)
+	activeItem.setScriptedAnimationParameter("maxMagazine", data.gunStats.maxMagazine or 30)
 end
 
 function magazine:uninit()

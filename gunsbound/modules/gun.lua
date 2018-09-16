@@ -1,4 +1,3 @@
---another prototype for gun design
 gun = {
     fireModeInt = 1,
 	recoil = 0,
@@ -11,6 +10,8 @@ gun = {
 	},
 	camera = {0,0}
 }
+
+		--CALLBACKS
 
 function gun:init()
     datamanager:load("gunLoad", true)
@@ -93,24 +94,28 @@ function gun:update(dt, fireMode, shiftHeld, moves)
 		aim.direction = dir
 	end
 
-	
-	self.cooldown = math.max(self.cooldown - updateInfo.dt, 0)
-	
+	if self.hasToLoad and gun:ready() then
+		self.hasToLoad = false
+		self:load_chamber()
+		self.cooldown = 0.016
+    end
+
 	if main and main.update then
 		main:update(dt, fireMode, shiftHeld, moves)
 	end
 
-	if self.hasToLoad and gun:ready() then
-		self.hasToLoad = false
-        self:load_chamber()
-    end
-
+	self.cooldown = math.max(self.cooldown - updateInfo.dt, 0)
+	
 end
 
+		--API--
+
+--Use for calculation RPM to shots timer
 function gun:rpm()
-    return 60/(data.gunStats.rpm or 666)
+    return math.max((60/(data.gunStats.rpm or 666)) - 0.016, 0.016)
 end
 
+--i think its for the angle RNG -/+
 function gun:inaccuracy()
 	local crouchMult = 1
 	if mcontroller.crouching() then
@@ -121,6 +126,7 @@ function gun:inaccuracy()
 	return lerpr(data.gunStats.standingInaccuracy, data.gunStats.movingInaccuracy, percent) * crouchMult
 end
 
+--RNG
 function gun:calculateInAccuracy(pos)
 	local angle = (math.random(0,2000) - 1000) / 1000
 	local crouchMult = 1
@@ -133,14 +139,17 @@ function gun:calculateInAccuracy(pos)
 	return vec2.rotate(pos, math.rad((angle * self:inaccuracy())))
 end
 
+--Quick relativepos from hand + pos
 function gun:rel(pos)	
 	return vec2.add(mcontroller.position(), activeItem.handPosition(pos))
 end
 
+--vec2 angle from muzzlePosition
 function gun:angle()
 	return vec2.sub(self:rel(animator.partPoint(data.muzzlePosition.part, data.muzzlePosition.tag_end)),self:rel(animator.partPoint(data.muzzlePosition.part, data.muzzlePosition.tag)))
 end
 
+--vec2 angle from casing
 function gun:casingPosition()
 	local offset = {0,0}
 	if data.casing then
@@ -149,10 +158,12 @@ function gun:casingPosition()
 	return vec2.add(mcontroller.position(), activeItem.handPosition(offset))
 end
 
+--overrides from cursor aim if you want to make aimbot attachments
 function gun:aimAt(pos)
 	if not pos then self.aimPos = nil return end self.aimPos = pos
 end
 
+--You know
 function gun:fire()
 	if data.gunLoad and not data.gunLoad.parameters.fired then -- data.gunLoad must be a valid bullet without a parameter fired as true
 		
@@ -208,6 +219,7 @@ function gun:fire()
 	end
 end
 
+--Gets bullet out from the internal gun
 function gun:eject_chamber()
 	if data.gunLoad then
 		if data.gunLoad.parameters and data.gunLoad.parameters.fired and data.gunLoad.parameters.casingProjectile and data.casingFX then
@@ -227,17 +239,21 @@ function gun:eject_chamber()
 	end
 end
 
+--Gets bullet in from the internal gun; can be manual loaded with 'bullet'
 function gun:load_chamber(bullet)
 	if data.gunLoad then 
 		self:eject_chamber()
 	end
 	data.gunLoad = bullet or magazine:take()
+	datamanager:save("gunLoad")
 end
 
+--See if nothing is loaded
 function gun:chamberDry()
 	return type(data.gunLoad) ~= "table"
 end
 
+--Adding armOffsets
 function gun:addRecoil(custom)
 	local a = custom
 	if not custom then
@@ -246,10 +262,12 @@ function gun:addRecoil(custom)
 	self.recoil = self.recoil + a * 2
 end
 
+--Gets Current Firemode
 function gun:fireMode()
 	return data.fireTypes[self.fireModeInt]
 end
 
+--todo
 function gun:switchFireModes(custom)
 	if not data.fireTypes then data.fireTypes = {"semi"} end
 	if self.fireModeInt > #data.fireTypes then
@@ -259,6 +277,7 @@ function gun:switchFireModes(custom)
 	end
 end
 
+--Gun full ready
 function gun:ready()
 	if self.cooldown == 0 then
 		return true
