@@ -1,3 +1,5 @@
+--obsolete do not use this anymore
+	
 weapon = {
 	global = {autoReload = true},
 

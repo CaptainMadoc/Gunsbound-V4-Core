@@ -1,7 +1,7 @@
 aim = {
 	current = 0,
-	target = 0,
-	direction = 1,
+	target = 0, --to lerp
+	direction = 1, --facing
 	disabled = false,
 	anglesmooth = 1,
 	armoffset = 0
@@ -17,10 +17,12 @@ function aim:init()
 end
 
 function aim:update(dt)
-	if self.disabled then
+	if self.disabled and self.current ~= 0 then
 		activeItem.setArmAngle(0)
+		self.current = 0
 		return
 	end
+	
 	self.current = lerp(self.current, self.target, math.max(self.anglesmooth / (dt * 60), 1)) --smoothing aim
 	activeItem.setArmAngle(math.rad(self.current + self.armoffset)) --applies aiming
 	activeItem.setFacingDirection(self.direction)

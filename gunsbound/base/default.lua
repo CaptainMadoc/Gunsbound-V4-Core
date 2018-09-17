@@ -1,3 +1,6 @@
+--This is a script used by default.
+--You can use this as reference if you want to make a custom type weapon.
+
 main = {
     fireQueued = 0,
     semifired = false
@@ -5,31 +8,39 @@ main = {
 
 --Callbacks
 
+--this should be his initial startup
 function main:init()
+    --initial weapon animation
     self:animate("draw")
 end
 
+--this is called when a firemode is fired
 function main:activate(fireMode, shiftHeld)
-    if fireMode == "alt" and not shiftHeld then
+    if fireMode == "alt" and not shiftHeld then --this is for special binded attachments
         attachment:triggerSpecial()
-    elseif fireMode == "alt" and shiftHeld then
+    elseif fireMode == "alt" and shiftHeld then --this is for switching firemodes
         gun:switchFireModes()
     end
 end
 
+--every ticks (frames)
 function main:update(dt, fireMode, shiftHeld, moves)
-    --self:updateChamber()
     self:updateAutoReload()
     self:updateFire(fireMode) 
     self:updateQueuedFire(fireMode) 
     self:updateSpecial(shiftHeld, moves.up)
 end
---function main:lateinit() end
---function main:uninit() end
+
+--this is after init (next frame)
+function main:lateinit() end
+
+--this is called when the lua state is being destroyed
+function main:uninit() end
 
 
---other functions
+--OTHER FUNCTIONS
 
+--We made this so we dont deal with manually shoot + _dry animations
 function main:animate(type,noprefix)
 	if not noprefix and (gun:chamberDry() and (not gun.hasToLoad or magazine:count() == 0 ))then
 		animation:play(data.gunAnimations[type.."_dry"] or data.gunAnimations[type]  or type.."_dry")
@@ -38,6 +49,7 @@ function main:animate(type,noprefix)
     end
 end
 
+--Fire implementation
 function main:fire()
     if not animation:isAnyPlaying() or animation:isPlaying({data.gunAnimations["shoot"], data.gunAnimations["shoot_dry"]}) then
         local status = gun:fire()
@@ -49,6 +61,7 @@ function main:fire()
     end
 end
 
+--Specials like reload or lever switches stuff and things
 function main:updateSpecial(shift, up)
     if shift and up and not animation:isAnyPlaying() then
         self:animate("reload")
@@ -58,26 +71,32 @@ function main:updateSpecial(shift, up)
     end
 end
 
+--we use this for deal with gun common firemodes.
 function main:updateFire(firemode)
-    -- primary mouse click event for firemodes
-    if firemode == "primary" and gun:ready() and not self.semifired then
-        local gunFireMode = gun:fireMode()
-        if gunFireMode == "burst" and self.fireQueued == 0 then
-            self.fireQueued = data.gunStats.burst
-        elseif gunFireMode == "semi" then
+
+    
+    if firemode == "primary" and gun:ready() and not self.semifired then-- primary mouse click event for firemodes
+
+        local gunFireMode = gun:fireMode() -- we get his firemode
+
+        if gunFireMode == "burst" and self.fireQueued == 0 then --if burst we get to queue shots
+            self.fireQueued = data.gunStats.burst or 3
+        elseif gunFireMode == "semi" then --if semi we fire and lock this part of the function so we dont go full auto
             self:fire()
             self.semifired = true
-        elseif gunFireMode == "auto" then
+        elseif gunFireMode == "auto" then --if auto we fire and keep on
             self:fire()
         end
-    elseif firemode ~= "primary" and self.semifired then
+
+    elseif firemode ~= "primary" and self.semifired then --unlocks the semi lock when mouse fire is not pressed
         self.semifired = false
     end
+
 end
 
+ -- our queued burst fires
 function main:updateQueuedFire()
 
-    -- queued burst
     if self.fireQueued > 0 and gun:ready() and not gun:chamberDry() then
         local fireStatus = self:fire()
         if magazine:count() == 0 then
@@ -92,12 +111,14 @@ function main:updateQueuedFire()
 
 end
 
-function main:updateChamber()
-    if gun:ready() and gun:chamberDry() and magazine:count() > 0 and (not animation:isAnyPlaying() or animation:isPlaying({data.gunAnimations["shoot_dry"], data.gunAnimations["shoot"]}) ) then
-        gun:load_chamber()
-    end
-end
+--do not use this i think we have the auto chamber load from the internal
+--function main:updateChamber()
+--    if gun:ready() and gun:chamberDry() and magazine:count() > 0 and (not animation:isAnyPlaying() or animation:isPlaying({data.gunAnimations["shoot_dry"], data.gunAnimations["shoot"]}) ) then
+--        gun:load_chamber()
+--    end
+--end
 
+--smart automatic reload 
 function main:updateAutoReload()
     if gun:ready() then
         if (gun:chamberDry() or (data.gunLoad and data.gunLoad.parameters.fired)) and magazine:count() == 0 and magazine:playerHasAmmo() and  not animation:isAnyPlaying() then

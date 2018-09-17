@@ -149,8 +149,8 @@ function attachment:addStats(stats)
 	end
 end
 
--- do not use this. other attachments are not notified by this
-function attachment:resetStats()
+
+function attachment:resetStats() -- do not use this. other attachments are not notified by this
 	if self.originalStats then
 		data.gunStats = copycat(self.originalStats)
 		self.originalStats = false

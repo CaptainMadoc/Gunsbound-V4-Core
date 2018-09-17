@@ -12,6 +12,7 @@ function magazine:processCompatible(a)
 	return a
 end
 
+--variable 'co' is how much we take from player inventory
 function magazine:insert(co)
 	local compat = config.getParameter("compatibleAmmo", jarray())
 	if type(compat) == "string" then
@@ -32,6 +33,7 @@ function magazine:insert(co)
 	activeItem.setInstanceValue("magazine", self.storage)
 end
 
+--counts how much in the magazine
 function magazine:count()
 	local c = 0
 	for i,v in pairs(self.storage) do
@@ -40,6 +42,7 @@ function magazine:count()
 	return c
 end
 
+--Check if player has ammo for it
 function magazine:playerHasAmmo()
 	local compat = config.getParameter("compatibleAmmo", jarray())
 	if type(compat) == "string" then
@@ -53,6 +56,7 @@ function magazine:playerHasAmmo()
 	return false
 end
 
+--remove bullets
 function magazine:remove(specific)
 	local togive = jarray()
 	local toremove = specific or self:count() -- todo

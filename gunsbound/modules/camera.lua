@@ -5,10 +5,6 @@ camera = {
 	projID = nil
 }
 
-function camera:lerp(value, to, speed)
-	return value + ((to - value ) / speed ) 
-end
-
 function camera:init()
 	
 end

@@ -1,20 +1,20 @@
-lasermanager = {
+laser = {
 	out = {}
 }
 
-function lasermanager:add(part, tag, tagEnd, lc)
+function laser:add(part, tag, tagEnd, lc)
 	self.out[part] = {tag = tag, tagEnd = tagEnd, laserColor = lc or {255,255,255,127}}
 	activeItem.setScriptedAnimationParameter("laser",  self.out)
 end
 
-function lasermanager:init()
+function laser:init()
 	activeItem.setScriptedAnimationParameter("laser",  {})
 end
 
-function lasermanager:update(dt)
+function laser:update(dt)
 end
 
-function lasermanager:uninit()
+function laser:uninit()
 end
 
-addClass("lasermanager", 622)
+addClass("laser", 622)

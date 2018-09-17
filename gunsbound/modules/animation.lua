@@ -11,6 +11,8 @@ animation = {
 	}
 }
 
+
+--we use this to generate name for a temporary animation
 function animation:randomHash()
 	local str1 = ""
 	for i = 1,8 do
