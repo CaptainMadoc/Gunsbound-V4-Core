@@ -291,4 +291,4 @@ function animation:update(dt)
 	end
 end
 
-addClass("animation", 705)
+addClass("animation")

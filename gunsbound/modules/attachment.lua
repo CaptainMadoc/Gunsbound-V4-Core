@@ -63,22 +63,27 @@ function attachment:lateinit() --item check
 	local attachmentsConfig = root.itemConfig({name = item.name(), count = 1}).config.attachments -- original attachment config from weapon
 
 	for i,v in pairs(self.config) do
+		--error checking
 		if (attachmentsConfig[i] or not v) and not animator.partPoint(v.attachPart or attachmentsConfig[i].attachPart, v.gunTag or attachmentsConfig[i].gunPart) then
 			self.config[i] = nil
 		else
-			if v.item then
+			if not v.item and v.defaultItem then -- todo: maybe for use for ironsights removal
+				v.item = copycat(v.defaultItem)
+			end
+			if v.item then --if a item is stored in the attachment data it will proceed
 				local originalItem = root.itemConfig({name = v.item.name, count = 1})
 				local fp = {}
 
-				if originalItem and 
-					((attachmentsConfig[i] and attachmentsConfig[i].part) or (v and v.part)) and 
+				if originalItem and --verify PGI
+					((attachmentsConfig[i] and attachmentsConfig[i].part) or (v and v.part)) and --bunch of config verification
 					((attachmentsConfig[i] and attachmentsConfig[i].attachPart) or (v and v.attachPart)) and 
 					((attachmentsConfig[i] and attachmentsConfig[i].gunPart) or (v and v.gunTag)) and 
 					((attachmentsConfig[i] and attachmentsConfig[i].transformationGroup) or (v and v.transformationGroup)) and
 					((attachmentsConfig[i] and attachmentsConfig[i].gunTagEnd) or (v and v.gunTagEnd)) then
 
-					fp = sb.jsonMerge(root.itemConfig(v.item).config, v.item.parameters) -- v.item.parameters
+					fp = sb.jsonMerge(root.itemConfig(v.item).config, v.item.parameters)
 					local current;
+					
 					if fp.attachment then
 						animator.setPartTag(v.part or attachmentsConfig[i].part, "selfimage", vDir(fp.attachment.image, originalItem.directory))
 						attachment:createTransform(
@@ -179,4 +184,4 @@ end
 --
 
 
-addClass("attachment", 25)
+addClass("attachment")

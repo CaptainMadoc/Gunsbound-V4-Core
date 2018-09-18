@@ -112,4 +112,4 @@ function transforms:update(dt)
 	end
 end
 
-addClass("transforms", 900)
+addClass("transforms")

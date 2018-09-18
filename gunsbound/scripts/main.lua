@@ -1,6 +1,7 @@
 require "/scripts/util.lua"
 require "/scripts/vec2.lua"
 require "/gunsbound/scripts/util.lua"
+require "/gunsbound/scripts/itemBugLog.lua"
 
 debugMode = true
 _Delta = os.clock()
@@ -27,7 +28,8 @@ selfItem = {
 	toCondense = false,
 	condensedClasses = {},
 	rootDirectory = "/",
-	hasLateInited = false
+	hasLateInited = false,
+	suspend = false
 }
 
 function init()	
@@ -55,7 +57,10 @@ function init()
 	updateClass()
 	for i,v in ipairs(selfItem.condensedClasses) do
 		if _ENV[v] and _ENV[v].init then
-			_ENV[v]:init()
+			local ret, status = IBL:run(function() _ENV[v]:init() end)
+			if not status then
+				
+			end
 		end
 	end 
 end

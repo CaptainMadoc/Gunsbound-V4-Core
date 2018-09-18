@@ -182,4 +182,4 @@ function magazine:uninit()
 	self:saveData()
 end
 
-addClass("magazine", -2)
+addClass("magazine")

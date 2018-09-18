@@ -28,4 +28,4 @@ function aim:update(dt)
 	activeItem.setFacingDirection(self.direction)
 end
 
-addClass("aim", 500)
+addClass("aim")

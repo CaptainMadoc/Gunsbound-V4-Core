@@ -121,4 +121,4 @@ function magazine:uninit()
 	activeItem.setInstanceValue("magazine", self.storage)
 end
 
-addClass("magazine", -2)
+addClass("magazine")

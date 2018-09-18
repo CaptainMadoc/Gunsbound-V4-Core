@@ -49,8 +49,6 @@ function gun:init()
 	animator.setSoundPool("fireSounds", self.fireSounds)
 	animation:addEvent("eject_chamber", function() self:eject_chamber() end)
 	animation:addEvent("load_ammo", function() self:load_chamber() end)
-	animation:addEvent("reload_loop", function() self.reloadLoop = true end)
-	animation:addEvent("reloadLoop", function() self.reloadLoop = true end)
 
 	require(processDirectory(data.gunScript))
 end
@@ -163,6 +161,14 @@ function gun:aimAt(pos)
 	if not pos then self.aimPos = nil return end self.aimPos = pos
 end
 
+function gun:canFire()
+	if data.gunLoad and not data.gunLoad.parameters.fired then
+		return true
+	else
+		return false
+	end
+end
+
 --You know
 function gun:fire()
 	if data.gunLoad and not data.gunLoad.parameters.fired then -- data.gunLoad must be a valid bullet without a parameter fired as true
@@ -194,7 +200,9 @@ function gun:fire()
 		--used by action lever style
 		if not data.bypassShellEject then
 			self:eject_chamber()
-			self.hasToLoad = true
+			if magazine:count() > 0 then
+				self.hasToLoad = true
+			end
 		end
 		
 		--
@@ -250,7 +258,16 @@ end
 
 --See if nothing is loaded
 function gun:chamberDry()
-	return type(data.gunLoad) ~= "table"
+	if type(data.gunLoad) ~= "table" then
+		return true
+	elseif data.gunLoad.parameters and data.gunLoad.parameters.fired then
+		return true
+	end
+	return false
+end
+
+function gun:dry()
+	return self:chamberDry() and magazine:count() == 0
 end
 
 --Adding armOffsets
@@ -287,4 +304,4 @@ function gun:ready()
 end
 
 
-addClass("gun", 1)
+addClass("gun")

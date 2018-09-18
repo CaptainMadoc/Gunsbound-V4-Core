@@ -32,4 +32,4 @@ end
 function uimanager:uninit()
 end
 
-addClass("uimanager", 620)
+addClass("uimanager")

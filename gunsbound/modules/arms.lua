@@ -330,4 +330,4 @@ function arms:update(dt)
 	end
 end
 
-addClass("arms", 901)
+addClass("arms")

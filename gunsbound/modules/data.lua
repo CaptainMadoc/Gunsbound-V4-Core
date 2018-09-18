@@ -25,4 +25,4 @@ function datamanager:uninit()
     end
 end
 
-addClass("weapon", 367)
+addClass("datamanager")

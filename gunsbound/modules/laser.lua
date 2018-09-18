@@ -17,4 +17,4 @@ end
 function laser:uninit()
 end
 
-addClass("laser", 622)
+addClass("laser")

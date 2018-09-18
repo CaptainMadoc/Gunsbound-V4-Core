@@ -3,13 +3,17 @@
 
 main = {
     fireQueued = 0,
+    reloadLoop = false,
     semifired = false
 }
 
---Callbacks
+--Callbacks 
 
 --this should be his initial startup
 function main:init()
+    
+	animation:addEvent("reload_loop", function() self.reloadLoop = true end)
+	animation:addEvent("reloadLoop", function() self.reloadLoop = true end)
     --initial weapon animation
     self:animate("draw")
 end
@@ -25,10 +29,21 @@ end
 
 --every ticks (frames)
 function main:update(dt, fireMode, shiftHeld, moves)
-    self:updateAutoReload()
-    self:updateFire(fireMode) 
-    self:updateQueuedFire(fireMode) 
-    self:updateSpecial(shiftHeld, moves.up)
+    if not self.reloadLoop then --makes sure that our frontend script is not busy reloading shells
+        self:updateAutoReload()
+        self:updateFire(fireMode) 
+        self:updateQueuedFire(fireMode) 
+        self:updateSpecial(shiftHeld, moves.up)
+    else
+        if not animation:isAnyPlaying() then
+            if not magazine:playerHasAmmo() or magazine:count() == magazine.size then
+                self.reloadLoop = false
+                self:animate(data.gunAnimations["reloadEnd"])
+            else
+                self:animate(data.gunAnimations["reloadLoop"])
+            end
+        end
+    end
 end
 
 --this is after init (next frame)
@@ -42,8 +57,10 @@ function main:uninit() end
 
 --We made this so we dont deal with manually shoot + _dry animations
 function main:animate(type,noprefix)
-	if not noprefix and (gun:chamberDry() and (not gun.hasToLoad or magazine:count() == 0 ))then
-		animation:play(data.gunAnimations[type.."_dry"] or data.gunAnimations[type]  or type.."_dry")
+    if not noprefix and 
+        (gun:chamberDry() and (not gun.hasToLoad and not data.bypassShellEject))
+    then
+		animation:play(data.gunAnimations[type.."_dry"] or data.gunAnimations[type] or type.."_dry")
 	else
 		animation:play(data.gunAnimations[type] or type)
     end

@@ -37,4 +37,4 @@ function timers:uninit()
 end
 
 
-addClass("timers", 632)
+addClass("timers")

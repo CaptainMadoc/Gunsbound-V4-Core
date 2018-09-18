@@ -18,4 +18,4 @@ end
 function flashlight:uninit()
 end
 
-addClass("flashlight", 621)
+addClass("flashlight")

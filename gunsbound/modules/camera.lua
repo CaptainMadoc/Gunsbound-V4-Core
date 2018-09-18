@@ -49,4 +49,4 @@ function camera:respawnProjectile()
 	activeItem.setCameraFocusEntity(self.projID)
 end
 
-addClass("camera", -47)
+addClass("camera")
