@@ -111,7 +111,6 @@ function attachment:lateinit() --item check
 end
 
 function attachment:update(dt)
-	self:debug(dt)
 	for i,v in pairs(self.modules) do
 		if self.modules[i].update then
 			self.modules[i]:update(dt)
