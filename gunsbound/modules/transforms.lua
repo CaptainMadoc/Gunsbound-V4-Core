@@ -105,6 +105,9 @@ function transforms:update(dt)
 			self.updateChild[i](i, v, dt)
 		end
 	end
+end
+
+function transforms:lateUpdate(dt)
 	for i,v in pairs(self.current) do
 		if type(self.lateUpdateChild[i]) == "function" then
 			self.lateUpdateChild[i](i, v, dt)

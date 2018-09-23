@@ -1,3 +1,5 @@
+
+
 require "/scripts/util.lua"
 require "/scripts/vec2.lua"
 require "/gunsbound/scripts/util.lua"
@@ -104,6 +106,12 @@ function update(dt, fireMode, shiftHeld, moves)
 	for i,v in ipairs(selfItem.condensedClasses) do
 		if _ENV[v] and _ENV[v].update then
 			_ENV[v]:update(updateInfo.dt, fireMode, shiftHeld, moves)
+		end
+	end
+
+	for i,v in ipairs(selfItem.condensedClasses) do
+		if _ENV[v] and _ENV[v].lateUpdate then
+			_ENV[v]:lateUpdate(updateInfo.dt, fireMode, shiftHeld, moves)
 		end
 	end
 	

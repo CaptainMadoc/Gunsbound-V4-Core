@@ -49,9 +49,9 @@ function attachment:createTransform(namee, offset, scale, attachPart, gunTag, gu
 
 			local pos = animator.partPoint(attachPart, gunTag)
 			
-			world.debugPoint(self:rel(pos), "blue")
-			world.debugText(name.." = "..sb.printJson(pos,0), vec2.add(self:rel(pos), {0.05, 0.05}), "#00000010")
-			world.debugText(name.." = "..sb.printJson(pos,0), vec2.add(self:rel(pos), {0,0}), "#ffffff40")
+			--world.debugPoint(self:rel(pos), "blue")
+			--world.debugText(name.." = "..sb.printJson(pos,0), vec2.add(self:rel(pos), {0.05, 0.05}), "#00000010")
+			--world.debugText(name.." = "..sb.printJson(pos,0), vec2.add(self:rel(pos), {0,0}), "#ffffff40")
 		end
 
 	end
@@ -108,10 +108,6 @@ function attachment:lateinit() --item check
 	end
 
 	self:refreshStats()
-end
-
-function attachment:debug(dt)
-
 end
 
 function attachment:update(dt)

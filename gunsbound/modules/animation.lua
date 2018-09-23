@@ -132,7 +132,7 @@ end
 
 function animation:addEvent(str,func)
 	self.events[str] = func
-	sb.logInfo("new animation event: "..str)
+	--sb.logInfo("new animation event: "..str)
 end
 
 function animation:fireEvent(str)

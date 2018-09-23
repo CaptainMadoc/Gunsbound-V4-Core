@@ -123,14 +123,18 @@
 		"fireSounds" : [],
 
 		//custom sounds for probably attachments purposes
-		"cs1" : [],
-		"cs2" : [],
-		"cs3" : [],
-		"cs4" : [],
-		"cs5" : [],
-		"cs6" : [],
-		"cs7" : [],
-		"cs8" : []
+		"customSound_1" : [],
+		"customSound_2" : [],
+		"customSound_3" : [],
+		"customSound_4" : [],
+		"customSound_5" : [],
+		"customSound_6" : [],
+		"customSound_7" : [],
+		"customSound_8" : [],
+		"customSound_9" : [],
+		"customSound_10" : [],
+		"customSound_11" : [],
+		"customSound_12" : []
 	},
 	"transformationGroups" : {
 		"R_hand" 	: {"ignore" : true,"interpolated" : true},

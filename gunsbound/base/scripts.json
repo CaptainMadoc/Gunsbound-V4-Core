@@ -1,6 +1,7 @@
 [
 	"/gunsbound/modules/data.lua",
 	"/gunsbound/modules/timers.lua",
+	"/gunsbound/modules/customSounds.lua",
 	"/gunsbound/modules/requireUni.lua",
 
 	"/gunsbound/modules/camera.lua",
@@ -19,5 +20,7 @@
 	"/gunsbound/modules/flashlight.lua",
 	"/gunsbound/modules/laser.lua",
 	
-	"/gunsbound/modules/uimanager.lua"
+	"/gunsbound/modules/uimanager.lua",
+
+	"/gunsbound/modules/_GBDEBUG.lua"
 ]
