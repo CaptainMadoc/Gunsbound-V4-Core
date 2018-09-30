@@ -10,6 +10,14 @@ gun = {
 	},
 	camera = {0,0}
 }
+		--For debug ui
+
+function gun:gbDebug()
+	if _GBDEBUG then
+		_GBDEBUG:newTestUnit("gun:fire()", function() return self:fire() end)
+		_GBDEBUG:newTestUnit("gun:load_chamber()", function() return self:load_chamber() end)
+	end
+end
 
 		--CALLBACKS
 
@@ -50,6 +58,7 @@ function gun:init()
 	animation:addEvent("eject_chamber", function() self:eject_chamber() end)
 	animation:addEvent("load_ammo", function() self:load_chamber() end)
 
+	self:gbDebug()
 	require(processDirectory(data.gunScript))
 end
 
@@ -103,6 +112,11 @@ function gun:update(dt, fireMode, shiftHeld, moves)
 	end
 
 	self.cooldown = math.max(self.cooldown - updateInfo.dt, 0)
+	
+end
+
+
+function gun:updateUI()
 	
 end
 
@@ -169,8 +183,17 @@ function gun:canFire()
 	end
 end
 
+--base damage of the current bullet
+function gun:rawDamage()
+	local dmg = 0
+	if data.gunLoad then
+		return root.projectileConfig(data.gunLoad.parameters.projectile or "bullet-4").power or 5.0
+	end
+	return dmg
+end
+
 --You know
-function gun:fire()
+function gun:fire(overrideStats)
 	if data.gunLoad and not data.gunLoad.parameters.fired then -- data.gunLoad must be a valid bullet without a parameter fired as true
 		
 		local newConfig = root.itemConfig({name = data.gunLoad.name, count = 1, parameters = data.gunLoad.parameters})		
@@ -178,9 +201,9 @@ function gun:fire()
 
 		data.gunLoad.parameters = sb.jsonMerge(newConfig.config, newConfig.parameters)
 
-		local finalProjectileConfig = data.gunLoad.parameters.projectileConfig or {}
-		if not finalProjectileConfig.power then
-			finalProjectileConfig.power = (root.projectileConfig(data.gunLoad.parameters.projectile or "bullet-4").power or 5.0) * (data.gunStats.damageMultiplier or 1.0)
+		local finalProjectileConfig = sb.jsonMerge(data.gunLoad.parameters.projectileConfig or {}, overrideStats or {})
+		if not finalProjectileConfig.power then -- we calculate the gun x bullet power
+			finalProjectileConfig.power = sb.jsonMerge( self:rawDamage() * (data.gunStats.damageMultiplier or 1.0) , overrideStats or {})
 		end
 
 		for i=1,data.gunLoad.parameters.projectileCount or 1 do
@@ -204,7 +227,6 @@ function gun:fire()
 				self.hasToLoad = true
 			end
 		end
-		
 		--
 		
 		--emits FX muzzle flash sometimes changed by a silencer/flash hider

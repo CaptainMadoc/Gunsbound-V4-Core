@@ -21,6 +21,7 @@
 	"/gunsbound/modules/laser.lua",
 	
 	"/gunsbound/modules/uimanager.lua",
+	"/gunsbound/modules/ui.lua",
 	
 	"/gunsbound/modules/_GBDEBUG.lua"
 ]

@@ -5,6 +5,36 @@ magazine = {
 	selected = 1
 }
 
+		--CallBacks
+
+function magazine:init()
+	self.storage = config.getParameter("magazine", jarray())
+	self.selected = config.getParameter("selected", 1)
+end
+
+function magazine:lateinit()
+	animation:addEvent("insert_mag", function() magazine:insert() end)
+	animation:addEvent("insert_bullet", function() magazine:insert(1) end)
+	animation:addEvent("remove_mag", function() magazine:remove() end)
+	animation:addEvent("rotate_mag", function() magazine:rotate() end)
+	animation:addEvent("resetSelect_mag", function() magazine.selected = 1 magazine:saveData() end)
+	magazine:verify()
+end
+
+function magazine:update(dt)
+	activeItem.setScriptedAnimationParameter("magazine", self.storage)
+	activeItem.setScriptedAnimationParameter("magazineType", self.type)
+	activeItem.setScriptedAnimationParameter("selected", self.selected)
+	activeItem.setScriptedAnimationParameter("maxMagazine", data.gunStats.maxMagazine or 30)
+end
+
+function magazine:uninit()
+	self:saveData()
+end
+
+
+		--API
+
 function magazine:processCompatible(a)
 	if type(a) == "string" then
 		return root.assetJson(a)
@@ -120,10 +150,6 @@ function magazine:remove()
 	magazine:saveData()
 end
 
-function magazine:init()
-	self.storage = config.getParameter("magazine", jarray())
-	self.selected = config.getParameter("selected", 1)
-end
 
 function magazine:verify()
 	for i,v in pairs(self.storage) do
@@ -131,15 +157,6 @@ function magazine:verify()
 			self.storage[i] = nil
 		end
 	end
-end
-
-function magazine:lateinit()
-	animation:addEvent("insert_mag", function() magazine:insert() end)
-	animation:addEvent("insert_bullet", function() magazine:insert(1) end)
-	animation:addEvent("remove_mag", function() magazine:remove() end)
-	animation:addEvent("rotate_mag", function() magazine:rotate() end)
-	animation:addEvent("resetSelect_mag", function() magazine.selected = 1 magazine:saveData() end)
-	magazine:verify()
 end
 
 function magazine:take()
@@ -170,16 +187,5 @@ function magazine:rawcount()
 	return c
 end
 
-
-function magazine:update(dt)
-	activeItem.setScriptedAnimationParameter("magazine", self.storage)
-	activeItem.setScriptedAnimationParameter("magazineType", self.type)
-	activeItem.setScriptedAnimationParameter("selected", self.selected)
-	activeItem.setScriptedAnimationParameter("maxMagazine", data.gunStats.maxMagazine or 30)
-end
-
-function magazine:uninit()
-	self:saveData()
-end
 
 addClass("magazine")

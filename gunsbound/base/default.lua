@@ -93,9 +93,7 @@ function main:updateFire(firemode)
 
     
     if firemode == "primary" and gun:ready() and not self.semifired then-- primary mouse click event for firemodes
-
         local gunFireMode = gun:fireMode() -- we get his firemode
-
         if gunFireMode == "burst" and self.fireQueued == 0 then --if burst we get to queue shots
             self.fireQueued = data.gunStats.burst or 3
         elseif gunFireMode == "semi" then --if semi we fire and lock this part of the function so we dont go full auto
@@ -104,7 +102,6 @@ function main:updateFire(firemode)
         elseif gunFireMode == "auto" then --if auto we fire and keep on
             self:fire()
         end
-
     elseif firemode ~= "primary" and self.semifired then --unlocks the semi lock when mouse fire is not pressed
         self.semifired = false
     end

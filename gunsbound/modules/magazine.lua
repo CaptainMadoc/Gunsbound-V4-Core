@@ -5,11 +5,62 @@ magazine = {
 	}
 }
 
+		--CALLBACKS
+
+function magazine:init()
+	self.storage = config.getParameter("magazine", jarray())
+end
+
+function magazine:lateinit()
+	animation:addEvent("insert_mag", function() magazine:insert() end)
+	animation:addEvent("insert_bullet", function() magazine:insert(1) end)
+	animation:addEvent("remove_mag", function() magazine:remove() end)
+	if self:count() > self.size then
+		self:remove()
+	end
+end
+
+function magazine:update(dt)
+	activeItem.setScriptedAnimationParameter("magazine", self.storage)
+	activeItem.setScriptedAnimationParameter("magazineType", self.type)
+	activeItem.setScriptedAnimationParameter("maxMagazine", self.size or 30)
+end
+
+function magazine:uninit()
+	activeItem.setInstanceValue("magazine", self.storage)
+end
+
+		--API-
+
+-- i think this is used to checking if its a string then it will load a json from that file dir
 function magazine:processCompatible(a)
 	if type(a) == "string" then
 		return root.assetJson(a)
 	end
 	return a
+end
+
+--counts how much bullets in the magazine
+function magazine:count()
+	local c = 0
+	for i,v in pairs(self.storage) do
+		c = c + v.count
+	end
+	return c
+end
+
+--Check if player has ammo for it
+function magazine:playerHasAmmo()
+	local compat = config.getParameter("compatibleAmmo", jarray())
+	if type(compat) == "string" then
+		compat = processDirectory(compat)
+	end
+	for i,v in pairs(self:processCompatible(compat)) do
+		if player.hasItem({name = v, count = 1}) then
+			return true
+		end
+	end
+	return false
 end
 
 --variable 'co' is how much we take from player inventory
@@ -33,30 +84,8 @@ function magazine:insert(co)
 	activeItem.setInstanceValue("magazine", self.storage)
 end
 
---counts how much in the magazine
-function magazine:count()
-	local c = 0
-	for i,v in pairs(self.storage) do
-		c = c + v.count
-	end
-	return c
-end
 
---Check if player has ammo for it
-function magazine:playerHasAmmo()
-	local compat = config.getParameter("compatibleAmmo", jarray())
-	if type(compat) == "string" then
-		compat = processDirectory(compat)
-	end
-	for i,v in pairs(self:processCompatible(compat)) do
-		if player.hasItem({name = v, count = 1}) then
-			return true
-		end
-	end
-	return false
-end
-
---remove bullets
+--remove bullets from the mags
 function magazine:remove(specific)
 	local togive = jarray()
 	local toremove = specific or self:count() -- todo
@@ -83,19 +112,7 @@ function magazine:remove(specific)
 	activeItem.setInstanceValue("magazine", self.storage)
 end
 
-function magazine:init()
-	self.storage = config.getParameter("magazine", jarray())
-end
-
-function magazine:lateinit()
-	animation:addEvent("insert_mag", function() magazine:insert() end)
-	animation:addEvent("insert_bullet", function() magazine:insert(1) end)
-	animation:addEvent("remove_mag", function() magazine:remove() end)
-	if self:count() > self.size then
-		self:remove()
-	end
-end
-
+--takes a bullet from the magazine
 function magazine:take()
 	if self:count() > 0 then
 		local ammoPull = copycat(self.storage[#self.storage])
@@ -109,16 +126,6 @@ function magazine:take()
 		return ammoPull
 	end
 	return nil
-end
-
-function magazine:update(dt)
-	activeItem.setScriptedAnimationParameter("magazine", self.storage)
-	activeItem.setScriptedAnimationParameter("magazineType", self.type)
-	activeItem.setScriptedAnimationParameter("maxMagazine", self.size or 30)
-end
-
-function magazine:uninit()
-	activeItem.setInstanceValue("magazine", self.storage)
 end
 
 addClass("magazine")
