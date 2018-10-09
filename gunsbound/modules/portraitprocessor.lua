@@ -224,7 +224,7 @@ function portrait:speciesDir(sp, gen, part)
 end
 
 function portrait:auto(id)
-return self:speciesParts(world.entityPortrait(id, "full"), world.entitySpecies(id), world.entityGender(id))
+	return self:speciesParts(world.entityPortrait(id, "full"), world.entitySpecies(id), world.entityGender(id))
 end
 
 function portrait:speciesParts(p, spe, gender)

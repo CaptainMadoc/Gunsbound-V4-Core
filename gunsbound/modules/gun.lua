@@ -194,6 +194,8 @@ end
 
 --You know
 function gun:fire(overrideStats)
+	if not overrideStats then overrideStats = {} end
+
 	if data.gunLoad and not data.gunLoad.parameters.fired then -- data.gunLoad must be a valid bullet without a parameter fired as true
 		
 		local newConfig = root.itemConfig({name = data.gunLoad.name, count = 1, parameters = data.gunLoad.parameters})		
@@ -201,11 +203,14 @@ function gun:fire(overrideStats)
 
 		data.gunLoad.parameters = sb.jsonMerge(newConfig.config, newConfig.parameters)
 
-		local finalProjectileConfig = sb.jsonMerge(data.gunLoad.parameters.projectileConfig or {}, overrideStats or {})
+		-- apply bullet projectile stuff
+		local finalProjectileConfig = data.gunLoad.parameters.projectileConfig or {}
 		if not finalProjectileConfig.power then -- we calculate the gun x bullet power
-			finalProjectileConfig.power = sb.jsonMerge( self:rawDamage() * (data.gunStats.damageMultiplier or 1.0) , overrideStats or {})
+			finalProjectileConfig.power = self:rawDamage() * (overrideStats.damageMultiplier or data.gunStats.damageMultiplier or 1.0)
 		end
+		finalProjectileConfig.speed = (finalProjectileConfig.speed or 5.0) * (overrideStats.bulletSpeedMultiplier or data.gunStats.bulletSpeedMultiplier or 1.0)
 
+		--spawns bullet
 		for i=1,data.gunLoad.parameters.projectileCount or 1 do
 			world.spawnProjectile(
 				data.gunLoad.parameters.projectile or "bullet-4", 
@@ -230,17 +235,20 @@ function gun:fire(overrideStats)
 		--
 		
 		--emits FX muzzle flash sometimes changed by a silencer/flash hider
-		if data.gunStats.muzzleFlash == 1 then
+		if (overrideStats.muzzleFlash or data.gunStats.muzzleFlash) == 1 then
 			animator.setAnimationState("firing", "on")
 		end
 
+		--firesounds
 		animator.playSound("fireSounds")
+		
+		--local status
 		self.cooldown = self:rpm()
 		self:addRecoil()
+		
 		self.recoilCamera = {math.sin(math.rad(self.recoil * 80)) * ((self.recoil / 8) ^ 1.25), self.recoil / 8}
-
-		datamanager:save("gunLoad")
-
+		datamanager:save("gunLoad") --Save as we changed something in gunLoad 
+		
 		return true
 	else --else plays a dry sound
 		animator.playSound("dry")

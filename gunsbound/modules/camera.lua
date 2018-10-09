@@ -5,9 +5,7 @@ camera = {
 	projID = nil
 }
 
-function camera:init()
-	
-end
+function camera:init() end
 
 function camera:update(dt) 
 	self.current = {
@@ -19,7 +17,7 @@ function camera:update(dt)
 		world.callScriptedEntity(self.projID, "mcontroller.setPosition", vec2.add(mcontroller.position(), self.current))
 		world.callScriptedEntity(self.projID, "mcontroller.setVelocity", {0,0})
 	else
-		camera:respawnProjectile()
+		self:respawnProjectile()
 	end
 end
 

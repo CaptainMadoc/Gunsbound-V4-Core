@@ -7,9 +7,13 @@ datamanager = {
 
 function datamanager:load(name, autosave, tabdef)
     data[name] = config.getParameter(name)
-    if tabdef then
+    if type(tabdef) == "table" and type(data[name]) == "table" then
         data[name] = sb.jsonMerge(tabdef, data[name])
+    elseif not data[name] then -- fail safe
+        data[name] = tabdef
+        autosave = false
     end
+    
     if autosave then
         table.insert(self.savelist, name)
     end

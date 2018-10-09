@@ -2,8 +2,6 @@ ui = {
 	elements = {}
 }
 
-
-
 function ui:lateInit()
 	for i,v in pairs(self.elements) do
 		if self.elements[i].init then
@@ -12,11 +10,27 @@ function ui:lateInit()
 	end
 end
 
+--[[
+	element:draw() must be returned like this:
+	
+	return
+	{
+		func = "function name in localAnimator",
+		args = {1,2,3,4,5}
+	}
+
+]]
+
+
 function ui:update()
 	local SetElements = {}
 	for i,v in pairs(self.elements) do
 		if self.elements[i].update then
-			SetElements[i] = self.elements[i]:draw()
+			local pulled = self.elements[i]:draw() -- asking all binded elements what to draw
+			for i,v in pairs(pulled) do
+				table.insert(SetElements, v)
+			end
+			SetElements[i] = 
 		end
 	end
 	activeItem.setScriptedAnimationParameter("elements", SetElements)

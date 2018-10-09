@@ -25,7 +25,7 @@ function aim:init()
 end
 
 function aim:update(dt)
-	if self.disabled and self.current ~= 0 then
+	if self.disabled then
 		activeItem.setArmAngle(0)
 		self.current = 0
 		return

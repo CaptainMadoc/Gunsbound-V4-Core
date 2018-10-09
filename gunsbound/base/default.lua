@@ -16,6 +16,7 @@ function main:init()
 	animation:addEvent("reloadLoop", function() self.reloadLoop = true end)
     --initial weapon animation
     self:animate("draw")
+
 end
 
 --this is called when a firemode is fired
@@ -44,13 +45,16 @@ function main:update(dt, fireMode, shiftHeld, moves)
             end
         end
     end
+    
 end
 
 --this is after init (next frame)
-function main:lateinit() end
+function main:lateinit()
+end
 
 --this is called when the lua state is being destroyed
-function main:uninit() end
+function main:uninit()
+end
 
 
 --OTHER FUNCTIONS
@@ -59,7 +63,7 @@ function main:uninit() end
 function main:animate(type,noprefix)
     if not noprefix and 
         (gun:chamberDry() and (not gun.hasToLoad and not data.bypassShellEject))
-    then
+        then
 		animation:play(data.gunAnimations[type.."_dry"] or data.gunAnimations[type] or type.."_dry")
 	else
 		animation:play(data.gunAnimations[type] or type)

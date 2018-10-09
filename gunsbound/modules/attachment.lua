@@ -1,5 +1,6 @@
 attachment = {
 	statsInited = false,
+	statsChanges = {},
 	config = {},
 	modules = {},
 	loadedScripts = {},
@@ -7,14 +8,8 @@ attachment = {
 	special = nil
 }
 
-function attachment:triggerSpecial()
-	if self.special and self.modules[self.special] and self.modules[self.special].fireSpecial then
-		self.modules[self.special]:fireSpecial(fireMode, shiftHeld)
-	end
-end
 
 function attachment:init()
-	self.gunPart = config.getParameter("attachments_gunPart")
 	self.config = config.getParameter("attachments")
 
 	for i,v in pairs(config.getParameter("giveback", {})) do
@@ -23,41 +18,6 @@ function attachment:init()
 	activeItem.setInstanceValue("giveback", jarray())
 end
 
-function attachment:rel(pos)	
-	return vec2.add(mcontroller.position(), activeItem.handPosition(pos))
-end
-
-function attachment:createTransform(namee, offset, scale, attachPart, gunTag, gunTagEnd) -- for transforms.lua
-	if not animator.partPoint(attachPart, gunTag) or not animator.partPoint(attachPart, gunTagEnd) then return end
-
-	local somenewTransform = function(name, this, dt)
-
-		if animator.hasTransformationGroup(name) then --Check to prevent crashing
-			local setting  = {
-				position = vec2.add(animator.partPoint(attachPart, gunTag), vec2.mul(offset or {0,0}, scale or {1,1})),
-				scale = scale or {1,1},
-				scalePoint = {0,0},
-				rotation = vec2.angle(vec2.sub(animator.partPoint(attachPart, gunTagEnd), animator.partPoint(attachPart, gunTag))) or 0,
-				rotationPoint = vec2.mul(offset or {0,0}, -1)
-			}
-			--debug purposes
-
-			animator.resetTransformationGroup(name) 
-			animator.scaleTransformationGroup(name, setting.scale, setting.scalePoint)
-			animator.rotateTransformationGroup(name, setting.rotation, vec2.mul(setting.rotationPoint,setting.scale))
-			animator.translateTransformationGroup(name, setting.position)
-
-			local pos = animator.partPoint(attachPart, gunTag)
-			
-			--world.debugPoint(self:rel(pos), "blue")
-			--world.debugText(name.." = "..sb.printJson(pos,0), vec2.add(self:rel(pos), {0.05, 0.05}), "#00000010")
-			--world.debugText(name.." = "..sb.printJson(pos,0), vec2.add(self:rel(pos), {0,0}), "#ffffff40")
-		end
-
-	end
-
-	transforms:lateAdd(namee, {}, somenewTransform)
-end
 
 function attachment:lateinit() --item check
 	local attachmentsConfig = root.itemConfig({name = item.name(), count = 1}).config.attachments -- original attachment config from weapon
@@ -126,7 +86,49 @@ function attachment:uninit()
 	end
 end
 
+function attachment:rel(pos)	
+	return vec2.add(mcontroller.position(), activeItem.handPosition(pos))
+end
+
+function attachment:createTransform(namee, offset, scale, attachPart, gunTag, gunTagEnd) -- for transforms.lua
+	if not animator.partPoint(attachPart, gunTag) or not animator.partPoint(attachPart, gunTagEnd) then return end
+
+	local somenewTransform = function(name, this, dt)
+		if animator.hasTransformationGroup(name) then --Check to prevent crashing
+			local setting  = {
+				position = vec2.add(animator.partPoint(attachPart, gunTag), vec2.mul(offset or {0,0}, scale or {1,1})),
+				scale = scale or {1,1},
+				scalePoint = {0,0},
+				rotation = vec2.angle(vec2.sub(animator.partPoint(attachPart, gunTagEnd), animator.partPoint(attachPart, gunTag))) or 0,
+				rotationPoint = vec2.mul(offset or {0,0}, -1)
+			}
+			animator.resetTransformationGroup(name) 
+			animator.scaleTransformationGroup(name, setting.scale, setting.scalePoint)
+			animator.rotateTransformationGroup(name, setting.rotation, vec2.mul(setting.rotationPoint,setting.scale))
+			animator.translateTransformationGroup(name, setting.position)
+		end
+	end
+
+	transforms:lateAdd(namee, {}, somenewTransform)
+end
+
+--gun api
+
+function attachment:triggerSpecial()
+	if self.special and self.modules[self.special] and self.modules[self.special].fireSpecial then
+		self.modules[self.special]:fireSpecial(fireMode, shiftHeld)
+	end
+end
+
 --stats API
+
+function attachment:resetStats() -- do not use this. other attachments are not notified by this
+	if self.originalStats then
+		data.gunStats = copycat(self.originalStats)
+		self.originalStats = false
+		self.statsChanges = {}
+	end
+end
 
 function attachment:refreshStats()
 	self:resetStats()
@@ -138,6 +140,7 @@ function attachment:refreshStats()
 	magazine.size = data.gunStats.maxMagazine
 end
 
+
 function attachment:addStats(stats)
 	if not self.originalStats then
 		self.originalStats = copycat(data.gunStats)
@@ -145,15 +148,8 @@ function attachment:addStats(stats)
 	for i,v in pairs(stats) do
 		if data.gunStats[i] then
 			data.gunStats[i] = math.max(data.gunStats[i] + v, 0)
+			self.statsChanges[i] = math.max((self.statsChanges[i] or 0) + v, 0)
 		end
-	end
-end
-
-
-function attachment:resetStats() -- do not use this. other attachments are not notified by this
-	if self.originalStats then
-		data.gunStats = copycat(self.originalStats)
-		self.originalStats = false
 	end
 end
 
@@ -163,7 +159,9 @@ function attachment:setStats(stats)
 	end
 	for i,v in pairs(stats) do
 		if data.gunStats[i] then
-			data.gunStats[i] = copycat(v)
+			local copyed = copycat(v)
+			data.gunStats[i] = copyed
+			self.statsChanges[i] = copyed
 		end
 	end
 end

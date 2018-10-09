@@ -18,7 +18,7 @@ function magazine:lateinit()
 	animation:addEvent("remove_mag", function() magazine:remove() end)
 	animation:addEvent("rotate_mag", function() magazine:rotate() end)
 	animation:addEvent("resetSelect_mag", function() magazine.selected = 1 magazine:saveData() end)
-	magazine:verify()
+	self:verify()
 end
 
 function magazine:update(dt)
