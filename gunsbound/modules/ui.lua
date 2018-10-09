@@ -30,7 +30,6 @@ function ui:update()
 			for i,v in pairs(pulled) do
 				table.insert(SetElements, v)
 			end
-			SetElements[i] = 
 		end
 	end
 	activeItem.setScriptedAnimationParameter("elements", SetElements)
