@@ -19,11 +19,11 @@ function module:refreshData()
     self.muzzleDistance = animationConfig.animationParameter("muzzleDistance") or {0,0}
 end
 
-function module:init()
+function module:init() if true then return end
     self:refreshData()
 end
 
-function module:update(dt)
+function module:update(dt) if true then return end
 	self:refreshData()
 
 	local distance = (math.abs(self["muzzleDistance"][2]) + math.abs(self["muzzleDistance"][1])) / 2

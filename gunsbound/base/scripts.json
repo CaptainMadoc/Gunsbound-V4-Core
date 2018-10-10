@@ -22,6 +22,8 @@
 	
 	"/gunsbound/modules/uimanager.lua",
 	"/gunsbound/modules/ui.lua",
+	"/gunsbound/modules/gun_ui.lua",
+	"/gunsbound/modules/crosshair_ui.lua",
 
 	"/gunsbound/modules/_GBDEBUG.lua"
 ]

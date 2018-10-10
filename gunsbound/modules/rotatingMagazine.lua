@@ -2,6 +2,7 @@ magazine = {
 	type = "rotating",
 	storage = {
 	},
+	disableUI = false,
 	selected = 1
 }
 
@@ -10,6 +11,7 @@ magazine = {
 function magazine:init()
 	self.storage = config.getParameter("magazine", jarray())
 	self.selected = config.getParameter("selected", 1)
+	self.elementID = ui:newElement(self:createElement())
 end
 
 function magazine:lateinit()
@@ -30,6 +32,77 @@ end
 
 function magazine:uninit()
 	self:saveData()
+end
+
+
+--ui.lua needed
+function magazine:createElement()
+	
+	local element = {
+		lerpingVar1 = 0
+	}
+
+	function element:init()
+		
+	end
+
+	function element:draw()
+		local todraw = {}
+		if magazine.disableUI then return todraw end
+		local direction = -1
+		if activeItem.hand() == "alt" then direction = 1 end
+
+
+		local lines = {}
+		local angleperammo = 360/magazine.size
+
+		if self.lerpingVar1 > (magazine.size - 1) * angleperammo and magazine.selected == 1 then
+			self.lerpingVar1 = self.lerpingVar1 - 360
+		end
+
+		self.lerpingVar1 = lerpr(self.lerpingVar1, magazine.selected * angleperammo, 0.125)
+
+		for i=1,magazine.size do
+			local a = {0,0.5}
+			local b = {0,1}
+			
+			local ang =  math.rad((angleperammo * i) - self.lerpingVar1)
+	
+			local color = {255,255,255}
+			if not magazine.storage[i] and i ~= magazine.selected or i == magazine.selected and type(data.gunLoad) ~= "table" then
+				color = {0,0,0}
+			elseif  magazine.storage[i] and magazine.storage[i].parameters and magazine.storage[i].parameters.fired or i == magazine.selected and (data.gunLoad and data.gunLoad.parameters.fired) then
+				color = {255,0,0}
+			end
+	
+			table.insert(
+				lines,
+				{
+					line = {
+						vec2.add( vec2.rotate(a,ang), {3 * direction, -5}),
+						vec2.add( vec2.rotate(b,ang), {3 * direction, -5})
+					},
+					position = mcontroller.position(),
+					width = 2,
+					color = color,
+					fullbright = true
+				}
+			)
+		end
+	
+		for i,v in pairs(lines) do
+			table.insert(todraw, {
+				func = "addDrawable",
+				args = {v, "overlay"}
+			}
+		)
+		end
+		
+
+		return todraw
+	end
+
+	return element
 end
 
 

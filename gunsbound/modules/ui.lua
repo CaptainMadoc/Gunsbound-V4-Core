@@ -25,7 +25,7 @@ end
 function ui:update()
 	local SetElements = {}
 	for i,v in pairs(self.elements) do
-		if self.elements[i].update then
+		if self.elements[i].draw then
 			local pulled = self.elements[i]:draw() -- asking all binded elements what to draw
 			for i,v in pairs(pulled) do
 				table.insert(SetElements, v)

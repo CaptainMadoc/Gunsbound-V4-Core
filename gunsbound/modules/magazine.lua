@@ -1,6 +1,8 @@
 magazine = {
 	type = "normal",
 	size = 30,
+	elementID = false,
+	disableUI = false,
 	storage = {
 	}
 }
@@ -9,6 +11,7 @@ magazine = {
 
 function magazine:init()
 	self.storage = config.getParameter("magazine", jarray())
+	self.elementID = ui:newElement(self:createElement())
 end
 
 function magazine:lateinit()
@@ -28,6 +31,80 @@ end
 
 function magazine:uninit()
 	activeItem.setInstanceValue("magazine", self.storage)
+end
+
+--ui.lua needed
+function magazine:createElement()
+	
+	local element = {
+		lerpingVar1 = 0
+	}
+
+	function element:init()
+		
+	end
+
+	function element:draw()
+		local todraw = {}
+		if magazine.disableUI then return todraw end
+		local load = data.gunLoad
+		local direction = -1
+		if activeItem.hand() == "alt" then direction = 1 end
+
+		local countedAmmo = 0
+
+		for i,v in pairs(magazine.storage or {}) do
+			countedAmmo = countedAmmo + v.count
+		end
+	
+		self.lerpingVar1 = lerpr(self.lerpingVar1, countedAmmo, 0.125)
+
+		table.insert(
+			todraw, {
+				func = "addDrawable",
+				args = {
+					{
+						line = {
+							{(2.25)  * direction , -5},
+							{(2.25 + (8 * (self.lerpingVar1 / magazine.size))) * direction, -5}
+						},
+						position = mcontroller.position(),
+						width = 2,
+						color = {255,255,255,255},
+						fullbright = true
+					},
+					"overlay"
+				}
+			}
+		)
+	
+		if type(load) == "table" then
+			local chambercolor = {255,255,255}
+			if load.parameters and load.parameters.fired then chambercolor = {255,0,0} end
+	
+			table.insert(todraw,{
+					func = "addDrawable",
+					args = {
+						{
+							line = {
+								{(1)  * direction , -5},
+								{(2) * direction, -5}
+							},
+							position = mcontroller.position(),
+							width = 2,
+							color = chambercolor,
+							fullbright = true
+						},
+						"overlay"
+					}
+				}
+			)
+		end
+
+		return todraw
+	end
+
+	return element
 end
 
 		--API-
@@ -83,7 +160,6 @@ function magazine:insert(co)
 	end
 	activeItem.setInstanceValue("magazine", self.storage)
 end
-
 
 --remove bullets from the mags
 function magazine:remove(specific)
