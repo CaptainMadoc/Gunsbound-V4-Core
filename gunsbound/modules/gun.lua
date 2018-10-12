@@ -26,9 +26,10 @@ function gun:init()
     datamanager:load("gunScript", false, "/gunsbound/base/default.lua")
 	datamanager:load("gunStats", false, 
 		{
-			damageMultiplier = 2,
+			damageMultiplier = 1,
+			bulletSpeedMultiplier = 1,
 			maxMagazine = 30,
-			aimLookRatio = 0.125,
+			aimLookRatio = 0,
 			burst = 3,
 			recoil = 4,
 			recoilRecovery = 2,
