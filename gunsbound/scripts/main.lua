@@ -1,6 +1,9 @@
+
+
 require "/scripts/util.lua"
 require "/scripts/vec2.lua"
 require "/gunsbound/scripts/util.lua"
+require "/gunsbound/scripts/itemBugLog.lua"
 
 debugMode = true
 _Delta = os.clock()
@@ -22,7 +25,14 @@ pD = processDirectory
 
 updateInfo = {dt = 1/62, fireMode = "none", shiftHeld = false, moves = {up = false, left = false, right = false, down = false}}
 updateLast = {dt = 1/62, fireMode = "none", shiftHeld = false, moves = {up = false, left = false, right = false, down = false}}
-selfItem = {classes = {},toCondense = false, condensedClasses = {}, rootDirectory = "/", hasLateInited = false}
+selfItem = {
+	classes = {},
+	toCondense = false,
+	condensedClasses = {},
+	rootDirectory = "/",
+	hasLateInited = false,
+	suspend = false
+}
 
 function init()	
 	
@@ -49,9 +59,13 @@ function init()
 	updateClass()
 	for i,v in ipairs(selfItem.condensedClasses) do
 		if _ENV[v] and _ENV[v].init then
-			_ENV[v]:init()
+			local ret, status = IBL:run(function() _ENV[v]:init() end)
+			if not status then
+				selfItem.suspend = true
+				return
+			end
 		end
-	end 
+	end
 end
 
 function updateClass()
@@ -76,13 +90,24 @@ function addClass(name, prioity) --add for the class system to update
 end
 
 function update(dt, fireMode, shiftHeld, moves) 
+	if selfItem.suspend then return end
 	updateInfo = {dt = os.clock() - _Delta, fireMode = fireMode, shiftHeld = shiftHeld, moves = moves}
 
 	updateClass()
 	if not selfItem.hasLateInited then
 		for i,v in ipairs(selfItem.condensedClasses) do --the reason behind of this, is because i use this when all the modules are properly inited. also cannot be recalled after loading another script in runtime.
 			if _ENV[v] and _ENV[v].lateinit then
-				_ENV[v]:lateinit(updateInfo.dt, fireMode, shiftHeld, moves)
+				local ret, status = IBL:run(function(dt, fireMode, shiftHeld, moves) _ENV[v]:lateinit(dt, fireMode, shiftHeld, moves) end, dt, fireMode, shiftHeld, moves)
+				if not status then
+					selfItem.suspend = true
+					return
+				end
+			elseif _ENV[v] and _ENV[v].lateInit then
+				local ret, status = IBL:run(function(dt, fireMode, shiftHeld, moves) _ENV[v]:lateInit(dt, fireMode, shiftHeld, moves) end, dt, fireMode, shiftHeld, moves)
+				if not status then
+					selfItem.suspend = true
+					return
+				end
 			end
 		end
 		selfItem.hasLateInited = true
@@ -90,7 +115,21 @@ function update(dt, fireMode, shiftHeld, moves)
 		
 	for i,v in ipairs(selfItem.condensedClasses) do
 		if _ENV[v] and _ENV[v].update then
-			_ENV[v]:update(updateInfo.dt, fireMode, shiftHeld, moves)
+			local ret, status = IBL:run(function(dt, fireMode, shiftHeld, moves) _ENV[v]:update(dt, fireMode, shiftHeld, moves) end, dt, fireMode, shiftHeld, moves)
+			if not status then
+				selfItem.suspend = true
+				return
+			end
+		end
+	end
+
+	for i,v in ipairs(selfItem.condensedClasses) do
+		if _ENV[v] and _ENV[v].lateUpdate then
+			local ret, status = IBL:run(function(dt, fireMode, shiftHeld, moves) _ENV[v]:lateUpdate(dt, fireMode, shiftHeld, moves) end, dt, fireMode, shiftHeld, moves)
+			if not status then
+				selfItem.suspend = true
+				return
+			end
 		end
 	end
 	
@@ -99,19 +138,31 @@ function update(dt, fireMode, shiftHeld, moves)
 end
 
 function uninit()
+	if selfItem.suspend then return end
+
 	updateClass()
 	for i,v in ipairs(selfItem.condensedClasses) do
 		if _ENV[v] and _ENV[v].uninit then
-			_ENV[v]:uninit()
+			local ret, status = IBL:run(function() _ENV[v]:uninit() end)
+			if not status then
+				selfItem.suspend = true
+				return
+			end
 		end
 	end
 end
 
 function activate(fireMode, shiftHeld)
+	if selfItem.suspend then return end
+
 	updateClass()
 	for i,v in ipairs(selfItem.condensedClasses) do
 		if _ENV[v] and _ENV[v].activate then
-			_ENV[v]:activate(fireMode, shiftHeld)
+			local ret, status = IBL:run(function(fireMode, shiftHeld) _ENV[v]:activate(fireMode, shiftHeld) end, fireMode, shiftHeld)
+			if not status then
+				selfItem.suspend = true
+				return
+			end
 		end
 	end
 end

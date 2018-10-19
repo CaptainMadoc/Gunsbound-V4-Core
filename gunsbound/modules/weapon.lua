@@ -1,3 +1,5 @@
+--obsolete do not use this anymore
+	
 weapon = {
 	global = {autoReload = true},
 
@@ -59,7 +61,6 @@ function weapon:debug(dt)
 	world.debugPoint(self:casingPosition(), "yellow")
 	world.debugLine(self:rel(animator.partPoint(self.muzzlePosition.part, self.muzzlePosition.tag)),self:rel(self:calculateInAccuracy(animator.partPoint(self.muzzlePosition.part, self.muzzlePosition.tag_end))), "red")
 end
-
 
 --
 function weapon:calculateRPM(r)
@@ -174,7 +175,6 @@ function weapon:eject_ammo()
 		activeItem.setInstanceValue("gunLoad", self.load)
 	end
 	if magazine:count() == 0 then
-		
 		animation:play(self.animations.dry)
 	end
 end

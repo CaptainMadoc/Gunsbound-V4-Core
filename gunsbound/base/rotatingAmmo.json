@@ -1,19 +1,29 @@
-[
-	"/gunsbound/modules/weapon.lua",
-	"/gunsbound/modules/attachment.lua",
-	//"/gunsbound/modules/magazine.lua",
-	"/gunsbound/modules/rotatingMagazine.lua",
+[	
+	"/gunsbound/modules/data.lua",
+	"/gunsbound/modules/timers.lua",
+	"/gunsbound/modules/customSounds.lua",
+	"/gunsbound/modules/requireUni.lua",
+
 	"/gunsbound/modules/camera.lua",
 	"/gunsbound/modules/aim.lua",
-	
+
 	"/gunsbound/modules/portraitprocessor.lua",
 	"/gunsbound/modules/arms.lua",
-	"/gunsbound/modules/transforms.lua",
+
 	"/gunsbound/modules/animation.lua",
+	"/gunsbound/modules/transforms.lua",
+
+	"/gunsbound/modules/rotatingMagazine.lua",
+	"/gunsbound/modules/gun.lua",
+
+	"/gunsbound/modules/attachment.lua",
+	"/gunsbound/modules/flashlight.lua",
+	"/gunsbound/modules/laser.lua",
 	
-	"/gunsbound/modules/portraitprocessor.lua",
-	"/gunsbound/modules/flashlightmanager.lua",
-	"/gunsbound/modules/lasermanager.lua",
-	"/gunsbound/modules/uimanager.lua",
-	"/gunsbound/modules/requireUni.lua"
+	"/gunsbound/modules/ui.lua",
+	"/gunsbound/modules/gun_ui.lua",
+	"/gunsbound/modules/crosshair_ui.lua",
+
+	
+	"/gunsbound/modules/_GBDEBUG.lua"
 ]

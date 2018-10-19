@@ -33,8 +33,7 @@ end
 function module:update(dt)
     self:refreshData()
 
-
-    if self["fireSelect"] then
+    if self["fireSelect"] and false then
         local offset = {-1.5,-6}
         local directive = ""
 		if self["althanded"] then
@@ -51,7 +50,6 @@ function module:update(dt)
             "overlay"
         )	
     end
-   
     
     if self.selected then
         self:drawMagR()
@@ -149,6 +147,7 @@ function module:drawMagR()
         "overlay"
     )
     end
+    
 end
 
 function module:uninit()

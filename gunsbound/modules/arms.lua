@@ -265,15 +265,15 @@ end
 
 function arms:setFullArm(side, show)
 	if show then
-		arms:setArm(side, "/humanoid/"..self.specie.."/frontarm.png:rotation"..self.directives,true)
+		self:setArm(side, "/humanoid/"..self.specie.."/frontarm.png:rotation"..self.directives,true)
 		if self.directory and self.armordirectives then
-			arms:setArmorArm(side, self.directory..":rotation"..self.armordirectives,true)
+			self:setArmorArm(side, self.directory..":rotation"..self.armordirectives,true)
 		else
-			arms:setArmorArm(side, "",false)
+			self:setArmorArm(side, "",false)
 		end
 	else
-		arms:setArm(side, "",false)
-		arms:setArmorArm(side, "",false)
+		self:setArm(side, "",false)
+		self:setArmorArm(side, "",false)
 	end
 end
 
@@ -317,17 +317,17 @@ function arms:update(dt)
 		self.curdirection = direction
 		local handhold = activeItem.hand()
 		if not self.twohand then
-			animator.setAnimationState("left", arms:whatlayer(direction, handhold))
-			animator.setAnimationState("right", arms:whatlayer(-direction, handhold))
-			arms:setFullArm("L", false)
-			arms:setFullArm("R", true)
+			animator.setAnimationState("left", self:whatlayer(direction, handhold))
+			animator.setAnimationState("right", self:whatlayer(-direction, handhold))
+			self:setFullArm("L", false)
+			self:setFullArm("R", true)
 		else
-			arms:setFullArm("L", true)
-			arms:setFullArm("R", true)
+			self:setFullArm("L", true)
+			self:setFullArm("R", true)
 			animator.setAnimationState("left", "back")
 			animator.setAnimationState("right", "front")
 		end
 	end
 end
 
-addClass("arms", 901)
+addClass("arms")

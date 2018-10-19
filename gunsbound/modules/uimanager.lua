@@ -1,3 +1,5 @@
+--obsolete
+
 uimanager = {}
 
 function uimanager:init()
@@ -13,29 +15,22 @@ end
 
 function uimanager:update(dt)
 	
-	activeItem.setScriptedAnimationParameter("load", type(weapon.load))
+	activeItem.setScriptedAnimationParameter("load", type(data.gunLoad))
 	
-	
-	--to fix
-	local t = false
-	
-	if weapon.load and weapon.load.parameters.fired then
-		t = true
+	if data.gunLoad and data.gunLoad.parameters.fired then
 		activeItem.setScriptedAnimationParameter("fired", true)
-	end
-	
-	if not t then
+	elseif data.gunLoad then
 		activeItem.setScriptedAnimationParameter("fired", false)
 	end
 	
-	activeItem.setScriptedAnimationParameter("fireSelect",  weapon.fireTypes[weapon.fireSelect])
-	activeItem.setScriptedAnimationParameter("inAccuracy",  weapon:getInAccuracy())
+	activeItem.setScriptedAnimationParameter("fireSelect",  gun:fireMode())
+	activeItem.setScriptedAnimationParameter("inAccuracy",  gun:inaccuracy())
 	activeItem.setScriptedAnimationParameter("althanded",  activeItem.hand() == "alt")
-	activeItem.setScriptedAnimationParameter("muzzleDistance",  world.distance(activeItem.ownerAimPosition(),weapon:rel(animator.partPoint("gun", "muzzle_begin"))))
+	activeItem.setScriptedAnimationParameter("muzzleDistance",  world.distance(activeItem.ownerAimPosition(),gun:rel(animator.partPoint("gun", "muzzle_begin"))))
 
 end
 
 function uimanager:uninit()
 end
 
-addClass("uimanager", 620)
+addClass("uimanager")

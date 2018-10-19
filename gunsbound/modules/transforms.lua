@@ -5,7 +5,7 @@ transforms = {
 	original = {},
 	current = {},
 }
-
+--[[
 function dp(orig)
     local orig_type = type(orig)
     local copy
@@ -20,7 +20,7 @@ function dp(orig)
     end
     return copy
 end
-
+]]
 function vec2.lerpR(a,b,r)
 	return {
 		a[1] + (b[1] - a[1]) * r[1],
@@ -29,12 +29,12 @@ function vec2.lerpR(a,b,r)
 end
 
 function transforms:add(name,tr,updatefunc)
-	self.original[name] = dp(tr)
+	self.original[name] = copycat(tr)
 	self.updateChild[name] = updatefunc
 end
 
 function transforms:lateAdd(name,tr,updatefunc)
-	self.original[name] = dp(tr)
+	self.original[name] = copycat(tr)
 	self.lateUpdateChild[name] = updatefunc
 end
 
@@ -95,7 +95,7 @@ end
 
 function transforms:apply(name, tr)
 	if self.original[name] then
-		self.current[name] = sb.jsonMerge(dp(self.original[name]), tr)
+		self.current[name] = sb.jsonMerge(copycat(self.original[name]), tr)
 	end
 end
 
@@ -105,6 +105,9 @@ function transforms:update(dt)
 			self.updateChild[i](i, v, dt)
 		end
 	end
+end
+
+function transforms:lateUpdate(dt)
 	for i,v in pairs(self.current) do
 		if type(self.lateUpdateChild[i]) == "function" then
 			self.lateUpdateChild[i](i, v, dt)
@@ -112,4 +115,4 @@ function transforms:update(dt)
 	end
 end
 
-addClass("transforms", 900)
+addClass("transforms")
