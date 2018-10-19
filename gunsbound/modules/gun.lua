@@ -116,11 +116,6 @@ function gun:update(dt, fireMode, shiftHeld, moves)
 	
 end
 
-
-function gun:updateUI()
-	
-end
-
 		--API--
 
 --Use for calculation RPM to shots timer
@@ -185,10 +180,11 @@ function gun:canFire()
 end
 
 --base damage of the current bullet
-function gun:rawDamage()
+function gun:rawDamage(projectilename)
 	local dmg = 0
 	if data.gunLoad then
-		return root.projectileConfig(data.gunLoad.parameters.projectile or "bullet-4").power or 5.0
+
+		return root.projectileConfig(projectilename or (data.gunLoad.parameters or {}).projectile or "bullet-4").power or 5.0
 	end
 	return dmg
 end

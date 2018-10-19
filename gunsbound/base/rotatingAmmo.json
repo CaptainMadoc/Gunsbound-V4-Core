@@ -20,7 +20,6 @@
 	"/gunsbound/modules/flashlight.lua",
 	"/gunsbound/modules/laser.lua",
 	
-	"/gunsbound/modules/uimanager.lua",
 	"/gunsbound/modules/ui.lua",
 	"/gunsbound/modules/gun_ui.lua",
 	"/gunsbound/modules/crosshair_ui.lua",

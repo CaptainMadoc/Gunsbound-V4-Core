@@ -1,4 +1,5 @@
---will need to be improved for custom weapons types
+--obsolete
+
 uimanager = {}
 
 function uimanager:init()
