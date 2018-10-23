@@ -257,19 +257,30 @@ end
 --Gets bullet out from the internal gun
 function gun:eject_chamber()
 	if data.gunLoad then
-		if data.gunLoad.parameters and data.gunLoad.parameters.fired and data.gunLoad.parameters.casingProjectile and data.casingFX then
-			world.spawnProjectile(
-				data.gunLoad.parameters.casingProjectile, 
-				self:casingPosition(), 
-				activeItem.ownerEntityId(), 
-				vec2.rotate({0,1}, math.rad(math.random(90) - 45)), 
-				false,
-				data.gunLoad.parameters.casingProjectileConfig or {speed = 10, timeToLive = 1}
-			)
-		elseif not data.gunLoad.parameters or not data.gunLoad.parameters.fired then
-			player.giveItem(data.gunLoad)
+
+		local itemConfig = root.itemConfig(data.gunLoad)
+		local finalItemParameters = sb.jsonMerge(itemConfig.config, data.gunLoad.parameters or {})
+
+		local projectileParam = finalItemParameters.casingProjectileConfig or {speed = 10, timeToLive = 1}
+
+
+		if not itemConfig.parameters.fired then
+			projectileParam.actionOnReap = projectileParam.actionOnReap or {}
+			table.insert(projectileParam.actionOnReap, {action = "item", name = data.gunLoad.name,count = data.gunLoad.count, data = itemConfig.parameters})
+			--player.giveItem(data.gunLoad)
 		end
+
+		world.spawnProjectile(
+			finalItemParameters.casingProjectile or "invisibleprojectile", 
+			self:casingPosition(), 
+			activeItem.ownerEntityId(), 
+			vec2.rotate({0,1}, math.rad(math.random(90) - 45)), 
+			false,
+			projectileParam
+		)
+
 		data.gunLoad = nil
+
 		datamanager:save("gunLoad")
 	end
 end

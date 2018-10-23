@@ -133,29 +133,42 @@ function magazine:playerHasAmmo()
 		compat = processDirectory(compat)
 	end
 	for i,v in pairs(self:processCompatible(compat)) do
-		if player.hasItem({name = v, count = 1}) then
+		local finditem = {name = v, count = 1}
+		if type(v) == "table" then finditem = v end
+		if player.hasItem(finditem, true) then
 			return true
 		end
 	end
 	return false
 end
 
---variable 'co' is how much we take from player inventory
+
 function magazine:insert(co)
 	local compat = config.getParameter("compatibleAmmo", jarray())
 	if type(compat) == "string" then
 		compat = processDirectory(compat)
 	end
-	if not co then
+	if not co then --variable 'co' is how much we take from player inventory
 		co = self.size - self:count()
 	end
 	for i,v in pairs(self:processCompatible(compat)) do
 		if co > 0 then
-			if player.hasItem({name = v, count = 1}) then
-				local con = player.consumeItem({name = v, count = co}, true)
-				table.insert(self.storage, con)
-				co = co - con.count
+			local finditem = {name = v, count = 1}
+			if type(v) == "table" then
+				finditem = v
+				finditem.count = co
 			end
+
+			if player.hasItem(finditem) then
+				finditem.count = co
+				local con = player.consumeItem(finditem, true, true)
+				if con then
+					table.insert(self.storage, con)
+					co = co - con.count
+				end
+			end
+		else
+			break
 		end
 	end
 	activeItem.setInstanceValue("magazine", self.storage)

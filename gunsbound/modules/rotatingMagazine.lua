@@ -121,6 +121,37 @@ function magazine:saveData()
 	activeItem.setInstanceValue("gunLoad", data.gunLoad)
 end
 
+
+function magazine:insert(co)
+	local compat = config.getParameter("compatibleAmmo", jarray())
+	if type(compat) == "string" then
+		compat = processDirectory(compat)
+	end
+	if not co then --variable 'co' is how much we take from player inventory
+		co = self.size - self:count()
+	end
+	for i,v in pairs(self:processCompatible(compat)) do
+		if co > 0 then
+			local finditem = {name = v, count = 1}
+			if type(v) == "table" then
+				finditem = v
+				finditem.count = co
+			end
+
+			if player.hasItem(finditem) then
+				local con = player.consumeItem(finditem, true, true)
+				if con then
+					table.insert(self.storage, con)
+					co = co - con.count
+				end
+			end
+		else
+			break
+		end
+	end
+	activeItem.setInstanceValue("magazine", self.storage)
+end
+
 function magazine:insert(co)
 	local compat = config.getParameter("compatibleAmmo", jarray())
 	if type(compat) == "string" then
@@ -131,14 +162,24 @@ function magazine:insert(co)
 	end
 	for i,v in pairs(self:processCompatible(compat)) do
 		if co > 0 then
-			if player.hasItem({name = v, count = 1}) then
-				local con = player.consumeItem({name = v, count = co}, true)
-				
-				for i = 1,con.count do
-					table.insert(self.storage, {name = v, count = 1, parameters = con.parameters or {}})
-					co = co - 1
+			local finditem = {name = v, count = 1}
+			if type(v) == "table" then
+				finditem = v
+				finditem.count = 1
+			end
+
+			if player.hasItem(finditem) then
+				finditem.count = co
+				local con = player.consumeItem(finditem, true, true)
+				if con then
+					for i = 1,con.count do
+						table.insert(self.storage, {name = con.name,count = 1, parameters = con.parameters})
+						co = co - 1
+					end
 				end
 			end
+		else
+			break
 		end
 	end
 	
@@ -172,7 +213,9 @@ function magazine:playerHasAmmo()
 		compat = processDirectory(compat)
 	end
 	for i,v in pairs(self:processCompatible(compat)) do
-		if player.hasItem({name = v, count = 1}) then
+		local finditem = {name = v, count = 1}
+		if type(v) == "table" then finditem = v end
+		if player.hasItem(finditem, true) then
 			return true
 		end
 	end
