@@ -59,6 +59,8 @@ function gun:init()
 	animation:addEvent("eject_chamber", function() self:eject_chamber() end)
 	animation:addEvent("load_ammo", function() self:load_chamber() end)
 
+	if magazine then magazine.size = data.gunStats.maxMagazine end
+
 	self:gbDebug()
 	require(processDirectory(data.gunScript))
 end
