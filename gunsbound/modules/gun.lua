@@ -46,7 +46,6 @@ function gun:init()
     datamanager:load("muzzlePosition", false, {part = "gun", tag = "muzzle_begin", tag_end = "muzzle_end"})
     datamanager:load("casing", false, {part = "gun", tag  = "casing_pos"})
     datamanager:load("gunAnimations")
-    datamanager:load("compatibleAmmo")
 
 	message.setHandler("isLocal", function(_, loc) return loc end )
 	activeItem.setScriptedAnimationParameter("entityID", activeItem.ownerEntityId())

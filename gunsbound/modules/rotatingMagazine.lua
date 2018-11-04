@@ -9,6 +9,9 @@ magazine = {
 		--CallBacks
 
 function magazine:init()
+	
+	datamanager:load("compatibleAmmo")
+	
 	self.storage = config.getParameter("magazine", jarray())
 	self.selected = config.getParameter("selected", 1)
 	self.elementID = ui:newElement(self:createElement())

@@ -1,3 +1,5 @@
+
+
 transforms = {
 	updateChild = {},
 	lateUpdateChild = {},
@@ -5,22 +7,7 @@ transforms = {
 	original = {},
 	current = {},
 }
---[[
-function dp(orig)
-    local orig_type = type(orig)
-    local copy
-    if orig_type == 'table' then
-        copy = {}
-        for orig_key, orig_value in next, orig, nil do
-            copy[dp(orig_key)] = dp(orig_value)
-        end
-        setmetatable(copy, dp(getmetatable(orig)))
-    else -- number, string, boolean, etc
-        copy = orig
-    end
-    return copy
-end
-]]
+
 function vec2.lerpR(a,b,r)
 	return {
 		a[1] + (b[1] - a[1]) * r[1],

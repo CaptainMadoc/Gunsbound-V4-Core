@@ -2,16 +2,19 @@
 
 _GBDEBUG = {
     enabled = false,
-    units = {},
-    point = {}, --{}
-    lines = {}, --{a = BeginPos, b = EndPos}
-    texts = {}, --{text = "str", position = {}}
+    units = {}, -- _GBDEBUG:newTestUnit("unitname", function() end)
+    point = {}, -- _GBDEBUG.point[sb.makeUuid] = {0,0}
+    lines = {}, -- _GBDEBUG.lines[sb.makeUuid] = {a = BeginPos, b = EndPos}
+    texts = {}, -- _GBDEBUG.texts[sb.makeUuid] = {text = "str", position = {0,0}}
 }
 
+
+-- API: creates a test unit
 function _GBDEBUG:newTestUnit(name, func)
     self.units[name] = func
 end
 
+-- get all test units
 function _GBDEBUG:getTestUnits() -- gets a list of strings to be available
     local list = {}
     for i,v in pairs(self.units) do
@@ -20,6 +23,7 @@ function _GBDEBUG:getTestUnits() -- gets a list of strings to be available
     return list
 end
 
+-- test a unit test
 function _GBDEBUG:callTestUnit(name)
     if type(self.units[name]) == "function" then
         return self.units[name]()
@@ -27,6 +31,7 @@ function _GBDEBUG:callTestUnit(name)
     return
 end
 
+-- local client msg handler
 function _GBDEBUG:createLocMsg(name, func)
     message.setHandler(name, 
         function(_, loc, ...)
