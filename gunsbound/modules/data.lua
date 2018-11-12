@@ -1,11 +1,11 @@
 data = {} -- needed
-datamanager = {
+dataManager = {
     savelist = {
 
     }
 }
 
-function datamanager:load(name, autosave, tabdef)
+function dataManager:load(name, autosave, tabdef)
     data[name] = config.getParameter(name)
     if type(tabdef) == "table" and type(data[name]) == "table" then
         data[name] = sb.jsonMerge(tabdef, data[name])
@@ -19,14 +19,14 @@ function datamanager:load(name, autosave, tabdef)
     end
 end
 
-function datamanager:save(name)
+function dataManager:save(name)
     activeItem.setInstanceValue(name, data[name])
 end
 
-function datamanager:uninit()
+function dataManager:uninit()
     for i,v in pairs(self.savelist) do
         self:save(v)
     end
 end
 
-addClass("datamanager")
+addClass("dataManager")

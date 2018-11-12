@@ -221,17 +221,6 @@ function animation:validate(k)
 	return newkf
 end
 
--- sets off the events 
-function animation:fireEvent(str)
-	if type(str) == "string" and self.events[str] then
-		for i,v in ipairs(self.events[str]) do
-			if type(v) == "function" then
-				self.events[str][i]()
-			end
-		end
-	end
-end
-
 --API--
 
 -- new animation
@@ -290,7 +279,19 @@ function animation:isAnyPlaying()
 	return false
 end
 
---adding a event flag for animations
+-- sets off the events
+-- also can be used in kay animations
+function animation:fireEvent(str)
+	if type(str) == "string" and self.events[str] then
+		for i,v in ipairs(self.events[str]) do
+			if type(v) == "function" then
+				self.events[str][i]()
+			end
+		end
+	end
+end
+
+--adding a event flag for kay animations
 function animation:addEvent(str,func)
 	if not self.events[str] then self.events[str] = {} end
 	table.insert(self.events[str], func)

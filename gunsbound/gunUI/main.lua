@@ -12,7 +12,7 @@ function lp(var)
 	end 
 end
 
-
+RETRY = 3
 RPCOWNER = nil
 ISLOCAL = false
 LOCALCHECKDONE = false
@@ -47,6 +47,7 @@ function update()
 	localAnimator.clearDrawables()
 	localAnimator.clearLightSources()
 	local dt = 1/62
+
 	if ISLOCAL then
 		if not localUI then load_localUI() end
 		localUI:update(dt)
@@ -56,8 +57,13 @@ function update()
 			RPCOWNER = world.sendEntityMessage(entityID, "isLocal")
 		end
 	elseif not LOCALCHECKDONE and RPCOWNER:finished() then
-		ISLOCAL = RPCOWNER:result()
-		LOCALCHECKDONE = true
+		if type(RPCOWNER:result()) == "nil" and RETRY > 0 then
+			RPCOWNER = nil
+			RETRY = RETRY - 1
+		else
+			ISLOCAL = RPCOWNER:result()
+			LOCALCHECKDONE = true
+		end
 	end
 
 	FX:update(dt)

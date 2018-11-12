@@ -16,7 +16,7 @@
 	"/gunsbound/modules/rotatingMagazine.lua",
 	"/gunsbound/modules/gun.lua",
 
-	"/gunsbound/modules/attachment.lua",
+	"/gunsbound/modules/attachmentSystem.lua",
 	"/gunsbound/modules/flashlight.lua",
 	"/gunsbound/modules/laser.lua",
 	

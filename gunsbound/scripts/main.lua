@@ -7,7 +7,7 @@ require "/gunsbound/scripts/itemBugLog.lua"
 
 debugMode = true
 _Delta = os.clock()
-
+_profiling = {}
 function processDirectory(str)
 	if strStarts(str, "/") then
 		return str
@@ -97,13 +97,23 @@ function update(dt, fireMode, shiftHeld, moves)
 	if not selfItem.hasLateInited then
 		for i,v in ipairs(selfItem.condensedClasses) do --the reason behind of this, is because i use this when all the modules are properly inited. also cannot be recalled after loading another script in runtime.
 			if _ENV[v] and _ENV[v].lateinit then
+				local clocked = os.clock()
+
 				local ret, status = IBL:run(function(dt, fireMode, shiftHeld, moves) _ENV[v]:lateinit(dt, fireMode, shiftHeld, moves) end, dt, fireMode, shiftHeld, moves)
+				
+				_profiling[v] = lerp(_profiling[v] or 0, os.clock() - clocked, 2)
+
 				if not status then
 					selfItem.suspend = true
 					return
 				end
 			elseif _ENV[v] and _ENV[v].lateInit then
+				local clocked = os.clock()
+				
 				local ret, status = IBL:run(function(dt, fireMode, shiftHeld, moves) _ENV[v]:lateInit(dt, fireMode, shiftHeld, moves) end, dt, fireMode, shiftHeld, moves)
+				
+				_profiling[v] = lerp(_profiling[v] or 0, os.clock() - clocked, 2)
+				
 				if not status then
 					selfItem.suspend = true
 					return
@@ -150,6 +160,8 @@ function uninit()
 			end
 		end
 	end
+
+	--	sb.logInfo(sb.printJson(_profiling, 1))
 end
 
 function activate(fireMode, shiftHeld)

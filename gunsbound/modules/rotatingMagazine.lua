@@ -10,7 +10,7 @@ magazine = {
 
 function magazine:init()
 	
-	datamanager:load("compatibleAmmo")
+	dataManager:load("compatibleAmmo")
 	
 	self.storage = config.getParameter("magazine", jarray())
 	self.selected = config.getParameter("selected", 1)

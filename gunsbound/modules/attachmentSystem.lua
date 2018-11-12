@@ -1,4 +1,4 @@
-attachment = {
+attachmentSystem = {
 	statsInited = false,
 	statsChanges = {},
 	config = {},
@@ -9,7 +9,7 @@ attachment = {
 }
 
 
-function attachment:init()
+function attachmentSystem:init()
 	self.config = config.getParameter("attachments")
 
 	for i,v in pairs(config.getParameter("giveback", {})) do
@@ -19,7 +19,7 @@ function attachment:init()
 end
 
 
-function attachment:lateinit() --item check
+function attachmentSystem:lateinit() --item check
 	local attachmentsConfig = root.itemConfig({name = item.name(), count = 1}).config.attachments -- original attachment config from weapon
 
 	for i,v in pairs(self.config) do
@@ -46,7 +46,7 @@ function attachment:lateinit() --item check
 					
 					if fp.attachment then
 						animator.setPartTag(v.part or attachmentsConfig[i].part, "selfimage", vDir(fp.attachment.image, originalItem.directory))
-						attachment:createTransform(
+						self:createTransform(
 							v.transformationGroup or attachmentsConfig[i].transformationGroup,
 							fp.attachment.offset,
 							fp.attachment.scale,
@@ -70,7 +70,7 @@ function attachment:lateinit() --item check
 	self:refreshStats()
 end
 
-function attachment:update(dt)
+function attachmentSystem:update(dt)
 	for i,v in pairs(self.modules) do
 		if self.modules[i].update then
 			self.modules[i]:update(dt)
@@ -78,7 +78,7 @@ function attachment:update(dt)
 	end
 end
 
-function attachment:uninit()
+function attachmentSystem:uninit()
 	for i,v in pairs(self.modules) do
 		if self.modules[i].uninit then
 			self.modules[i]:uninit(dt)
@@ -86,11 +86,11 @@ function attachment:uninit()
 	end
 end
 
-function attachment:rel(pos)	
+function attachmentSystem:rel(pos)	
 	return vec2.add(mcontroller.position(), activeItem.handPosition(pos))
 end
 
-function attachment:createTransform(namee, offset, scale, attachPart, gunTag, gunTagEnd) -- for transforms.lua
+function attachmentSystem:createTransform(namee, offset, scale, attachPart, gunTag, gunTagEnd) -- for transforms.lua
 	if not animator.partPoint(attachPart, gunTag) or not animator.partPoint(attachPart, gunTagEnd) then return end
 
 	local somenewTransform = function(name, this, dt)
@@ -114,7 +114,7 @@ end
 
 --gun api
 
-function attachment:triggerSpecial()
+function attachmentSystem:triggerSpecial()
 	if self.special and self.modules[self.special] and self.modules[self.special].fireSpecial then
 		self.modules[self.special]:fireSpecial(fireMode, shiftHeld)
 	end
@@ -122,7 +122,11 @@ end
 
 --stats API
 
-function attachment:resetStats() -- do not use this. other attachments are not notified by this
+function attachmentSystem:getConfig()
+	return copycat(self.config)
+end
+
+function attachmentSystem:resetStats() -- do not use this. other attachments are not notified by this
 	if self.originalStats then
 		data.gunStats = copycat(self.originalStats)
 		self.originalStats = false
@@ -130,7 +134,7 @@ function attachment:resetStats() -- do not use this. other attachments are not n
 	end
 end
 
-function attachment:refreshStats()
+function attachmentSystem:refreshStats()
 	self:resetStats()
 	for i,v in pairs(self.modules) do
 		if self.modules[i].refreshStats then
@@ -140,8 +144,13 @@ function attachment:refreshStats()
 	magazine.size = data.gunStats.maxMagazine
 end
 
+function attachmentSystem:setFireSounds(sounds)
+	if animator.hasSound("fireSounds") then
+		animator.setSoundPool("fireSounds", sounds)
+	end
+end
 
-function attachment:addStats(stats)
+function attachmentSystem:addStats(stats)
 	if not self.originalStats then
 		self.originalStats = copycat(data.gunStats)
 	end
@@ -153,7 +162,7 @@ function attachment:addStats(stats)
 	end
 end
 
-function attachment:setStats(stats)
+function attachmentSystem:setStats(stats)
 	if not self.originalStats then
 		self.originalStats = copycat(data.gunStats)
 	end
@@ -166,15 +175,15 @@ function attachment:setStats(stats)
 	end
 end
 
-function attachment:getStats(name)
+function attachmentSystem:getStats(name)
 	return copycat(data.gunStats)
 end
 
-function attachment:getStat(name)
+function attachmentSystem:getStat(name)
 	return copycat(data.gunStats[name])
 end
 
 --
 
 
-addClass("attachment")
+addClass("attachmentSystem")

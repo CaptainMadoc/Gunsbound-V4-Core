@@ -1,14 +1,15 @@
 gun = {
-    fireModeInt = 1,
-	recoil = 0,
-	cooldown = 0,
-	aimPos = nil,
 	features = {
 		recoilRecovery = true,
 		cameraAim = true,
 		aim = true --disable this if you want to override things
 	},
-	camera = {0,0}
+
+	camera = {0,0},
+    fireModeInt = 1,
+	recoil = 0,
+	cooldown = 0,
+	aimPos = nil,
 }
 		--For debug ui
 
@@ -22,9 +23,9 @@ end
 		--CALLBACKS
 
 function gun:init()
-    datamanager:load("gunLoad", true)
-    datamanager:load("gunScript", false, "/gunsbound/base/default.lua")
-	datamanager:load("gunStats", false, 
+    dataManager:load("gunLoad", true)
+    dataManager:load("gunScript", false, "/gunsbound/base/default.lua")
+	dataManager:load("gunStats", false, 
 		{
 			damageMultiplier = 1,
 			bulletSpeedMultiplier = 1,
@@ -40,27 +41,42 @@ function gun:init()
 			rpm = 600
 		}
 	)
-    datamanager:load("fireTypes", false, {"auto"})
-    datamanager:load("casingFX", false, true)
-    datamanager:load("bypassShellEject", false, false)
-    datamanager:load("muzzlePosition", false, {part = "gun", tag = "muzzle_begin", tag_end = "muzzle_end"})
-    datamanager:load("casing", false, {part = "gun", tag  = "casing_pos"})
-    datamanager:load("gunAnimations")
 
-	message.setHandler("isLocal", function(_, loc) return loc end )
-	activeItem.setScriptedAnimationParameter("entityID", activeItem.ownerEntityId())
+	--old gun settings 
+	    dataManager:load("fireTypes", false, {"auto"})
+	    dataManager:load("casingFX", false, true)
+	    dataManager:load("bypassShellEject", false, false)
+	    dataManager:load("muzzlePosition", false, {part = "gun", tag = "muzzle_begin", tag_end = "muzzle_end"})
+	    dataManager:load("casing", false, {part = "gun", tag  = "casing_pos"})
+
+	dataManager:load("gunSettings", false, 
+		{
+			fireSounds = jarray(),
+			fireTypes = data.fireTypes,
+			chamberEjection = data.bypassShellEject,
+			muzzlePosition = data.muzzlePosition,
+			showCasings = data.casingFX,
+			casingPosition = data.casing
+		}
+	)
+
+    dataManager:load("gunAnimations")
 	activeItem.setCursor("/gunsbound/crosshair/crosshair2.cursor")
-    self.fireSounds = config.getParameter("fireSounds",jarray())
+
+    self.fireSounds = config.getParameter("fireSounds", data.gunSettings.fireSounds or jarray())
 	for i,v in pairs(self.fireSounds) do
 		self.fireSounds[i] = processDirectory(v)
-    end
-	animator.setSoundPool("fireSounds", self.fireSounds)
+	end
+	
+	self:setFireSound( self.fireSounds )
+
 	animation:addEvent("eject_chamber", function() self:eject_chamber() end)
 	animation:addEvent("load_ammo", function() self:load_chamber() end)
 
 	if magazine then magazine.size = data.gunStats.maxMagazine end
 
 	self:gbDebug()
+
 	require(processDirectory(data.gunScript))
 end
 
@@ -74,7 +90,7 @@ function gun:uninit(...)
 	if main and main.uninit then
 		main:uninit(...)
 	end
-	datamanager:save("gunLoad")
+	dataManager:save("gunLoad")
 end
 
 function gun:activate(...)
@@ -245,7 +261,7 @@ function gun:fire(overrideStats)
 		self:addRecoil()
 		
 		self.recoilCamera = {math.sin(math.rad(self.recoil * 80)) * ((self.recoil / 8) ^ 1.25), self.recoil / 8}
-		datamanager:save("gunLoad") --Save as we changed something in gunLoad 
+		dataManager:save("gunLoad") --Save as we changed something in gunLoad 
 		
 		return true
 	else --else plays a dry sound
@@ -253,6 +269,10 @@ function gun:fire(overrideStats)
 		self.cooldown = self:rpm()
 		return false
 	end
+end
+--sets our gun firesounds
+function gun:setFireSound(soundpool)
+	animator.setSoundPool("fireSounds", soundpool or jarray())
 end
 
 --Gets bullet out from the internal gun
@@ -282,7 +302,7 @@ function gun:eject_chamber()
 
 		data.gunLoad = nil
 
-		datamanager:save("gunLoad")
+		dataManager:save("gunLoad")
 	end
 end
 
@@ -292,7 +312,7 @@ function gun:load_chamber(bullet)
 		self:eject_chamber()
 	end
 	data.gunLoad = bullet or magazine:take()
-	datamanager:save("gunLoad")
+	dataManager:save("gunLoad")
 end
 
 --See if nothing is loaded

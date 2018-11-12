@@ -10,7 +10,7 @@ magazine = {
 		--CALLBACKS
 
 function magazine:init()
-	datamanager:load("compatibleAmmo", false, jarray())
+	dataManager:load("compatibleAmmo", false, jarray())
 	self.storage = config.getParameter("magazine", jarray())
 	self.elementID = ui:newElement(self:createElement())
 end

@@ -22,7 +22,7 @@ end
 --this is called when a firemode is fired
 function main:activate(fireMode, shiftHeld)
     if fireMode == "alt" and not shiftHeld then --this is for special binded attachments
-        attachment:triggerSpecial()
+        attachmentSystem:triggerSpecial()
     elseif fireMode == "alt" and shiftHeld then --this is for switching firemodes
         gun:switchFireModes()
     end
@@ -112,7 +112,7 @@ function main:updateFire(firemode)
 
 end
 
- -- our queued burst fires
+-- our queued burst fires
 function main:updateQueuedFire()
 
     if self.fireQueued > 0 and gun:ready() and not gun:chamberDry() then
