@@ -53,7 +53,7 @@ function gun:init()
 		{
 			fireSounds = jarray(),
 			fireTypes = data.fireTypes,
-			chamberEjection = data.bypassShellEject,
+			chamberEjection = not data.bypassShellEject,
 			muzzlePosition = data.muzzlePosition,
 			showCasings = data.casingFX,
 			casingPosition = data.casing

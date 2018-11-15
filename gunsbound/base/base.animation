@@ -119,7 +119,6 @@
 	"particleEmitters" : {},
 	"sounds" : {
 		"dry" : ["/sfx/gun/reload/machinepistol_reload_clip2.ogg"],
-		"grenadeSound" : ["/sfx/gun/grenade2.ogg"],
 		"fireSounds" : [],
 
 		//custom sounds for probably attachments purposes

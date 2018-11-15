@@ -38,18 +38,20 @@ function customSounds:play(var)
         if ft == "table" then
             animator.setSoundPool(soundTarget, var.sound)
         else
-            animator.setSoundPool(soundTarget, {var.sound or "/assetmissing.ogg"})
+            animator.setSoundPool(soundTarget, {var.sound or "/assetmissing.wav"})
         end
 
-        animator.setSoundVolume(soundTarget, var.volume or 1)
-        animator.setSoundPitch(soundTarget, var.pitch or 1)
+        animator.setSoundVolume(soundTarget, var.volume or 1, var.volumeRampTime or 0.0)
+        animator.setSoundPitch(soundTarget, var.pitch or 1, var.pitchRampTime or 0.0)
         animator.setSoundPosition(soundTarget, var.position or {0,0})
 
         self.soundInt = self.soundInt + 1
 
+        animator.playSound(soundTarget)
+
         return soundTarget
     elseif varType == "string" then
-        self:play({file = var})
+        self:play({sound = var})
     end
 
 end
