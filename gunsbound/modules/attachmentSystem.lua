@@ -19,11 +19,7 @@ function attachmentSystem:init()
 		player.giveItem(v)
 	end
 	activeItem.setInstanceValue("giveback", jarray())
-end
-
-
-function attachmentSystem:lateinit() --item check
-
+	
 	for i,v in pairs(self.config) do
 		--error checking
 		if (self.originalConfig[i] or not v) and not animator.partPoint(v.attachPart or self.originalConfig[i].attachPart, v.gunTag or self.originalConfig[i].gunPart) then
@@ -209,6 +205,16 @@ end
 
 function attachmentSystem:getStat(name)
 	return copycat(data.gunStats[name])
+end
+
+function attachmentSystem:hideDefaultMagazine()
+	animator.setGlobalTag("magazine","/assetmissing.png")
+end
+
+function attachmentSystem:showDefaultMagazine()
+	local originConfig = root.itemConfig({name = item.name(), count = 1}).config.animationCustom -- original attachment config from weapon
+	local currentConfig = config.getParameter("animationCustom")
+	animator.setGlobalTag("magazine", self.currentConfig.globalTagDefaults.magazine or self.originalConfig.globalTagDefaults.magazine or "mag.png")
 end
 
 --

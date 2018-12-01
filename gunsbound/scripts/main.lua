@@ -8,6 +8,7 @@ require "/gunsbound/scripts/itemBugLog.lua"
 debugMode = true
 _Delta = os.clock()
 _profiling = {}
+
 function processDirectory(str)
 	if strStarts(str, "/") then
 		return str
@@ -33,6 +34,28 @@ selfItem = {
 	hasLateInited = false,
 	suspend = false
 }
+
+--[[
+	INFO:
+	Base Item Parameter Needed are
+	"rootDirectory" for items custom root directory like lua near recipe files (optional)
+	"scriptClass"   for modules with addClass() to load (can be a table of strings or a string as a file path)
+
+	A module class will able to sync with the item runtime like:
+
+	CustomClass:init()
+	CustomClass:lateInit()
+	CustomClass:update(dt, fireMode, shiftHeld, moves)
+	CustomClass:lateUpdate(dt, fireMode, shiftHeld, moves)
+	CustomClass:uninit()
+	CustomClass:activate(fireMode, shiftHeld)
+
+	The Concept of communicating with other modules will need a variable verification
+
+	if type(OtherModules) == "table" and OtherModules.CallingPizza then
+
+	end
+]]
 
 function init()	
 	
@@ -92,15 +115,15 @@ end
 function update(dt, fireMode, shiftHeld, moves) 
 	if selfItem.suspend then return end
 	updateInfo = {dt = os.clock() - _Delta, fireMode = fireMode, shiftHeld = shiftHeld, moves = moves}
-
 	updateClass()
+
+	--LATEINIT
 	if not selfItem.hasLateInited then
 		for i,v in ipairs(selfItem.condensedClasses) do --the reason behind of this, is because i use this when all the modules are properly inited. also cannot be recalled after loading another script in runtime.
 			if _ENV[v] and _ENV[v].lateinit then
-				local clocked = os.clock()
 
+				local clocked = os.clock()
 				local ret, status = IBL:run(function(dt, fireMode, shiftHeld, moves) _ENV[v]:lateinit(dt, fireMode, shiftHeld, moves) end, dt, fireMode, shiftHeld, moves)
-				
 				_profiling[v] = lerp(_profiling[v] or 0, os.clock() - clocked, 2)
 
 				if not status then
@@ -109,9 +132,7 @@ function update(dt, fireMode, shiftHeld, moves)
 				end
 			elseif _ENV[v] and _ENV[v].lateInit then
 				local clocked = os.clock()
-				
 				local ret, status = IBL:run(function(dt, fireMode, shiftHeld, moves) _ENV[v]:lateInit(dt, fireMode, shiftHeld, moves) end, dt, fireMode, shiftHeld, moves)
-				
 				_profiling[v] = lerp(_profiling[v] or 0, os.clock() - clocked, 2)
 				
 				if not status then
@@ -125,7 +146,11 @@ function update(dt, fireMode, shiftHeld, moves)
 		
 	for i,v in ipairs(selfItem.condensedClasses) do
 		if _ENV[v] and _ENV[v].update then
+			
+			local clocked = os.clock()
 			local ret, status = IBL:run(function(dt, fireMode, shiftHeld, moves) _ENV[v]:update(dt, fireMode, shiftHeld, moves) end, dt, fireMode, shiftHeld, moves)
+			_profiling[v] = lerp(_profiling[v] or 0, os.clock() - clocked, 2)
+
 			if not status then
 				selfItem.suspend = true
 				return
@@ -135,7 +160,9 @@ function update(dt, fireMode, shiftHeld, moves)
 
 	for i,v in ipairs(selfItem.condensedClasses) do
 		if _ENV[v] and _ENV[v].lateUpdate then
+			local clocked = os.clock()
 			local ret, status = IBL:run(function(dt, fireMode, shiftHeld, moves) _ENV[v]:lateUpdate(dt, fireMode, shiftHeld, moves) end, dt, fireMode, shiftHeld, moves)
+			_profiling[v] = lerp(_profiling[v] or 0, os.clock() - clocked, 2)
 			if not status then
 				selfItem.suspend = true
 				return

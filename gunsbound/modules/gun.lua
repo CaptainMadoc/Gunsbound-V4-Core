@@ -282,7 +282,7 @@ function gun:eject_chamber()
 		local itemConfig = root.itemConfig(data.gunLoad)
 		local finalItemParameters = sb.jsonMerge(itemConfig.config, data.gunLoad.parameters or {})
 
-		local projectileParam = finalItemParameters.casingProjectileConfig or {speed = 10, timeToLive = 1}
+		local projectileParam = finalItemParameters.casingProjectileConfig or {speed = 10, timeToLive = 0.5}
 
 
 		if not itemConfig.parameters.fired then
