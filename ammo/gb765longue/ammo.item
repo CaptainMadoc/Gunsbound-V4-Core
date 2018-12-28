@@ -1,0 +1,13 @@
+{
+	"itemName" : "gb765longueammo",
+	"price" : 5,
+	"rarity" : "common",
+	"maxStack" : 25000,
+	"category" : "craftingMaterial",
+	"inventoryIcon" : "gb765longue.png",
+	"description" : "test",
+	"shortdescription" : "7.65mm Longue",
+	"casingProjectile" : "gb765longue_casing",
+	"projectile" : "gb765longueproj",
+	"projectileConfig" : {"speed" : 90, "power" : 7}
+}

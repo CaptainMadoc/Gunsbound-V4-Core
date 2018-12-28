@@ -1,0 +1,13 @@
+{
+	"itemName" : "gbtestammo",
+	"price" : 5,
+	"rarity" : "common",
+	"maxStack" : 25000,
+	"category" : "craftingMaterial",
+	"inventoryIcon" : "gbtestammo.png",
+	"description" : "actually testing",
+	"shortdescription" : "test ammo",
+	"casingProjectile" : "gbtest_casing",
+	"projectile" : "gbtestproj",
+	"projectileConfig" : {"speed" : 1000, "power" : 10000}
+}

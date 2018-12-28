@@ -18,11 +18,11 @@ function magazine:init()
 end
 
 function magazine:lateinit()
-	animation:addEvent("insert_mag", function() magazine:insert() end)
-	animation:addEvent("insert_bullet", function() magazine:insert(1) end)
-	animation:addEvent("remove_mag", function() magazine:remove() end)
-	animation:addEvent("rotate_mag", function() magazine:rotate() end)
-	animation:addEvent("resetSelect_mag", function() magazine.selected = 1 magazine:saveData() end)
+	animation:addEvent("insert_mag", function() self:insert() end)
+	animation:addEvent("insert_bullet", function() self:insert(1) end)
+	animation:addEvent("remove_mag", function() self:remove() end)
+	animation:addEvent("rotate_mag", function() self:rotate() end)
+	animation:addEvent("resetSelect_mag", function() self.selected = 1 self:saveData() end)
 	self:verify()
 end
 
@@ -124,46 +124,39 @@ function magazine:saveData()
 	activeItem.setInstanceValue("gunLoad", data.gunLoad)
 end
 
+function magazine:rotate()
+	if data.gunLoad then
+		self.storage[self.selected] = data.gunLoad
+		data.gunLoad = nil
+	end
+	self.selected = self.selected + 1
+	if self.selected > data.gunStats.maxMagazine then
+		self.selected = 1
+	end
+	if self.storage[self.selected] then
+		data.gunLoad = self.storage[self.selected]
+		self.storage[self.selected] = nil
+	end
+	magazine:saveData()
+end
 
-function magazine:insert(co)
+--get a list of compatible ammo for this mag
+function magazine:getCompatibleAmmo()
 	local compat = config.getParameter("compatibleAmmo", jarray())
 	if type(compat) == "string" then
-		compat = processDirectory(compat)
+		compat = root.assetJson(processDirectory(compat))
 	end
-	if not co then --variable 'co' is how much we take from player inventory
-		co = self.size - self:count()
+	if not compat or #compat == 0 then
+		return {"gbtestammo"}
 	end
-	for i,v in pairs(self:processCompatible(compat)) do
-		if co > 0 then
-			local finditem = {name = v, count = 1}
-			if type(v) == "table" then
-				finditem = v
-				finditem.count = co
-			end
-
-			if player.hasItem(finditem) then
-				local con = player.consumeItem(finditem, true, true)
-				if con then
-					table.insert(self.storage, con)
-					co = co - con.count
-				end
-			end
-		else
-			break
-		end
-	end
-	activeItem.setInstanceValue("magazine", self.storage)
+	return compat
 end
 
 function magazine:insert(co)
-	local compat = config.getParameter("compatibleAmmo", jarray())
-	if type(compat) == "string" then
-		compat = processDirectory(compat)
-	end
 	if not co then
 		co = data.gunStats.maxMagazine - #self.storage
 	end
-	for i,v in pairs(self:processCompatible(compat)) do
+	for i,v in pairs(self:getCompatibleAmmo()) do
 		if co > 0 then
 			local finditem = {name = v, count = 1}
 			if type(v) == "table" then
@@ -191,31 +184,11 @@ function magazine:insert(co)
 		self.storage[self.selected] = nil
 	end
 	
-	magazine:saveData()
-end
-
-function magazine:rotate()
-	if data.gunLoad then
-		self.storage[self.selected] = data.gunLoad
-		data.gunLoad = nil
-	end
-	self.selected = self.selected + 1
-	if self.selected > data.gunStats.maxMagazine then
-		self.selected = 1
-	end
-	if self.storage[self.selected] then
-		data.gunLoad = self.storage[self.selected]
-		self.storage[self.selected] = nil
-	end
-	magazine:saveData()
+	self:saveData()
 end
 
 function magazine:playerHasAmmo()
-	local compat = config.getParameter("compatibleAmmo", jarray())
-	if type(compat) == "string" then
-		compat = processDirectory(compat)
-	end
-	for i,v in pairs(self:processCompatible(compat)) do
+	for i,v in pairs(self:getCompatibleAmmo()) do
 		local finditem = {name = v, count = 1}
 		if type(v) == "table" then finditem = v end
 		if player.hasItem(finditem, true) then
@@ -266,7 +239,7 @@ function magazine:remove()
 		player.giveItem(v)
 	end
 	self.storage = jarray();
-	magazine:saveData()
+	self:saveData()
 end
 
 

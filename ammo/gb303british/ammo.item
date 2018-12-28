@@ -1,0 +1,13 @@
+{
+	"itemName" : "gb303britishammo",
+	"price" : 5,
+	"rarity" : "common",
+	"maxStack" : 25000,
+	"category" : "craftingMaterial",
+	"inventoryIcon" : "gb303british.png",
+	"description" : "test",
+	"shortdescription" : ".303 British",
+	"casingProjectile" : "gb303british_casing",
+	"projectile" : "gbbullet",
+	"projectileConfig" : {"speed" : 200, "power" : 60}
+}

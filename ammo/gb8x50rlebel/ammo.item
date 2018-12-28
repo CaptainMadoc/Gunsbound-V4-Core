@@ -1,0 +1,13 @@
+{
+	"itemName" : "gb8x50rlebelammo",
+	"price" : 5,
+	"rarity" : "common",
+	"maxStack" : 25000,
+	"category" : "craftingMaterial",
+	"inventoryIcon" : "gb8x50rlebel.png",
+	"description" : "test",
+	"shortdescription" : "8mm Mauser",
+	"casingProjectile" : "gb8x50rlebel_casing",
+	"projectile" : "gbbullet",
+	"projectileConfig" : {"speed" : 200, "power" : 40}
+}

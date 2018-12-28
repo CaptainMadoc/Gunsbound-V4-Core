@@ -16,9 +16,9 @@ function magazine:init()
 end
 
 function magazine:lateinit()
-	animation:addEvent("insert_mag", function() magazine:insert() end)
-	animation:addEvent("insert_bullet", function() magazine:insert(1) end)
-	animation:addEvent("remove_mag", function() magazine:remove() end)
+	animation:addEvent("insert_mag", function() self:insert() end)
+	animation:addEvent("insert_bullet", function() self:insert(1) end)
+	animation:addEvent("remove_mag", function() self:remove() end)
 	if self:count() > self.size then
 		self:remove()
 	end
@@ -110,14 +110,6 @@ end
 
 		--API-
 
--- i think this is used to checking if its a string then it will load a json from that file dir
-function magazine:processCompatible(a)
-	if type(a) == "string" then
-		return root.assetJson(a)
-	end
-	return a
-end
-
 --counts how much bullets in the magazine
 function magazine:count()
 	local c = 0
@@ -127,13 +119,21 @@ function magazine:count()
 	return c
 end
 
---Check if player has ammo for it
-function magazine:playerHasAmmo()
+--get a list of compatible ammo for this mag
+function magazine:getCompatibleAmmo()
 	local compat = config.getParameter("compatibleAmmo", jarray())
 	if type(compat) == "string" then
-		compat = processDirectory(compat)
+		compat = root.assetJson(processDirectory(compat))
 	end
-	for i,v in pairs(self:processCompatible(compat)) do
+	if not compat or #compat == 0 then
+		return {"gbtestammo"}
+	end
+	return compat
+end
+
+--Check if player has ammo for it
+function magazine:playerHasAmmo()
+	for i,v in pairs(self:getCompatibleAmmo()) do
 		local finditem = {name = v, count = 1}
 		if type(v) == "table" then finditem = v end
 		if player.hasItem(finditem, true) then
@@ -143,16 +143,11 @@ function magazine:playerHasAmmo()
 	return false
 end
 
-
 function magazine:insert(co)
-	local compat = config.getParameter("compatibleAmmo", jarray())
-	if type(compat) == "string" then
-		compat = processDirectory(compat)
-	end
-	if not co then --variable 'co' is how much we take from player inventory
+	if not co then --variable 'co' is how much bullet we take from player inventory
 		co = self.size - self:count()
 	end
-	for i,v in pairs(self:processCompatible(compat)) do
+	for i,v in pairs(self:getCompatibleAmmo()) do
 		if co > 0 then
 			local finditem = {name = v, count = 1}
 			if type(v) == "table" then

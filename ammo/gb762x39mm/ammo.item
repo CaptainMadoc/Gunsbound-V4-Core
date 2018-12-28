@@ -1,0 +1,13 @@
+{
+	"itemName" : "gb762x39mmammo",
+	"price" : 5,
+	"rarity" : "common",
+	"maxStack" : 25000,
+	"category" : "craftingMaterial",
+	"inventoryIcon" : "gb762x39mm.png",
+	"description" : "test",
+	"shortdescription" : "7.62x39mm",
+	"casingProjectile" : "gb762x39mm_casing",
+	"projectile" : "gbbullet",
+	"projectileConfig" : {"speed" : 1000, "timeToLive" : 0.2}
+}

@@ -1,0 +1,13 @@
+{
+	"itemName" : "gb40swammo",
+	"price" : 5,
+	"rarity" : "common",
+	"maxStack" : 25000,
+	"category" : "craftingMaterial",
+	"inventoryIcon" : "gb40SW.png",
+	"description" : "test",
+	"shortdescription" : "40SW",
+	"casingProjectile" : "gb40SW_casing",
+	"projectile" : "gbbullet",
+	"projectileConfig" : {"speed" : 110}
+}

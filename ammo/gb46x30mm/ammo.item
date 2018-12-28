@@ -1,0 +1,13 @@
+{
+	"itemName" : "gb46x30mm",
+	"price" : 5,
+	"rarity" : "common",
+	"maxStack" : 25000,
+	"category" : "craftingMaterial",
+	"inventoryIcon" : "gb46x30mm.png",
+	"description" : "test",
+	"shortdescription" : "46x30mm",
+	"casingProjectile" : "gb46x30mm_casing",
+	"projectile" : "gbbullet",
+	"projectileConfig" : {"speed" : 150}
+}

@@ -336,7 +336,7 @@ end
 --API--
 function arms:setTwoHandedGrip(bool)
 	self.twohand = bool
-	self.curdirection = -arms.curdirection
+	self.curdirection = -self.curdirection
 	activeItem.setTwoHandedGrip(bool)
 end
 

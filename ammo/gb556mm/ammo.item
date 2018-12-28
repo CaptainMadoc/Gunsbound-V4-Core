@@ -1,0 +1,13 @@
+{
+	"itemName" : "gb556mmammo",
+	"price" : 5,
+	"rarity" : "common",
+	"maxStack" : 25000,
+	"category" : "craftingMaterial",
+	"inventoryIcon" : "gb556mm.png",
+	"description" : "test",
+	"shortdescription" : "5.56mm",
+	"casingProjectile" : "gb556mm_casing",
+	"projectile" : "gbbullet",
+	"projectileConfig" : {"speed" : 175}
+}

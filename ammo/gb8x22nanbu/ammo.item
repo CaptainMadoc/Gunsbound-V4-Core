@@ -1,0 +1,13 @@
+{
+	"itemName" : "gb8x22nanbuammo",
+	"price" : 5,
+	"rarity" : "common",
+	"maxStack" : 25000,
+	"category" : "craftingMaterial",
+	"inventoryIcon" : "gb8x22nanbu.png",
+	"description" : "test",
+	"shortdescription" : "8x22 Nanbu",
+	"casingProjectile" : "gb8x22nanbu_casing",
+	"projectile" : "gbbullet",
+	"projectileConfig" : {"speed" : 80, "power" : 7}
+}

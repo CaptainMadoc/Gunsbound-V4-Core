@@ -1,0 +1,13 @@
+{
+	"itemName" : "gbgrenadeammo",
+	"price" : 5,
+	"rarity" : "common",
+	"maxStack" : 25000,
+	"category" : "craftingMaterial",
+	"inventoryIcon" : "gbgrenadeAmmo.png",
+	"description" : "test",
+	"shortdescription" : "Grenade Launcher Ammo",
+	
+	"projectile" : "gbgrenadeimpact",
+	"projectileConfig" : {"bounces" : 0}
+}

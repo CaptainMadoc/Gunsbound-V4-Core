@@ -1,17 +1,22 @@
 gun = {
+	--------------------------
 	features = {
 		recoilRecovery = true,
 		cameraAim = true,
 		aim = true --disable this if you want to override things
 	},
+	--------------------------
 
-	camera = {0,0},
-    fireModeInt = 1,
-	recoil = 0,
-	cooldown = 0,
-	aimPos = nil,
-}
-		--For debug ui
+	camera = {0,0}, -- camera position
+    fireModeInt = 1, -- firemode index  use gun:fireMode()
+	recoil = 0,	-- use gun:addRecoil(float addangle)
+
+	cooldown = 0, -- delay for rpm
+	aimPos = nil, --
+}		
+
+
+--CALLBACKS----------------------------------------------
 
 function gun:gbDebug()
 	if _GBDEBUG then
@@ -20,50 +25,67 @@ function gun:gbDebug()
 	end
 end
 
-		--CALLBACKS
 
 function gun:init()
+
+	--DATA ITEM LOADS
     dataManager:load("gunLoad", true)
     dataManager:load("gunScript", false, "/gunsbound/base/default.lua")
-	dataManager:load("gunStats", false, 
-		{
-			damageMultiplier = 1,
-			bulletSpeedMultiplier = 1,
-			maxMagazine = 30,
-			aimLookRatio = 0,
-			burst = 3,
-			recoil = 4,
-			recoilRecovery = 2,
-			movingInaccuracy = 5,
-			standingInaccuracy = 1,
-			crouchInaccuracyMultiplier = 0.25,
-			muzzleFlash = 1,
-			rpm = 600
-		}
+	dataManager:load("gunStats", false
 	)
 
 	--old gun settings 
-	    dataManager:load("fireTypes", false, {"auto"})
-	    dataManager:load("casingFX", false, true)
-	    dataManager:load("bypassShellEject", false, false)
-	    dataManager:load("muzzlePosition", false, {part = "gun", tag = "muzzle_begin", tag_end = "muzzle_end"})
-	    dataManager:load("casing", false, {part = "gun", tag  = "casing_pos"})
+	    --dataManager:load("fireTypes", false, {"auto"})
+	    --dataManager:load("casingFX", false, true)
+	    --dataManager:load("bypassShellEject", false, false)
+	    --dataManager:load("muzzlePosition", false, {part = "gun", tag = "muzzle_begin", tag_end = "muzzle_end"})
+	    --dataManager:load("casing", false, {part = "gun", tag  = "casing_pos"})
 
-	dataManager:load("gunSettings", false, 
-		{
-			fireSounds = jarray(),
-			fireTypes = data.fireTypes,
-			chamberEjection = not data.bypassShellEject,
-			muzzlePosition = data.muzzlePosition,
-			showCasings = data.casingFX,
-			casingPosition = data.casing
-		}
-	)
+	--dataManager:load("gunSettings", false, 
+	--	{ -- default settings
+	--		fireSounds = jarray(),
+	--		fireTypes = data.fireTypes or {"semi"},
+	--		chamberEjection = not data.bypassShellEject or true,
+	--		muzzlePosition = data.muzzlePosition or {part = "gun", tag = "muzzle_begin", tag_end = "muzzle_end"},
+	--		showCasings = data.casingFX or true,
+	--		casingPosition = data.casing or {part = "gun", tag  = "casing_pos"}
+	--	}
+	--)
 
-    dataManager:load("gunAnimations")
-	activeItem.setCursor("/gunsbound/crosshair/crosshair2.cursor")
+	local defaultStats = { -- default stats 
+		damageMultiplier = 1,
+		bulletSpeedMultiplier = 1,
+		maxMagazine = 30,
+		aimLookRatio = 0,
+		burst = 3,
+		recoil = 4,
+		recoilRecovery = 2,
+		movingInaccuracy = 5,
+		standingInaccuracy = 1,
+		crouchInaccuracyMultiplier = 0.25,
+		muzzleFlash = 1,
+		rpm = 600
+	}
 
-    self.fireSounds = config.getParameter("fireSounds", data.gunSettings.fireSounds or jarray())
+
+	local defaultSettings = {
+		fireSounds = jarray(),
+		fireTypes = {"semi"},
+		chamberEjection = true,
+		muzzlePosition = {part = "gun", tag = "muzzle_begin", tag_end = "muzzle_end"},
+		showCasings = true,
+		casingPosition = {part = "gun", tag  = "casing_pos"},
+		cursor = "/gunsbound/crosshair/crosshair2.cursor",
+	}
+
+	self.stats = default(config.getParameter("gunStats"), defaultStats)
+	self.settings = default(config.getParameter("gunSettings"), defaultSettings)
+	self.animations = config.getParameter("gunAnimations")
+	
+	--real init
+	activeItem.setCursor(self.settings.cursor)
+
+    self.fireSounds = config.getParameter("fireSounds", self.settings.fireSounds or jarray())
 	for i,v in pairs(self.fireSounds) do
 		self.fireSounds[i] = processDirectory(v)
 	end
@@ -73,10 +95,16 @@ function gun:init()
 	animation:addEvent("eject_chamber", function() self:eject_chamber() end)
 	animation:addEvent("load_ammo", function() self:load_chamber() end)
 
-	if magazine then magazine.size = data.gunStats.maxMagazine end
+	if magazine then 
+		magazine.size = self.stats.maxMagazine 
+	else
+		error("magazine module does not exist!")
+		return
+	end
 
 	self:gbDebug()
 
+	--main gun script
 	require(processDirectory(data.gunScript))
 end
 
@@ -104,51 +132,55 @@ function gun:update(dt, fireMode, shiftHeld, moves)
 	--camerasystem
 	if self.features.cameraAim then
 		local distance = world.distance(activeItem.ownerAimPosition(), mcontroller.position())
-		camera.target = vec2.add({distance[1] * util.clamp(data.gunStats.aimLookRatio, 0, 0.5),distance[2] * util.clamp(data.gunStats.aimLookRatio, 0, 0.5)}, self.camera)
+		camera.target = vec2.add({distance[1] * util.clamp(self.stats.aimLookRatio, 0, 0.5),distance[2] * util.clamp(self.stats.aimLookRatio, 0, 0.5)}, self.camera)
 		camera.smooth = 8
-		self.camera = {lerp(self.camera[1],0,data.gunStats.recoilRecovery),lerp(self.camera[2],0,data.gunStats.recoilRecovery)}
+		self.camera = {lerp(self.camera[1],0,self.stats.recoilRecovery),lerp(self.camera[2],0,self.stats.recoilRecovery)}
 	end
 	
+	--recoil recovery
 	if self.features.recoilRecovery then
-	self.recoil = lerp(self.recoil, 0, data.gunStats.recoilRecovery)	
+	self.recoil = lerp(self.recoil, 0, self.stats.recoilRecovery)	
 	end
 
+	--aiming. gun.features.aim = false allows for compatibility like aim assisters
 	if self.features.aim then
 		local angle, dir = activeItem.aimAngleAndDirection(0, vec2.add(self.aimPos or activeItem.ownerAimPosition(), vec2.div(mcontroller.velocity(), 28)))
 		aim.target = math.deg(angle) + self.recoil
 		aim.direction = dir
 	end
 
+	--rpm system
 	if self.hasToLoad and gun:ready() then
 		self.hasToLoad = false
 		self:load_chamber()
 		self.cooldown = 0.016
     end
 
+	--main gun script update
 	if main and main.update then
 		main:update(dt, fireMode, shiftHeld, moves)
 	end
 
+	--timer rpm lol
 	self.cooldown = math.max(self.cooldown - updateInfo.dt, 0)
-	
 end
 
 		--API--
 
 --Use for calculation RPM to shots timer
 function gun:rpm()
-    return math.max((60/(data.gunStats.rpm or 666)) - 0.016, 0.016)
+    return math.max((60/(self.stats.rpm or 666)) - 0.016, 0.016)
 end
 
 --i think its for the angle RNG -/+
 function gun:inaccuracy()
 	local crouchMult = 1
 	if mcontroller.crouching() then
-		crouchMult = data.gunStats.crouchInaccuracyMultiplier
+		crouchMult = self.stats.crouchInaccuracyMultiplier
 	end
 	local velocity = whichhigh(math.abs(mcontroller.xVelocity()), math.abs(mcontroller.yVelocity() + 1.28))
 	local percent = math.min(velocity / 14, 1)
-	return lerpr(data.gunStats.standingInaccuracy, data.gunStats.movingInaccuracy, percent) * crouchMult
+	return lerpr(self.stats.standingInaccuracy, self.stats.movingInaccuracy, percent) * crouchMult
 end
 
 --RNG
@@ -156,7 +188,7 @@ function gun:calculateInAccuracy(pos)
 	local angle = (math.random(0,2000) - 1000) / 1000
 	local crouchMult = 1
 	if mcontroller.crouching() then
-		crouchMult = data.gunStats.crouchInaccuracyMultiplier
+		crouchMult = self.stats.crouchInaccuracyMultiplier
 	end
 	if not pos then
 		return math.rad((angle * self:inaccuracy()))
@@ -171,14 +203,14 @@ end
 
 --vec2 angle from muzzlePosition
 function gun:angle()
-	return vec2.sub(self:rel(animator.partPoint(data.muzzlePosition.part, data.muzzlePosition.tag_end)),self:rel(animator.partPoint(data.muzzlePosition.part, data.muzzlePosition.tag)))
+	return vec2.sub(self:rel(animator.partPoint(self.settings.muzzlePosition.part, self.settings.muzzlePosition.tag_end)),self:rel(animator.partPoint(self.settings.muzzlePosition.part, self.settings.muzzlePosition.tag)))
 end
 
 --vec2 angle from casing
 function gun:casingPosition()
 	local offset = {0,0}
 	if data.casing then
-		offset = animator.partPoint(data.casing.part, data.casing.tag)
+		offset = animator.partPoint(self.settings.casingPosition.part, self.settings.casingPosition.tag)
 	end
 	return vec2.add(mcontroller.position(), activeItem.handPosition(offset))
 end
@@ -200,11 +232,11 @@ end
 function gun:rawDamage(projectilename)
 	local dmg = 0
 	if data.gunLoad then
-
 		return root.projectileConfig(projectilename or (data.gunLoad.parameters or {}).projectile or "bullet-4").power or 5.0
 	end
 	return dmg
 end
+
 
 --You know
 function gun:fire(overrideStats)
@@ -216,19 +248,25 @@ function gun:fire(overrideStats)
 		if not newConfig then self:eject_chamber() return end
 
 		data.gunLoad.parameters = sb.jsonMerge(newConfig.config, newConfig.parameters)
+		
+		local ownerDmgMultiplier = 1
 
-		-- apply bullet projectile stuff
+		-- apply bullet stat projectile stuff
 		local finalProjectileConfig = data.gunLoad.parameters.projectileConfig or {}
 		if not finalProjectileConfig.power then -- we calculate the gun x bullet power
-			finalProjectileConfig.power = self:rawDamage() * (overrideStats.damageMultiplier or data.gunStats.damageMultiplier or 1.0)
+			finalProjectileConfig.power = (self:rawDamage(data.gunLoad.parameters.projectile or "bullet-4") * (overrideStats.damageMultiplier or self.stats.damageMultiplier or 1.0)) * ownerDmgMultiplier
+		elseif finalProjectileConfig.power then
+			finalProjectileConfig.power = (finalProjectileConfig.power * (overrideStats.damageMultiplier or self.stats.damageMultiplier or 1.0)) * ownerDmgMultiplier
 		end
-		finalProjectileConfig.speed = (finalProjectileConfig.speed or 5.0) * (overrideStats.bulletSpeedMultiplier or data.gunStats.bulletSpeedMultiplier or 1.0)
 
-		--spawns bullet
+		finalProjectileConfig.speed = (finalProjectileConfig.speed or 5.0) * (overrideStats.bulletSpeedMultiplier or self.stats.bulletSpeedMultiplier or 1.0)
+		--
+
+		--spawns bullet HERE
 		for i=1,data.gunLoad.parameters.projectileCount or 1 do
 			world.spawnProjectile(
 				data.gunLoad.parameters.projectile or "bullet-4", 
-				self:rel(animator.partPoint(data.muzzlePosition.part, data.muzzlePosition.tag)), 
+				self:rel(animator.partPoint(self.settings.muzzlePosition.part, self.settings.muzzlePosition.tag)), 
 				activeItem.ownerEntityId(), 
 				self:calculateInAccuracy(self:angle()), 
 				false,
@@ -240,7 +278,7 @@ function gun:fire(overrideStats)
 		data.gunLoad.parameters.fired = true
 		
 		--used by action lever style
-		if not data.bypassShellEject then
+		if self.settings.chamberEjection then
 			self:eject_chamber()
 			if magazine:count() > 0 then
 				self.hasToLoad = true
@@ -249,7 +287,7 @@ function gun:fire(overrideStats)
 		--
 		
 		--emits FX muzzle flash sometimes changed by a silencer/flash hider
-		if (overrideStats.muzzleFlash or data.gunStats.muzzleFlash) == 1 then
+		if (overrideStats.muzzleFlash or self.stats.muzzleFlash) == 1 then
 			animator.setAnimationState("firing", "on")
 		end
 
@@ -269,10 +307,6 @@ function gun:fire(overrideStats)
 		self.cooldown = self:rpm()
 		return false
 	end
-end
---sets our gun firesounds
-function gun:setFireSound(soundpool)
-	animator.setSoundPool("fireSounds", soundpool or jarray())
 end
 
 --Gets bullet out from the internal gun
@@ -329,21 +363,30 @@ function gun:dry()
 	return self:chamberDry() and magazine:count() == 0
 end
 
+--Gun full ready
+function gun:ready()
+	if self.cooldown == 0 then
+		return true
+	end
+	return false
+end
+
+
 --Adding armOffsets
 function gun:addRecoil(custom)
 	local a = custom
 	if not custom then
-		a = data.gunStats.recoil
+		a = self.stats.recoil
 	end
 	self.recoil = self.recoil + a * 2
 end
 
+
 --Gets Current Firemode
 function gun:fireMode()
-	return data.fireTypes[self.fireModeInt]
+	return (data.fireTypes or self.settings.fireTypes)[self.fireModeInt] or "null"
 end
 
---todo
 function gun:switchFireModes(custom)
 	if not data.fireTypes then data.fireTypes = {"semi"} end --verify
 	animator.playSound("dry")
@@ -354,13 +397,10 @@ function gun:switchFireModes(custom)
 	end
 end
 
---Gun full ready
-function gun:ready()
-	if self.cooldown == 0 then
-		return true
-	end
-	return false
-end
 
+--sets our gun firesounds
+function gun:setFireSound(soundpool)
+	animator.setSoundPool("fireSounds", soundpool or self.fireSound)
+end
 
 addClass("gun")

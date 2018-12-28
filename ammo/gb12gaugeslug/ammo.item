@@ -1,0 +1,13 @@
+{
+	"itemName" : "gb12gaugeslugammo",
+	"price" : 5,
+	"rarity" : "common",
+	"maxStack" : 25000,
+	"category" : "craftingMaterial",
+	"inventoryIcon" : "gb12gaugeslug.png",
+	"description" : "test",
+	"shortdescription" : "12 Gauge Buckshot",
+	"casingProjectile" : "gb12gaugeslug_casing",
+	"projectile" : "gb12gaugeslugproj",
+	"projectileConfig" : {"speed" : 150, "power" : 80}
+}

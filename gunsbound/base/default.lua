@@ -39,9 +39,9 @@ function main:update(dt, fireMode, shiftHeld, moves)
         if not animation:isAnyPlaying() then
             if not magazine:playerHasAmmo() or magazine:count() == magazine.size then
                 self.reloadLoop = false
-                self:animate(data.gunAnimations["reloadEnd"])
+                self:animate(gun.animations["reloadEnd"])
             else
-                self:animate(data.gunAnimations["reloadLoop"])
+                self:animate(gun.animations["reloadLoop"])
             end
         end
     end
@@ -64,15 +64,15 @@ function main:animate(type,noprefix)
     if not noprefix and 
         (gun:chamberDry() and (not gun.hasToLoad and not data.bypassShellEject))
         then
-		animation:play(data.gunAnimations[type.."_dry"] or data.gunAnimations[type] or type.."_dry")
+		animation:play(gun.animations[type.."_dry"] or gun.animations[type] or type.."_dry")
 	else
-		animation:play(data.gunAnimations[type] or type)
+		animation:play(gun.animations[type] or type)
     end
 end
 
 --Fire implementation
 function main:fire()
-    if not animation:isAnyPlaying() or animation:isPlaying({data.gunAnimations["shoot"], data.gunAnimations["shoot_dry"]}) then
+    if not animation:isAnyPlaying() or animation:isPlaying({gun.animations["shoot"], gun.animations["shoot_dry"]}) then
         local status = gun:fire()
         if status then
             self:animate("shoot")
@@ -99,7 +99,7 @@ function main:updateFire(firemode)
     if firemode == "primary" and gun:ready() and not self.semifired then-- primary mouse click event for firemodes
         local gunFireMode = gun:fireMode() -- we get his firemode
         if gunFireMode == "burst" and self.fireQueued == 0 then --if burst we get to queue shots
-            self.fireQueued = data.gunStats.burst or 3
+            self.fireQueued = gun.stats.burst or 3
         elseif gunFireMode == "semi" then --if semi we fire and lock this part of the function so we dont go full auto
             self:fire()
             self.semifired = true
@@ -131,7 +131,7 @@ end
 
 --do not use this i think we have the auto chamber load from the internal
 --function main:updateChamber()
---    if gun:ready() and gun:chamberDry() and magazine:count() > 0 and (not animation:isAnyPlaying() or animation:isPlaying({data.gunAnimations["shoot_dry"], data.gunAnimations["shoot"]}) ) then
+--    if gun:ready() and gun:chamberDry() and magazine:count() > 0 and (not animation:isAnyPlaying() or animation:isPlaying({gun.animations["shoot_dry"], gun.animations["shoot"]}) ) then
 --        gun:load_chamber()
 --    end
 --end

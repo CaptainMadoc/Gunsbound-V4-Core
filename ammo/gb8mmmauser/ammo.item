@@ -1,0 +1,13 @@
+{
+	"itemName" : "gb8mmmauserammo",
+	"price" : 5,
+	"rarity" : "common",
+	"maxStack" : 25000,
+	"category" : "craftingMaterial",
+	"inventoryIcon" : "gb8mmmauser.png",
+	"description" : "test",
+	"shortdescription" : "8mm Mauser",
+	"casingProjectile" : "gb8mmmauser_casing",
+	"projectile" : "gbbullet",
+	"projectileConfig" : {"speed" : 200}
+}

@@ -1,0 +1,13 @@
+{
+	"itemName" : "gb3006ammo",
+	"price" : 5,
+	"rarity" : "common",
+	"maxStack" : 25000,
+	"category" : "craftingMaterial",
+	"inventoryIcon" : "gb3006.png",
+	"description" : "test",
+	"shortdescription" : ".30-06",
+	"casingProjectile" : "gb3006_casing",
+	"projectile" : "bullet-2",
+	"projectileConfig" : {"speed" : 220, "power" : 50}
+}

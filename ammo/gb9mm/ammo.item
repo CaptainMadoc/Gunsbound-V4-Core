@@ -1,0 +1,13 @@
+{
+	"itemName" : "gb9mmammo",
+	"price" : 5,
+	"rarity" : "common",
+	"maxStack" : 25000,
+	"category" : "craftingMaterial",
+	"inventoryIcon" : "gb9mmParabellum.png",
+	"description" : "test",
+	"shortdescription" : "9mm",
+	"casingProjectile" : "gb9mmParabellum_casing",
+	"projectile" : "gb9mmproj",
+	"projectileConfig" : {"speed" : 100, "power" : 10}
+}
