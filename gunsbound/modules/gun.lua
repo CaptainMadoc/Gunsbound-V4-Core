@@ -384,16 +384,16 @@ end
 
 --Gets Current Firemode
 function gun:fireMode()
-	return (data.fireTypes or self.settings.fireTypes)[self.fireModeInt] or "null"
+	return (self.settings.fireTypes or self.settings.fireTypes)[self.fireModeInt] or "null"
 end
 
 function gun:switchFireModes(custom)
-	if not data.fireTypes then data.fireTypes = {"semi"} end --verify
+	if not self.settings.fireTypes then data.fireTypes = {"semi"} end --verify
 	animator.playSound("dry")
-	if self.fireModeInt == #data.fireTypes then
+	if self.fireModeInt == #self.settings.fireTypes then
 		self.fireModeInt = 1
 	else
-		self.fireModeInt = math.max(math.min((custom or self.fireModeInt + 1),#data.fireTypes),1)
+		self.fireModeInt = math.max(math.min((custom or self.fireModeInt + 1),#self.settings.fireTypes),1)
 	end
 end
 

@@ -31,8 +31,30 @@ function gun_ui:createElement_FireMode()
 			
 			if self.althand then
     	        offset[1] = 1.5
-    	        directive = "?flipx"
+    	        directive = "?flip"
 			end
+
+			local direction = -1
+			if activeItem.hand() == "alt" then direction = 1 end
+			table.insert(
+				todraw, {
+					func = "addDrawable",
+					args = {
+						{
+							poly = {
+								{0.875  * direction, -6.75},
+								{2.125 * direction, -6.75},
+								{2.125 * direction, -5.375},
+								{0.875 * direction , -5.375},
+							},
+							position = mcontroller.position(),
+							color = {0,0,0,128},
+							fullbright = true
+						},
+						"overlay"
+					}
+				}
+			)
 
 			table.insert(todraw, 
 				{

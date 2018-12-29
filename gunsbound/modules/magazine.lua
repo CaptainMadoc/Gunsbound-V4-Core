@@ -65,6 +65,26 @@ function magazine:createElement()
 				func = "addDrawable",
 				args = {
 					{
+						poly = {
+							{0.5  * direction, -4.75},
+							{10.375 * direction, -4.75},
+							{10.625 * direction, -5.25},
+							{0.875  * direction , -5.25},
+						},
+						position = mcontroller.position(),
+						color = {0,0,0,128},
+						fullbright = true
+					},
+					"overlay"
+				}
+			}
+		)
+	
+		table.insert(
+			todraw, {
+				func = "addDrawable",
+				args = {
+					{
 						line = {
 							{(2.25)  * direction , -5},
 							{(2.25 + (8 * (self.lerpingVar1 / magazine.size))) * direction, -5}
