@@ -43,6 +43,7 @@ function gun:init()
 
 	--dataManager:load("gunSettings", false, 
 	--	{ -- default settings
+	--	{ -- default settings
 	--		fireSounds = jarray(),
 	--		fireTypes = data.fireTypes or {"semi"},
 	--		chamberEjection = not data.bypassShellEject or true,
@@ -209,7 +210,7 @@ end
 --vec2 angle from casing
 function gun:casingPosition()
 	local offset = {0,0}
-	if data.casing then
+	if self.settings.casingPosition then
 		offset = animator.partPoint(self.settings.casingPosition.part, self.settings.casingPosition.tag)
 	end
 	return vec2.add(mcontroller.position(), activeItem.handPosition(offset))
@@ -388,7 +389,7 @@ function gun:fireMode()
 end
 
 function gun:switchFireModes(custom)
-	if not self.settings.fireTypes then data.fireTypes = {"semi"} end --verify
+	if not self.settings.fireTypes then self.settings.fireTypes = {"semi"} end --verify
 	animator.playSound("dry")
 	if self.fireModeInt == #self.settings.fireTypes then
 		self.fireModeInt = 1
