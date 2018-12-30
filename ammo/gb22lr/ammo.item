@@ -1,0 +1,13 @@
+{
+	"itemName" : "gb22lrammo",
+	"price" : 5,
+	"rarity" : "common",
+	"maxStack" : 25000,
+	"category" : "craftingMaterial",
+	"inventoryIcon" : "gb22lr.png",
+	"description" : "test",
+	"shortdescription" : ".22LR",
+	"casingProjectile" : "gb22lr_casing",
+	"projectile" : "gb22lrproj",
+	"projectileConfig" : {"speed" : 70, "power" : 3}
+}
