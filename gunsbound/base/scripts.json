@@ -13,6 +13,7 @@
 	"/gunsbound/modules/animation.lua",
 	"/gunsbound/modules/transforms.lua",
 
+	"/gunsbound/modules/ammo.lua",
 	"/gunsbound/modules/magazine.lua",
 	"/gunsbound/modules/gun.lua",
 

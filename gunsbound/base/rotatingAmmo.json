@@ -13,6 +13,7 @@
 	"/gunsbound/modules/animation.lua",
 	"/gunsbound/modules/transforms.lua",
 
+	"/gunsbound/modules/ammo.lua",
 	"/gunsbound/modules/rotatingMagazine.lua",
 	"/gunsbound/modules/gun.lua",
 
@@ -24,6 +25,5 @@
 	"/gunsbound/modules/gun_ui.lua",
 	"/gunsbound/modules/crosshair_ui.lua",
 
-	
 	"/gunsbound/modules/_GBDEBUG.lua"
 ]
