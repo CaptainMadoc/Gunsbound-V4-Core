@@ -31,27 +31,7 @@ function gun:init()
 	--DATA ITEM LOADS
     dataManager:load("gunLoad", true)
     dataManager:load("gunScript", false, "/gunsbound/base/default.lua")
-	dataManager:load("gunStats", false
-	)
-
-	--old gun settings 
-	    --dataManager:load("fireTypes", false, {"auto"})
-	    --dataManager:load("casingFX", false, true)
-	    --dataManager:load("bypassShellEject", false, false)
-	    --dataManager:load("muzzlePosition", false, {part = "gun", tag = "muzzle_begin", tag_end = "muzzle_end"})
-	    --dataManager:load("casing", false, {part = "gun", tag  = "casing_pos"})
-
-	--dataManager:load("gunSettings", false, 
-	--	{ -- default settings
-	--	{ -- default settings
-	--		fireSounds = jarray(),
-	--		fireTypes = data.fireTypes or {"semi"},
-	--		chamberEjection = not data.bypassShellEject or true,
-	--		muzzlePosition = data.muzzlePosition or {part = "gun", tag = "muzzle_begin", tag_end = "muzzle_end"},
-	--		showCasings = data.casingFX or true,
-	--		casingPosition = data.casing or {part = "gun", tag  = "casing_pos"}
-	--	}
-	--)
+	dataManager:load("gunStats", false)
 
 	local defaultStats = { -- default stats 
 		damageMultiplier = 1,
@@ -67,7 +47,6 @@ function gun:init()
 		muzzleFlash = 1,
 		rpm = 600
 	}
-
 
 	local defaultSettings = {
 		fireSounds = jarray(),
@@ -281,7 +260,7 @@ function gun:fire(overrideStats)
 		--used by action lever style
 		if self.settings.chamberEjection then
 			self:eject_chamber()
-			if magazine:count() > 0 then
+			if magazine:count() > 0 and self.settings.chamberEjection then
 				self.hasToLoad = true
 			end
 		end
