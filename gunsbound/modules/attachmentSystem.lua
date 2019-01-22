@@ -15,18 +15,25 @@ function attachmentSystem:init()
 	self.originalConfig = root.itemConfig({name = item.name(), count = 1}).config.attachments -- original attachment config from weapon
 	self.config = config.getParameter("attachments")
 
+	local finalconfig = sb.jsonMerge(self.originalConfig, self.config)
 	for i,v in pairs(config.getParameter("giveback", {})) do
 		player.giveItem(v)
 	end
 	activeItem.setInstanceValue("giveback", jarray())
 	
-	for i,v in pairs(self.config) do
+	for i,v in pairs(finalconfig) do
 		--error checking
-		if (self.originalConfig[i] or not v) and not animator.partPoint(v.attachPart or self.originalConfig[i].attachPart, v.gunTag or self.originalConfig[i].gunPart) then
+		if (type(v) ~= "table") and not animator.partPoint(v.attachPart or "part", v.attachPartTag or "tag") then
 			self.config[i] = nil
 		else
 			if not v.item and v.defaultItem then -- todo: maybe for use for ironsights removal
 				v.item = copycat(v.defaultItem)
+			end
+			if v.gunTag then
+				v.attachPartTag = v.gunTag
+			end
+			if v.gunTagEnd then
+				v.attachPartTagEnd = v.gunTagEnd
 			end
 			if v.item then --if a item is stored in the attachment data it will proceed
 				local originalItem = root.itemConfig({name = v.item.name, count = 1})
@@ -35,9 +42,9 @@ function attachmentSystem:init()
 				if originalItem and --verify PGI
 					((self.originalConfig[i] and self.originalConfig[i].part) or (v and v.part)) and --bunch of config verification
 					((self.originalConfig[i] and self.originalConfig[i].attachPart) or (v and v.attachPart)) and 
-					((self.originalConfig[i] and self.originalConfig[i].gunPart) or (v and v.gunTag)) and 
+					((self.originalConfig[i] and self.originalConfig[i].attachPartTag) or (v and v.attachPartTag)) and 
 					((self.originalConfig[i] and self.originalConfig[i].transformationGroup) or (v and v.transformationGroup)) and
-					((self.originalConfig[i] and self.originalConfig[i].gunTagEnd) or (v and v.gunTagEnd)) then
+					((self.originalConfig[i] and self.originalConfig[i].attachPartTagEnd) or (v and v.attachPartTagEnd)) then
 
 					fp = sb.jsonMerge(root.itemConfig(v.item).config, v.item.parameters)
 					local current;
@@ -49,8 +56,8 @@ function attachmentSystem:init()
 							fp.attachment.offset,
 							fp.attachment.scale,
 							v.attachPart or self.originalConfig[i].attachPart,
-							v.gunTag or self.originalConfig[i].gunPart,
-							v.gunTagEnd or self.originalConfig[i].gunTagEnd
+							v.attachPartTag or self.originalConfig[i].gunPart,
+							v.attachPartTagEnd or self.originalConfig[i].attachPartTagEnd
 						)
 						fp.attachment.directory = originalItem.directory
 						if fp.attachment.script then
@@ -93,16 +100,16 @@ function attachmentSystem:newAttachment(name, e)
 
 end
 
-function attachmentSystem:createTransform(namee, offset, scale, attachPart, gunTag, gunTagEnd) -- for transforms.lua
-	if not animator.partPoint(attachPart, gunTag) or not animator.partPoint(attachPart, gunTagEnd) then return end
+function attachmentSystem:createTransform(namee, offset, scale, attachPart, attachPartTag, attachPartTagEnd) -- for transforms.lua
+	if not animator.partPoint(attachPart, attachPartTag) or not animator.partPoint(attachPart, attachPartTagEnd) then return end
 
 	local somenewTransform = function(name, this, dt)
 		if animator.hasTransformationGroup(name) then --Check to prevent crashing
 			local setting  = {
-				position = vec2.add(animator.partPoint(attachPart, gunTag), vec2.mul(offset or {0,0}, scale or {1,1})),
+				position = vec2.add(animator.partPoint(attachPart, attachPartTag), vec2.mul(offset or {0,0}, scale or {1,1})),
 				scale = scale or {1,1},
 				scalePoint = {0,0},
-				rotation = vec2.angle(vec2.sub(animator.partPoint(attachPart, gunTagEnd), animator.partPoint(attachPart, gunTag))) or 0,
+				rotation = vec2.angle(vec2.sub(animator.partPoint(attachPart, attachPartTagEnd), animator.partPoint(attachPart, attachPartTag))) or 0,
 				rotationPoint = vec2.mul(offset or {0,0}, -1)
 			}
 			animator.resetTransformationGroup(name) 
@@ -145,6 +152,21 @@ function attachmentSystem:switchSpecial()
 end
 
 --stats API
+
+function attachmentSystem:getPart(name)
+	local a1 = self.config[name] or self.originalConfig[name]
+	if a1 and 
+		(a1.attachPart) and 
+		(a1.attachPartTag or a1.gunTag) and 
+		(a1.attachPartTagEnd or a1.gunTagEnd)
+		then
+		return {
+			part = a1.attachPart,
+			tag  = (a1.attachPartTag or a1.gunTag),
+			tagEnd = (a1.attachPartTagEnd or a1.gunTagEnd)
+		}
+	end
+end
 
 function attachmentSystem:getConfig()
 	return copycat(self.config)

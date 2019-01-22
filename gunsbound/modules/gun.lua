@@ -30,7 +30,7 @@ function gun:init()
 
 	--DATA ITEM LOADS
     dataManager:load("gunLoad", true)
-    dataManager:load("gunScript", false, "/gunsbound/base/default.lua")
+    dataManager:load("gunScript", false, "/gunsbound/gunScripts/default.lua")
 	dataManager:load("gunStats", false)
 
 	local defaultStats = { -- default stats 
@@ -77,9 +77,6 @@ function gun:init()
 
 	if magazine then 
 		magazine.size = self.stats.maxMagazine 
-	else
-		error("magazine module does not exist!")
-		return
 	end
 
 	self:gbDebug()
