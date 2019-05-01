@@ -1,7 +1,7 @@
 module = {}
 
-function module:new(count)
-	
+function module:fromItem(item)
+    
 end
 
 function module:deincrement()

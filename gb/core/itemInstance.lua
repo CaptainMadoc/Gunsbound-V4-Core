@@ -1,12 +1,22 @@
 itemInstance = {}
+itemInstance.config = {}
+itemInstance.parameters = {}
+itemInstance.directory = "/"
+
 
 function itemInstance:init()
 	local itemConfig = root.itemConfig({name = item.name(), count = 1})
-	local descriptors = item.descriptors()
-	for i,v in pairs(sb.jsonMerge(itemConfig.config, descriptors)) do
-		self[i] = v
-	end
+	self.config = itemConfig.config
+	self.parameters = item.descriptor()
 	self.directory = itemConfig.directory or "/"
+end
+
+function itemInstance:uninit()
+	for i,v in pairs(self.parameters) do
+		if type(v) ~= "function" and type(v) ~= "userdata" then
+			activeItem.setInstanceValue(i,v)
+		end
+	end
 end
 
 function itemInstance:path(p)
@@ -18,10 +28,14 @@ function itemInstance:getAnimation()
 	
 end
 
-function itemInstance:uninit()
-	for i,v in pairs(self) do
-		if type(v) ~= "function" and type(v) ~= "userdata" then
-			activeItem.setInstanceValue(i,v)
+setmetatable(itemInstance,
+	{
+		__newindex = function(t, key, value)
+			itemInstance.parameters[key] = value
+			activeItem.setInstanceValue(key,value)
+		end,
+		__index = function(t, key)
+			return itemInstance.parameters[key] or itemInstance.config[key]
 		end
-	end
-end
+	}
+)

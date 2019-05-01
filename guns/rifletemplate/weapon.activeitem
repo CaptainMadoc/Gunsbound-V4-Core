@@ -1,127 +1,89 @@
 {
-	//UIinfo
-	"itemName" : "gbak47",
-	"shortdescription" : "AK-47",
+	"itemName" : "gbtemplategun",
+	"shortdescription" : "TestGun",
 	"description" : "description here",
+
 	"category" : "base",
 	"tooltipKind" : "base",
 	"inventoryIcon" : "icon.png",
-
-	//API scripts
-	"scriptClass" : "/gunsbound/base/scripts.json",
-	"scripts" : ["/gunsbound/scripts/main.lua"],
-	"animationScripts" : ["/gunsbound/gunUI/main.lua"],
-	"scriptDelta" : 1,
-
 	"rarity" : "common",
 	"maxStack" : 1,
 	"price" : 0,
+
+	"scripts" : ["/gb/core/core.lua"],
+	"gunScript" : "/gb/systems/default.lua",
+
 	"twoHanded" : true,
 
-	"animationsKeyFrames" : "default.keyframes",
+	"animations" : {
+		"reload" : "animations/reload.keyframes",
+		"shoot" : "animations/shoot.keyframes",
+		"cock" : "animations/cock.keyframes",
+		"draw" : "animations/draw.keyframes"
+	},
+
 	"compatibleAmmo" : "/ammoGroup/gb762x39mm.json",
 
 	"attachments" : {
 		"grip" : {
 			"item" : null,
-			
-			"transformationGroup" : "attachment_grip",
-			"part" : "attachment_grip",
-			
-			"attachPart" : "gun",
-			"gunTag" : "attachment_grip_pos",
-			"gunTagEnd" : "attachment_grip_end"
+			"part" : "attachment_grip"
 		},
-		
 		"sight" : {
 			"item" : null,
-			
-			"transformationGroup" : "attachment_sight",
-			"part" : "attachment_sight",
-			
-			"attachPart" : "gun",
-			"gunTag" : "attachment_sight_pos",
-			"gunTagEnd" : "attachment_sight_end"
+			"part" : "attachment_sight"
 		},
-		
 		"tactical" : {
 			"item" : null,
-			
-			"transformationGroup" : "attachment_tactical",
-			"part" : "attachment_tactical",
-			
-			"attachPart" : "gun",
-			"gunTag" : "attachment_tactical_pos",
-			"gunTagEnd" : "attachment_tactical_end"
+			"part" : "attachment_tactical"
 		},
-		
 		"muzzle" : {
 			"item" : null,
-			
-			"transformationGroup" : "attachment_muzzle",
-			"part" : "attachment_muzzle",
-			
-			"attachPart" : "gun",
-			"gunTag" : "attachment_muzzle_pos",
-			"gunTagEnd" : "attachment_muzzle_end"
+			"part" : "attachment_muzzle"
 		},
-
 		"magazine_762x39mm" : {
 			"item" : null,
-			"transformationGroup" : "attachment_magazine",
-			"part" : "attachment_magazine",
-
-			"attachPart" : "mag",
-			"gunTag" : "attachment_magazine",
-			"gunTagEnd" : "attachment_magazine_point"
+			"part" : "attachment_magazine"
 		}
 	},
 	
-	"gunStats" : {
+	"stats" : {
 		"damageMultiplier" : 2,
-
 		"maxMagazine" : 30,
-		"aimLookRatio" : 0.125,
+		
 		"burst" : 3,
+
 		"recoil" : 2,
 		"recoilRecovery" : 16,
+		"aimLookRatio" : 0.125,
+
 		"movingInaccuracy" : 5,
 		"standingInaccuracy" : 1,
 		"crouchInaccuracyMultiplier" : 0.25,
+
 		"muzzleFlash" : 1,
 		"rpm" : 600
 	},
 
-	"gunSettings" : {
-		"fireSounds" : ["sounds/ak47.ogg"],
-		"fireTypes" : ["auto", "semi"],
+	"settings" : {
+		"drySound" : "dry",
+		"fireSound" : "fire",
+
+		"fireTypes" : ["auto", "burst", "semi"],
 
 		"showCasings" : true,
 		"chamberEjection" : true,
 
-		"muzzlePosition" : {"part":"gun", "tag" : "muzzle_begin", "tag_end" : "muzzle_end"},
-		"casingPosition" : {"part" : "gun","tag" : "casingpos"}
-	},
-
-	"gunAnimations" : {
-		"shoot" : "shoot",
-		"cock" : "cock",
-		"dry" : "dry",
-		"reload" : "reload",
-
-		"draw" : "draw",
-		
-		"cock_dry" : "cock_dry",
-		"shoot_dry" : "shoot_dry",
-		"reload_dry" : "reload_dry"
+		"muzzlePosition" : {"part":"muzzlePosition"},
+		"casingPosition" : {"part":"casingPosition"}
 	},
 
 	"animation" : "/gunsbound/base/base.animation",
 	"animationCustom" : {
-		"globalTagDefaults" : {
-			"magazine" : "mag.png"
-		},
+		"globalTagDefaults" : {},
 		"sounds" : {
+			"dry" : ["/sfx/gun/reload/machinepistol_reload_clip2.ogg"],
+			"fire" : ["sounds/ak47.ogg"],
 			"cock" : ["/sfx/gun/reload/shotgun_reload_clip1.ogg"],
 			"cock2" : ["/sfx/gun/reload/shotgun_reload_clip2.ogg"],
 			"boltback" : ["sounds/boltback.ogg"],
@@ -131,26 +93,6 @@
 		},
 		"animatedParts" : {
 			"parts" : {
-				"mag" : {
-					"properties" : {
-						"zLevel" : 17,
-						"centered" : false,
-						"image" : "<magazine>",
-						"offset" : [0.0, 0.0],
-						"attachment_magazine" : [2.0, 1.0],
-						"attachment_magazine_point" : [2.125, 1.0],
-						"transformationGroups" : ["mag", "gun", "base"]
-					}
-				},
-				"gunlever" : {
-					"properties" : {
-						"zLevel" : 18,
-						"centered" : false,
-						"image" : "lever.png",
-						"offset" : [0.0, 0.0],
-						"transformationGroups" : ["lever", "gun", "base"]
-					}
-				},
 				
 				"gun" : {
 					"properties" : {
@@ -158,35 +100,53 @@
 						"centered" : false,
 						"image" : "gun.png",
 						"offset" : [0.0, 0.0],
-
-						"casingpos" : [2.25, 1.125],
-
-						"attachment_muzzle_pos" : [4.125, 1],
-						"attachment_muzzle_end" : [4.25, 1], 
-
-						"attachment_tactical_pos" : [2.875, 1.125],
-						"attachment_tactical_end" : [3, 1.125],
-						
-						"attachment_sight_pos" : [1.5, 1.25],
-						"attachment_sight_end" : [2, 1.25],
-						
-						"attachment_grip_pos" : [2.875,0.875],
-						"attachment_grip_end" : [3,0.875],
-
-						"muzzle_begin" : [3.875, 1],
-						"muzzle_end" : [4, 1], 
 						"transformationGroups" : ["gun", "base"]
 					}
 				},
+
+				"magazine" : {
+					"properties" : {
+						"zLevel" : 17,
+						"centered" : false,
+						"image" : "<partImage>",
+						"offset" : [0.0, 0.0],
+						"transformationGroups" : ["mag"],
+						"anchorPart" : "gun"
+					}
+				},
+
+				"gunlever" : {
+					"properties" : {
+						"zLevel" : 18,
+						"centered" : false,
+						"image" : "lever.png",
+						"offset" : [0.0, 0.0],
+						"transformationGroups" : ["lever"],
+						"anchorPart" : "gun"
+					}
+				},
 				
-				//
+				"muzzlePosition" : {
+					"properties" : {
+						"offset":[3.875, 1],
+						"anchorPart" : "gun"
+					}
+				},
+				
+				"casingPosition" : {
+					"properties" : {
+						"offset":[2.25, 1.125],
+						"anchorPart" : "gun"
+					}
+				},
+
 				"muzzleFlash" : {
 					"properties" : {
-						"transformationGroups" : ["base"],
 						"offset" : [2.75, -0.5],
 						"zLevel" : 20,
 						"fullbright" : true,
-						"centered" : false
+						"centered" : false,
+						"anchorPart" : "muzzlePosition"
 					},
 					"partStates" : {
 						"firing" : {
@@ -210,9 +170,9 @@
 					"properties" : {
 						"zLevel" : 23,
 						"centered" : false,
-						"image" : "<selfimage>",
-						"offset" : [0.0, 0.0],
-						"transformationGroups" : ["attachment_muzzle"]
+						"image" : "<partImage>",
+						"offset" : [4.125, 1],
+						"anchorPart" : "gun"
 					}
 				},
 				
@@ -220,9 +180,9 @@
 					"properties" : {
 						"zLevel" : 23,
 						"centered" : false,
-						"image" : "<selfimage>",
-						"offset" : [0.0, 0.0],
-						"transformationGroups" : ["attachment_tactical"]
+						"image" : "<partImage>",
+						"offset" : [2.875, 1.125],
+						"anchorPart" : "gun"
 					}
 				},
 				
@@ -230,9 +190,9 @@
 					"properties" : {
 						"zLevel" : 23,
 						"centered" : false,
-						"image" : "<selfimage>",
-						"offset" : [0.0, 0.0],
-						"transformationGroups" : ["attachment_grip"]
+						"image" : "<partImage>",
+						"offset" : [2.875,0.875],
+						"anchorPart" : "gun"
 					}
 				},
 				
@@ -240,9 +200,9 @@
 					"properties" : {
 						"zLevel" : 23,
 						"centered" : false,
-						"image" : "<selfimage>",
-						"offset" : [0.0, 0.0],
-						"transformationGroups" : ["attachment_sight"]
+						"image" : "<partImage>",
+						"offset" : [1.5, 1.25],
+						"anchorPart" : "gun"
 					}
 				},
 				
@@ -250,13 +210,35 @@
 					"properties" : {
 						"zLevel" : 17,
 						"centered" : false,
-						"image" : "<selfimage>",
-						"offset" : [0.0, 0.0],
-						"transformationGroups" : ["attachment_magazine"]
+						"image" : "<partImage>",
+						"offset" : [2.0, 1.0],
+						"anchorPart" : "magazine"
 					}
 				}
 			},
 			"stateTypes" : {
+				"firing" : {
+					"default" : "off",
+					"states" : {
+						"on" : {
+							"frames" : 3,
+							"mode" : "transition",
+							"transition" : "off",
+							"cycle" : 0.1,
+							"properties" : {
+								"lightsOn" : ["muzzleFlash"]
+							}
+						},
+						"off" : {
+							"frames" : 1,
+							"mode" : "end",
+							"cycle" : 0.1,
+							"properties" : {
+								"lightsOff" : ["muzzleFlash"]
+							}
+						}
+					}
+				},
 				"smoking" : {
 					"default" : "off",
 					"states" : {
@@ -328,36 +310,46 @@
 				}
 			}
 		},
+		"lights" : {
+			"muzzleFlash" : { //firing thing
+				"pointBeam" : 0,
+				"pointAngle" : 0,
+				"color" : [200, 200, 0],
+				"pointLight" : false,
+				"anchorPart" : "muzzlePosition",
+				"active" : false,
+				"position" : [0, 0]
+			}
+		},
 		"particleEmitters" : {
 			"smoke" : {
-				"transformationGroups" : ["gun"],
 				"emissionRate" : 32.0,
 				"zLevel" : 100,
+				"anchorPart" : "casingPosition",
 				"particles" : [
-					{ "particle" : "gbsmoke", "offset" : [2.25, 1.125]}
+					{ "particle" : "gbsmoke"}//, "offset" : [2.25, 1.125]}
 				]
 			},
 			"vapor" : {
-				"transformationGroups" : ["gun"],
 				"emissionRate" : 128.0,
 				"zLevel" : 100,
+				"anchorPart" : "muzzlePosition",
 				"particles" : [
-					{ "particle" : "gbvapor", "offset" : [4, 1]}
+					{ "particle" : "gbvapor"}//, "offset" : [4, 1]}
 				]
 			},
 			"spark" : {
-				"transformationGroups" : ["gun"],
 				"emissionRate" : 32.0,
 				"zLevel" : 100,
+				"anchorPart" : "muzzlePosition",
 				"particles" : [
-					{ "particle" : "gbspark1", "offset" : [3.875, 1]},
-					{ "particle" : "gbspark1", "offset" : [3.875, 1]},
-					{ "particle" : "gbspark1", "offset" : [3.875, 1]}
+					{ "particle" : "gbspark1"},//, "offset" : [3.875, 1]},
+					{ "particle" : "gbspark1"},//, "offset" : [3.875, 1]},
+					{ "particle" : "gbspark1"}//, "offset" : [3.875, 1]}
 				]
 			}
 		},
 		"transformationGroups" : {
-			
 			"L_offset" : {
 				"transform" : {
 					"position" : [1.15625, 0.15625]
@@ -384,46 +376,14 @@
 				}
 			},
 			
-			
 			"gun" : {
-				"interpolated" : false,
 				"transform" : {
 					"rotationPoint" : [1.5625, 0.8125],
 					"position" : [-1.25, -0.50625]
 				}
 			},
-			"lever" : {
-				"interpolated" : false
-			},
-			"mag" : {
-				"interpolated" : false
-			},
-
-			//attachments
-			"attachment_muzzle" : {
-				"ignore" : true,
-				"interpolated" : false
-			},
-			
-			"attachment_tactical" : {
-				"ignore" : true,
-				"interpolated" : false
-			},
-			
-			"attachment_grip" : {
-				"ignore" : true,
-				"interpolated" : false
-			},
-			
-			"attachment_magazine" : {
-				"ignore" : true,
-				"interpolated" : false
-			},
-			
-			"attachment_sight" : {
-				"ignore" : true,
-				"interpolated" : false
-			}
+			"lever" : {},
+			"mag" : {}
 		}
 	}
 
