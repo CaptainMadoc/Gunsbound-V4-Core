@@ -2,8 +2,6 @@ ammo = {
 
 }
 
--- created for gunscripts probably for gun that does not have mags
-
 function ammo:getCompatibleTypes()
 	local compat = config.getParameter("compatibleAmmo", jarray())
 	if type(compat) == "string" then
@@ -16,7 +14,7 @@ function ammo:getCompatibleTypes()
 end
 
 function ammo:inInventory(countneeded)
-    for i,v in pairs(self:getCompatibleAmmo()) do
+    for i,v in pairs(self:getCompatibleTypes()) do
 		local finditem = {name = v, count = countneeded or 1}
 		if type(v) == "table" then finditem = v end
 		if player.hasItem(finditem, true) then

@@ -12,11 +12,16 @@ main = {
 --this should be his initial startup
 function main:init()
     
+	animation:addEvent("eject_chamber", function() gun:eject_chamber() end)
+    animation:addEvent("load_ammo", function() gun:load_chamber(magazine:take()) end)
+    
 	animation:addEvent("reload_loop", function() self.reloadLoop = true end)
 	animation:addEvent("reloadLoop", function() self.reloadLoop = true end)
     --initial weapon animation
     self:animate("draw")
-
+    if magazine then 
+        magazine.size = gun.stats.maxMagazine 
+    end
 end
 
 --this is called when a firemode is fired
@@ -37,7 +42,7 @@ function main:update(dt, fireMode, shiftHeld, moves)
         self:updateSpecial(shiftHeld, moves.up)
     else
         if not animation:isAnyPlaying() then
-            if not magazine:playerHasAmmo() or magazine:count() == magazine.size then
+            if not ammo:inInventory(1) or magazine:count() == magazine.size then
                 self.reloadLoop = false
                 self:animate(gun.animations["reloadEnd"])
             else
@@ -61,9 +66,7 @@ end
 
 --We made this so we dont deal with manually shoot + _dry animations
 function main:animate(type,noprefix)
-    if not noprefix and 
-        (gun:chamberDry() and (not gun.hasToLoad and gun.settings.chamberEjection))
-        then
+    if not noprefix and gun:chamberDry() and (not self.hasToLoad) then
 		animation:play(gun.animations[type.."_dry"] or gun.animations[type] or type.."_dry")
 	else
 		animation:play(gun.animations[type] or type)
@@ -75,6 +78,12 @@ function main:fire()
     if not animation:isAnyPlaying() or animation:isPlaying({gun.animations["shoot"], gun.animations["shoot_dry"]}) then
         local status = gun:fire()
         if status then
+            if gun.settings.chamberEjection then
+                gun:eject_chamber()
+                if magazine:count() > 0 then
+                    self.hasToLoad = true
+                end
+            end
             self:animate("shoot")
         else
             self:animate("shoot_null", true)
@@ -95,7 +104,6 @@ end
 --we use this for deal with gun common firemodes.
 function main:updateFire(firemode)
 
-    
     if firemode == "primary" and gun:ready() and not self.semifired then-- primary mouse click event for firemodes
         local gunFireMode = gun:fireMode() -- we get his firemode
         if gunFireMode == "burst" and self.fireQueued == 0 then --if burst we get to queue shots
@@ -129,17 +137,18 @@ function main:updateQueuedFire()
 
 end
 
---do not use this i think we have the auto chamber load from the internal
---function main:updateChamber()
---    if gun:ready() and gun:chamberDry() and magazine:count() > 0 and (not animation:isAnyPlaying() or animation:isPlaying({gun.animations["shoot_dry"], gun.animations["shoot"]}) ) then
---        gun:load_chamber()
---    end
---end
-
 --smart automatic reload 
 function main:updateAutoReload()
+
+	--rpm system
+	if self.hasToLoad and gun:ready() then
+        self.hasToLoad = false
+        gun:load_chamber(magazine:take())
+        gun.cooldown = 0.016
+    end
+    
     if gun:ready() then
-        if (gun:chamberDry() or (data.gunLoad and data.gunLoad.parameters.fired)) and magazine:count() == 0 and magazine:playerHasAmmo() and  not animation:isAnyPlaying() then
+        if (gun:chamberDry() or (data.gunLoad and data.gunLoad.parameters.fired)) and magazine:count() == 0 and ammo:inInventory(1) and  not animation:isAnyPlaying() then
             self:animate("reload")
         elseif gun:chamberDry() and magazine:count() > 0 and not animation:isAnyPlaying() then
             self:animate("cock")
