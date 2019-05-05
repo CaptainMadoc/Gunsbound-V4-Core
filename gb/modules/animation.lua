@@ -1,3 +1,5 @@
+include("vec2")
+
 module = {}
 module.key = 1
 module.keyTime = 0

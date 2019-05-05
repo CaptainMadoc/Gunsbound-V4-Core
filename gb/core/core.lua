@@ -1,7 +1,14 @@
-require "/gb/core/itemInstance.lua"
+_included = {}
+function include(util)
+	require("/gb/core/util/"..util..".lua")
+	_included["/gb/core/util/"..util..".lua"] = true
+end
 
 _nestedmodules = {}
 function module(path)
+	if _included[path] then
+		return nil
+	end
 	if _nestedmodules[path] then
 		return _nestedmodules[path]
 	end
@@ -21,6 +28,7 @@ function module(path)
 end
 
 function init()
+	include("itemInstance") --needed to load certain configs
 	itemInstance:init()
 end
 
