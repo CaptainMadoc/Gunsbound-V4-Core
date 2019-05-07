@@ -1,5 +1,9 @@
-include("itemInstance")
-include("vec2")
+include "itemInstance"
+include "vec2"
+include "vec2util"
+include "rays"
+include "mcontroller"
+include "activeItem"
 
 --this is the default system for any gun
 --note only use gun for the callbacks
@@ -23,7 +27,16 @@ function gun:init()
 end
 
 function gun:update(dt, fireMode, shift, moves)
-
+    sb.setLogMap("gb", "%s", sb.printJson(mcontroller.position()), "green")
+    world.debugLine(
+        mcontroller.position(), 
+        rays.collide(
+            mcontroller.position(), 
+            vec2util.angle(activeItem.ownerAimPosition() - mcontroller.position()),
+            100
+        ),
+        "green" 
+    )
 end
 
 function gun:activate(fireMode, shift)
