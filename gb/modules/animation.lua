@@ -1,4 +1,4 @@
-include("vec2")
+include "vec2"
 
 module = {}
 module.key = 1

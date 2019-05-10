@@ -28,7 +28,7 @@ function module(path)
 end
 
 function init()
-	include("itemInstance") --needed to load certain configs
+	include "itemInstance" --needed to load certain configs
 	itemInstance:init()
 	require(itemInstance.gunScript or "/gb/systems/default.lua")
 	if gun and gun.init then

@@ -1,8 +1,15 @@
-include("vec2")
+include "vec2"
+include "Class"
 
-local activeItemWrapper = activeItem
-activeItem = {}
+local activeItemWrapped = activeItem
+_activeItem = {}
 
-function  activeItem.ownerAimPosition()
-    return vec2(activeItemWrapper.ownerAimPosition())
+function  _activeItem.ownerAimPosition()
+    return vec2(activeItemWrapped.ownerAimPosition())
 end
+
+function _activeItem.__index(key)
+    return _activeItem[key] or activeItemWrapped[key]
+end
+
+activeItem = Class(_activeItem)

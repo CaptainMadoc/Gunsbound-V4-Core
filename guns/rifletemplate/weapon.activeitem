@@ -1,5 +1,5 @@
 {
-	"itemName" : "gbtemplategun",
+	"itemName" : "gbrifletemplate",
 	"shortdescription" : "TestGun",
 	"description" : "description here",
 
@@ -128,14 +128,14 @@
 				
 				"muzzlePosition" : {
 					"properties" : {
-						"offset":[3.875, 1],
+						"point":[3.875, 1],
 						"anchorPart" : "gun"
 					}
 				},
 				
 				"casingPosition" : {
 					"properties" : {
-						"offset":[2.25, 1.125],
+						"point":[2.25, 1.125],
 						"anchorPart" : "gun"
 					}
 				},
