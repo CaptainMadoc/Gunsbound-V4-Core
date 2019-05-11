@@ -12,4 +12,4 @@ function _activeItem.__index(key)
     return _activeItem[key] or activeItemWrapped[key]
 end
 
-activeItem = Class(_activeItem)
+activeItem = Class:new(_activeItem)

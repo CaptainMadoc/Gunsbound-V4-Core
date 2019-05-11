@@ -1,6 +1,6 @@
 module = {}
 
-function module:init()
+function module:load(config)
     
 end
 

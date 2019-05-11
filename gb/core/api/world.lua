@@ -4,8 +4,19 @@ include "Class"
 local worldWrapped = world
 local _world = {}
 
-function _world.__index(key)
-    return _world[key] or worldWrapped[key]
+function _world.lineCollision(...)
+    local ret = worldWrapped.lineCollision(...)
+    if ret then
+        return vec2(ret)
+    end
+    return 
 end
 
-world = Class(_world)
+
+
+function _world:__index(key)
+    return _world[key] 
+        or worldWrapped[key]
+end
+
+world = Class:new(_world)

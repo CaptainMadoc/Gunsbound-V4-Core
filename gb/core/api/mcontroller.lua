@@ -12,4 +12,4 @@ function _mcontroller.__index(key)
     return _mcontroller[key] or mcontrollerWrapped[key]
 end
 
-mcontroller = Class(_mcontroller)
+mcontroller = Class:new(_mcontroller)
