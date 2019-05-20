@@ -1,3 +1,5 @@
+include "directory"
+
 itemInstance = {}
 itemInstance.config = {}
 itemInstance.parameters = {}
@@ -25,7 +27,16 @@ function itemInstance:path(p)
 end
 
 function itemInstance:getAnimation()
-	
+	local animationDirectory = self:getParameterWithConfig("animation")
+
+	local animationCustom = self:getParameterWithConfig("animationCustom")
+end
+
+function itemInstance:getParameterWithConfig(name)
+	if type(self.config[name]) == "table" and type(self.parameters[name]) == "table" then
+		return sb.jsonMerge(self.config[name], self.parameters[name])
+	end
+	return self.parameters[name] or self.config[name]
 end
 
 setmetatable(itemInstance,

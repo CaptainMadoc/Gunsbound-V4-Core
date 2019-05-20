@@ -1,3 +1,5 @@
+include "vec2"
+
 transforms = {}
 
 function transforms:init()
