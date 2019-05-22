@@ -10,7 +10,9 @@ attachmentSystem.specials = {}
 function attachmentSystem:init()
     for name,property in pairs(itemInstance:getParameterWithConfig("attachments")) do
         local item = itemConfig(property.item)
-        
+        local attachment = module("attachment")
+        attachment:load(item.attachment)
+        self.list[name] = attachment
     end
 end
 

@@ -1,8 +1,8 @@
 local _itemDirectory = false
 
-function itemDirectory()
+function itemDirectory(name)
     if _itemDirectory then return _itemDirectory end
-	local itemConfig = root.itemConfig({name = item.name(), count = 1})
+	local itemConfig = root.itemConfig({name = name or item.name(), count = 1})
 	_itemDirectory = itemConfig.directory or "/"
 end
 
