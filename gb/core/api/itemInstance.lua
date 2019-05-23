@@ -1,4 +1,5 @@
 include "directory"
+include "activeItem"
 
 itemInstance = {}
 itemInstance.config = {}
@@ -28,8 +29,12 @@ end
 
 function itemInstance:getAnimation()
 	local animationDirectory = self:getParameterWithConfig("animation")
-
+	animations = {}
+	if configanimation then
+		animations = root.assetJson(itemDirectory(animationDirectory), {})
+	end
 	local animationCustom = self:getParameterWithConfig("animationCustom")
+    return sb.jsonMerge(animations, animationCustom)
 end
 
 function itemInstance:getParameterWithConfig(name)

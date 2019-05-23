@@ -5,6 +5,7 @@ include "rays"
 include "mcontroller"
 include "activeItem"
 include "animations"
+include "transforms"
 include "attachmentSystem"
 include "ammoManager"
 
@@ -26,25 +27,11 @@ include "ammoManager"
 gun = {}
 
 function gun:init()
-
+    transforms:init()
 end
 
 function gun:update(dt, fireMode, shift, moves)
-    sb.setLogMap("gb", "%s", sb.printJson(mcontroller.position()), "green")
-    sb.setLogMap("gbray", "%s", rays.collide(
-        mcontroller.position(), 
-        vec2util.angle(activeItem.ownerAimPosition() - mcontroller.position()),
-        100
-    ), "green")
-    world.debugLine(
-        mcontroller.position(), 
-        rays.collide(
-            mcontroller.position(), 
-            vec2util.angle(activeItem.ownerAimPosition() - mcontroller.position()),
-            100
-        ),
-        "green" 
-    )
+    transforms:update()
 end
 
 function gun:activate(fireMode, shift)
@@ -53,4 +40,5 @@ end
 
 function gun:uninit()
 
+    transforms:uninit()
 end

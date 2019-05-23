@@ -32,6 +32,8 @@ function v2:__call(x, y) -- constructor
 			cloned[1] = x[1]
 			cloned[2] = x[2] or x[1]
 		end
+	elseif x and y then
+		cloned = {x,y}
 	end
 
 	cloned[1] = cloned[1] or 0
@@ -42,87 +44,63 @@ end
 --basic operators
 
 function v2:__unm()
-	self[1] = -self[1]
-	self[2] = -self[2]
-	return self
+	return vec2(-self[1], -self[2])
 end
 
 function v2:__add(b)
 	if type(b) == "number" then 
-		self[1] = self[1] + b 
-		self[2] = self[2] + b
+		return vec2(self[1] + b, self[2] + b)
 	elseif type(b) == "table" and b[1] and b[2] then
-		self[1] = self[1] + b[1]
-		self[2] = self[2] + b[2]
+		return vec2(self[1] + b[1], self[2] + b[2])
 	end
-	return self
 end
 
 function v2:__sub(b)
-	local a = self
 	if type(b) == "number" then 
-		a[1] = a[1] - b 
-		a[2] = a[2] - b
+		return vec2(self[1] - b, self[2] - b)
 	elseif type(b) == "table" and b[1] and b[2] then
-		a[1] = a[1] - b[1]
-		a[2] = a[2] - b[2]
+		return vec2(self[1] - b[1], self[2] - b[2])
 	end
-	return a
 end
 
 function v2:__mul(b)
 	if type(b) == "number" then 
-		self[1] = self[1] * b 
-		self[2] = self[2] * b
+		return vec2(self[1] * b, self[2] * b)
 	elseif type(b) == "table" and b[1] and b[2] then
-		self[1] = self[1] * b[1]
-		self[2] = self[2] * b[2]
+		return vec2(self[1] * b[1], self[2] * b[2])
 	end
-	return self
 end
 
 function v2:__div(b)
 	if type(b) == "number" then 
-		self[1] = self[1] / b 
-		self[2] = self[2] / b
+		return vec2(self[1] / b, self[2] / b)
 	elseif type(b) == "table" and b[1] and b[2] then
-		self[1] = self[1] / b[1]
-		self[2] = self[2] / b[2]
+		return vec2(self[1] / b[1], self[2] / b[2])
 	end
-	return self
 end
 
 function v2:__idiv(b)
 	if type(b) == "number" then 
-		self[1] = self[1] // b 
-		self[2] = self[2] // b
+		return vec2(self[1] // b, self[2] // b)
 	elseif type(b) == "table" and b[1] and b[2] then
-		self[1] = self[1] // b[1]
-		self[2] = self[2] // b[2]
+		return vec2(self[1] // b[1], self[2] // b[2])
 	end
-	return self
 end
 
 function v2:__mod(b)
 	if type(b) == "number" then 
-		self[1] = self[1] % b 
-		self[2] = self[2] % b
+		return vec2(self[1] % b, self[2] % b)
 	elseif type(b) == "table" and b[1] and b[2] then
-		self[1] = self[1] % b[1]
-		self[2] = self[2] % b[2]
+		return vec2(self[1] % b[1], self[2] % b[2])
 	end
-	return self
 end
 
 function v2:__pow(b)
 	if type(b) == "number" then 
-		self[1] = self[1] ^ b 
-		self[2] = self[2] ^ b
+		return vec2(self[1] ^ b, self[2] ^ b)
 	elseif type(b) == "table" and b[1] and b[2] then
-		self[1] = self[1] ^ b[1]
-		self[2] = self[2] ^ b[2]
+		return vec2(self[1] ^ b[1], self[2] ^ b[2])
 	end
-	return self
 end
 
 function v2:__tostring(b)

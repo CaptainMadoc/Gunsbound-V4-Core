@@ -18,3 +18,7 @@ function vec2util.rotate(vector, angle)
     }
   )
 end
+
+function vec2util.lerp()
+  
+end

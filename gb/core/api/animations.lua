@@ -1,6 +1,5 @@
 animations = {}
 animations.list = {}
-animations.defaultTransforms = {}
 
 function animations:init()
 
