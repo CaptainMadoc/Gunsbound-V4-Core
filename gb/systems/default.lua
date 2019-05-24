@@ -7,6 +7,7 @@ include "activeItem"
 include "animations"
 include "transforms"
 include "attachmentSystem"
+include "aim"
 include "ammoManager"
 
 --this is the default system for any gun
@@ -27,11 +28,14 @@ include "ammoManager"
 gun = {}
 
 function gun:init()
+    aim:init()
     transforms:init()
 end
 
 function gun:update(dt, fireMode, shift, moves)
+    aim:update()
     transforms:update()
+    aim:at(activeItem.ownerAimPosition())
 end
 
 function gun:activate(fireMode, shift)

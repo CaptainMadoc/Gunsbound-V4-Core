@@ -17,7 +17,7 @@ end
 function itemInstance:uninit()
 	for i,v in pairs(self.parameters) do
 		if type(v) ~= "function" and type(v) ~= "userdata" then
-			activeItem.setInstanceValue(i,v)
+			--activeItem.setInstanceValue(i,v)
 		end
 	end
 end

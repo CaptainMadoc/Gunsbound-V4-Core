@@ -1,6 +1,5 @@
 module = {}
 
-
-function module:refill()
+function module:load()
 
 end

@@ -1,8 +1,11 @@
+include "transforms"
+include "module"
+
 animations = {}
 animations.list = {}
 
 function animations:init()
-
+    self.defaultTransforms = transforms:getDefaultTransforms()
 end
 
 function animations:update(dt)

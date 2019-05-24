@@ -1,4 +1,5 @@
 include "vec2"
+include "animator"
 include "itemInstance"
 
 local function lerp(f,t,r)
@@ -7,7 +8,7 @@ end
 
 transforms = {}
 transforms.current = {}
-transforms.default = {}
+transforms.default = nil
 
 function transforms:init()
     self:load()
@@ -84,5 +85,12 @@ function transforms:load()
             self:add(i, v.transform or {})
         end
     end
+end
+
+function transforms:getDefaultTransforms()
+    if not self.default then
+        self:load()
+    end
+    return self.default
 end
 

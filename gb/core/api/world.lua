@@ -12,11 +12,8 @@ function _world.lineCollision(...)
     return 
 end
 
-
-
 function _world:__index(key)
-    return _world[key] 
-        or worldWrapped[key]
+    return _world[key] or worldWrapped[key]
 end
 
 world = Class:new(_world)

@@ -1,5 +1,6 @@
 include "itemInstance"
 include "itemConfig"
+include "module"
 
 attachmentSystem = {}
 attachmentSystem.currentSpecial = false

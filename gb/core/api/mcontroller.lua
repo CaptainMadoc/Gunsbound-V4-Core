@@ -8,7 +8,7 @@ function _mcontroller.position()
     return vec2(mcontrollerWrapped.position())
 end
 
-function _mcontroller.__index(key)
+function _mcontroller:__index(key)
     return _mcontroller[key] or mcontrollerWrapped[key]
 end
 
