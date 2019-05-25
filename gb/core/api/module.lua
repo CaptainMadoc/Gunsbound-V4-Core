@@ -1,3 +1,5 @@
+include "itemInstance"
+
 _nestedmodules = {}
 function module(path)
 	if _included[path] then

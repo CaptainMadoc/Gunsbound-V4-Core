@@ -1,4 +1,5 @@
 include "transforms"
+include "itemInstance"
 include "module"
 
 animations = {}
@@ -6,6 +7,9 @@ animations.list = {}
 
 function animations:init()
     self.defaultTransforms = transforms:getDefaultTransforms()
+    for i,v in pairs(itemInstance.animations) do
+        self:add(i,v)
+    end
 end
 
 function animations:update(dt)
@@ -19,7 +23,11 @@ function animations:uninit()
 end
 
 function animations:add(name, keyFrames)
-    self.list[name] = module("animation"):load(keyFrames, self.defaultTransforms)
+    if type(keyFrames) == "string" then
+        keyFrames = root.assetJson(itemInstance:path(keyFrames))
+    end
+    if not keyFrames then return end
+    self.list[name] = module("/gb/modules/animation.lua"):load(keyFrames, self.defaultTransforms)
 end
 
 function animations:play(name)

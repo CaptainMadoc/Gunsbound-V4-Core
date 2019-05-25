@@ -79,6 +79,11 @@
 	},
 
 	"animation" : "/gunsbound/base/base.animation",
+	"animationParts" : {
+		"magazine" : "mag.png",
+		"gun" : "gun.png",
+		"gunlever" : "lever.png"
+	},
 	"animationCustom" : {
 		"globalTagDefaults" : {},
 		"sounds" : {
@@ -98,7 +103,7 @@
 					"properties" : {
 						"zLevel" : 19,
 						"centered" : false,
-						"image" : "gun.png",
+						"image" : "<partImage>",
 						"offset" : [0.0, 0.0],
 						"transformationGroups" : ["gun", "base"]
 					}
@@ -119,7 +124,7 @@
 					"properties" : {
 						"zLevel" : 18,
 						"centered" : false,
-						"image" : "lever.png",
+						"image" : "<partImage>",
 						"offset" : [0.0, 0.0],
 						"transformationGroups" : ["lever"],
 						"anchorPart" : "gun"
@@ -172,7 +177,8 @@
 						"centered" : false,
 						"image" : "<partImage>",
 						"offset" : [4.125, 1],
-						"anchorPart" : "gun"
+						"anchorPart" : "gun", 
+						"transformationGroups" : ["attachment_muzzle"]
 					}
 				},
 				
@@ -182,7 +188,8 @@
 						"centered" : false,
 						"image" : "<partImage>",
 						"offset" : [2.875, 1.125],
-						"anchorPart" : "gun"
+						"anchorPart" : "gun", 
+						"transformationGroups" : ["attachment_muzzle"]
 					}
 				},
 				
@@ -192,7 +199,8 @@
 						"centered" : false,
 						"image" : "<partImage>",
 						"offset" : [2.875,0.875],
-						"anchorPart" : "gun"
+						"anchorPart" : "gun", 
+						"transformationGroups" : ["attachment_grip"]
 					}
 				},
 				
@@ -202,7 +210,8 @@
 						"centered" : false,
 						"image" : "<partImage>",
 						"offset" : [1.5, 1.25],
-						"anchorPart" : "gun"
+						"anchorPart" : "gun", 
+						"transformationGroups" : ["attachment_sight"]
 					}
 				},
 				
@@ -212,7 +221,8 @@
 						"centered" : false,
 						"image" : "<partImage>",
 						"offset" : [2.0, 1.0],
-						"anchorPart" : "magazine"
+						"anchorPart" : "magazine", 
+						"transformationGroups" : ["attachment_magazine"]
 					}
 				}
 			},
@@ -383,7 +393,13 @@
 				}
 			},
 			"lever" : {},
-			"mag" : {}
+			"mag" : {},
+
+			"attachment_muzzle" : {"ignore":true},
+			"attachment_tactical" : {"ignore":true},
+			"attachment_grip" : {"ignore":true},
+			"attachment_sight" : {"ignore":true},
+			"attachment_magazine" : {"ignore":true}
 		}
 	}
 

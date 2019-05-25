@@ -1,5 +1,4 @@
 include "itemInstance"
-include "itemConfig"
 include "module"
 
 attachmentSystem = {}
@@ -10,9 +9,8 @@ attachmentSystem.specials = {}
 
 function attachmentSystem:init()
     for name,property in pairs(itemInstance:getParameterWithConfig("attachments")) do
-        local item = itemConfig(property.item)
-        local attachment = module("attachment")
-        attachment:load(item.attachment)
+        local attachment = module("/gb/modules/attachment.lua")
+        attachment:load(property)
         self.list[name] = attachment
     end
 end

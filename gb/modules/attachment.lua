@@ -1,7 +1,12 @@
+include "itemConfig"
+
 module = {}
+module.item = nil
+module.part = nil
 
 function module:load(config)
-    if not config then return end
+    self.item = itemConfig(config.item)
+    self.part = config.part
 end
 
 function module:update()

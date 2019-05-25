@@ -29,7 +29,7 @@ end
 
 function itemInstance:getAnimation()
 	local animationDirectory = self:getParameterWithConfig("animation")
-	animations = {}
+	local animations = {}
 	if configanimation then
 		animations = root.assetJson(itemDirectory(animationDirectory), {})
 	end

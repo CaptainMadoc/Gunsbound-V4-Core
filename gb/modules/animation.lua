@@ -10,7 +10,7 @@ module.defaultTransforms = {}
 
 --initial animation: keyFrames, Whole transforms of your item
 function module:load(keyFrames, defaultTransforms)
-    self.keyFrames = keyFrames
+    self.keyFrames = keyFrames or {}
     self.defaultTransforms = defaultTransforms
 end
 
