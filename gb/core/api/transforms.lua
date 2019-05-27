@@ -19,21 +19,20 @@ function transforms:update(dt)
     for name,def in pairs(self.default) do
         local current = self.current[name] or {}
         local cal = {
-            scale           = current.scale or def.scale or vec2(1,1),
-            scalePoint      = current.scalePoint or def.scalePoint or vec2(0,0),
-            position        = (current.position or def.position or vec2(0,0)) * (current.scale or def.scale or vec2(1,1)),
+            scale           = vec2(current.scale or def.scale or 1),
+            scalePoint      = vec2(current.scalePoint or def.scalePoint or 0),
+            position        = vec2(current.position or def.position or 0) * vec2(current.scale or def.scale or 1),
             rotation        = current.rotation or def.rotation or 0,
             rotationPoint   = lerp(
-                                current.scalePoint or def.scalePoint or vec2(0,0), 
-                                current.rotationPoint or def.rotationPoint or vec2(0,0), 
-                                current.scale or def.scale or vec2(1,1)
+                                vec2(current.scalePoint or def.scalePoint or 0), 
+                                vec2(current.rotationPoint or def.rotationPoint or 0), 
+                                vec2(current.scale or def.scale or 1)
                             )
         }
         animator.resetTransformationGroup(name) 
         animator.scaleTransformationGroup(name, cal.scale, cal.scalePoint)
         animator.rotateTransformationGroup(name, math.rad(cal.rotation), cal.rotationPoint)
         animator.translateTransformationGroup(name, cal.position)
-        sb.setLogMap("1 - "..name, sb.printJson(cal))
     end
 end
 
@@ -46,7 +45,11 @@ function transforms:blend(transforms)
     for name,t in pairs(transforms) do
         self.current[name] = {}
         for name2, property in pairs(t) do
-            self.current[name][name2] = property
+            if type(self.current[name][name2]) == "table" then
+                self.current[name][name2] = vec2(property)
+            else
+                self.current[name][name2] = property
+            end
         end
     end
 end
@@ -54,9 +57,7 @@ end
 -- reset and apply
 function transforms:apply(transforms)
     self:reset()
-    for i,v in pairs(transforms) do
-        self.current[i] = v
-    end
+    self:blend(transforms)
 end
 
 function transforms:reset()

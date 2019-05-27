@@ -1,6 +1,7 @@
 include "transforms"
 include "itemInstance"
 include "module"
+include "tableutil"
 
 animations = {}
 animations.list = {}
@@ -15,6 +16,7 @@ end
 function animations:update(dt)
     for i,v in pairs(self.list) do
         self.list[i]:update(dt)
+        sb.setLogMap("1 - "..i, sb.printJson(self.list[i].playing))
     end
 end
 
@@ -27,7 +29,8 @@ function animations:add(name, keyFrames)
         keyFrames = root.assetJson(itemInstance:path(keyFrames))
     end
     if not keyFrames then return end
-    self.list[name] = module("/gb/modules/animation.lua"):load(keyFrames, self.defaultTransforms)
+    self.list[name] = module("/gb/modules/animation.lua")
+    self.list[name]:load(keyFrames, self.defaultTransforms)
 end
 
 function animations:play(name)
@@ -47,6 +50,16 @@ function animations:pause(name)
     if self.list[name] then
         self.list[name]:pause()
     end
+end
+
+function animations:transforms(animationOrder)
+    local transforms = {}
+    for _,name in pairs(animationOrder) do
+        if self.list[name] and self.list[name].playing then
+            transforms = table.vmerge(transforms, self.list[name]:transforms())
+        end
+    end
+    return transforms
 end
 
 function animations:addEvent(name, func)

@@ -34,12 +34,17 @@ end
 function gun:update(dt, fireMode, shift, moves)
     aim:update(dt)
     animations:update(dt)
+    transforms:apply(animations:transforms({"reload","cock","draw","shoot"}))
     transforms:update(dt)
     aim:at(activeItem.ownerAimPosition())
 end
 
 function gun:activate(fireMode, shift)
-
+    if fireMode == "primary" then
+        animations:play("shoot")
+    elseif fireMode == "alt" then
+        animations:play("reload")
+    end
 end
 
 function gun:uninit()

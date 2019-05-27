@@ -1,4 +1,5 @@
 include "itemInstance"
+include "tableutil"
 
 _nestedmodules = {}
 function module(path)
@@ -6,19 +7,22 @@ function module(path)
 		return nil
 	end
 	if _nestedmodules[path] then
-		return _nestedmodules[path]
+		return table.copy(_nestedmodules[path])
 	end
+	
 	local m = nil
 	if module then
 		m = module
 		module = nil
 	end
+
 	require(itemInstance:path(path))
 	if module then
-		_nestedmodules[path] = module
+		_nestedmodules[path] = table.copy(module)
 	end
+
 	if m then
 		module = m
 	end
-	return _nestedmodules[path]
+	return table.copy(_nestedmodules[path])
 end

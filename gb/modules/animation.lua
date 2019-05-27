@@ -8,9 +8,38 @@ module.playing = false
 module.keyFrames = {}
 module.defaultTransforms = {}
 
+local function parseKeyFramesVec2(keyFrames)
+    local newkeyframes = {}
+
+    --each keys
+    for i,key in ipairs(keyFrames or {}) do
+        local newkey = key
+
+        --each transforms
+        for name, transform in pairs(key.transforms) do
+            local newtransform = {}
+
+            --each tranform property
+            for name2, property in pairs(transform) do
+                if type(property) == "table" then
+                    newtransform[name2] = vec2(property)
+                else
+                    newtransform[name2] = property
+                end
+            end
+
+            newkey.transforms[name] = newtransform
+        end
+
+        table.insert(newkeyframes, newkey)
+    end
+
+    return newkeyframes
+end
+
 --initial animation: keyFrames, Whole transforms of your item
 function module:load(keyFrames, defaultTransforms)
-    self.keyFrames = keyFrames or {}
+    self.keyFrames = parseKeyFramesVec2(keyFrames) -- vec2 from configs are not vec2 we use
     self.defaultTransforms = defaultTransforms
 end
 
@@ -96,7 +125,7 @@ function module:ftk(key)
     for i,transform in pairs(self.defaultTransforms) do
         fkey[i] = {}
         for i2, property in pairs(transform) do
-            fkey[i][i2] = key.transforms[i][i2] or property
+            fkey[i][i2] = (key.transforms[i] or {})[i2] or property
         end
     end
     return fkey
@@ -112,11 +141,12 @@ function module:ktk(from, to, ratio)
         current[i] = {}
         for i2, property in pairs(transform) do
             if i == "time" or i == "curve" then
-                --o
+                --dont give internal stuff
             elseif type(property) == "table" and #property == 2 then
-                current[i][i2] = {}
-                current[i][i2][1] = from[i][i2][1] + ((to[i][i2][1] - from[i][i2][1]) * timeRatio)
-                current[i][i2][2] = from[i][i2][2] + ((to[i][i2][2] - from[i][i2][2]) * timeRatio)
+                current[i][i2] = vec2(
+                    from[i][i2][1] + ((to[i][i2][1] - from[i][i2][1]) * timeRatio), 
+                    from[i][i2][2] + ((to[i][i2][2] - from[i][i2][2]) * timeRatio)
+                )
             elseif type(property) == "number" then
                 current[i][i2] = from[i][i2] + ((to[i][i2] - from[i][i2]) * timeRatio)
             end
@@ -137,11 +167,11 @@ module._events = {}
 
 --add event for "fireEvents" : []
 function module:addEvent(name, func)
-    module._events[name] = func
+    self._events[name] = func
 end
 
 function module:fireEvent(name)
-    if type(module._events[name]) == "function" then
-        module._events[name]()
+    if type(self._events[name]) == "function" then
+        self._events[name]()
     end
 end
