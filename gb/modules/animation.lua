@@ -119,6 +119,20 @@ function module:stop()
     self.key = 1
 end
 
+--removes default (makes holes if default)
+function module:stripDefault(key)
+    local nkey = {}
+    for i,transform in pairs(self.defaultTransforms) do
+        nkey[i] = {}
+        for i2, property in pairs(transform) do
+            if key[i][i2] ~= property then
+                nkey[i][i2] = key[i][i2]
+            end
+        end
+    end
+    return nkey
+end
+
 --full transfroms keys (fill the gaps in the key tranforms)
 function module:ftk(key)
     local fkey = {}
@@ -160,7 +174,7 @@ function module:transforms()
     if self.key == #self.keyFrames then
         return self:ftk(self.keyFrames[#self.keyFrames])
     end
-    return self:ktk(self.keyFrames[self.key], self.keyFrames[self.key+1], self.keyTime/self.keyTimeTarget)
+    return self:stripDefault(self:ktk(self.keyFrames[self.key], self.keyFrames[self.key+1], self.keyTime/self.keyTimeTarget))
 end
 
 module._events = {}
