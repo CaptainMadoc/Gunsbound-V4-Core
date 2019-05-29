@@ -1,4 +1,4 @@
-include "itemInstance"
+include "configInstance"
 include "tableutil"
 
 _nestedmodules = {}
@@ -16,7 +16,7 @@ function module(path)
 		module = nil
 	end
 
-	require(itemInstance:path(path))
+	require(configInstance:path(path))
 	if module then
 		_nestedmodules[path] = table.copy(module)
 	end

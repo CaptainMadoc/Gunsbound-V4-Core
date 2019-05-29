@@ -1,5 +1,5 @@
 include "transforms"
-include "itemInstance"
+include "configInstance"
 include "module"
 include "tableutil"
 
@@ -10,7 +10,7 @@ function animations:init()
 	message.setHandler("isAnyPlaying", function(_, loc, ...) if loc then return self:isAnyPlaying() end end)
     message.setHandler("play", function(_, loc, keyFrames) if loc then self:playOverride(keyFrames) end end)
     
-    for i,v in pairs(itemInstance.animations) do
+    for i,v in pairs(configInstance.animations) do
         self:add(i,v)
     end
 end
@@ -38,14 +38,14 @@ function animations:uninit()
 end
 
 function animations:add(name, keyFrames)
-    if type(keyFrames) == "string" then keyFrames = root.assetJson(itemInstance:path(keyFrames)) end
+    if type(keyFrames) == "string" then keyFrames = root.assetJson(configInstance:path(keyFrames)) end
     if not keyFrames then return end
     self.list[name] = module("/gb/modules/animation.lua")
     self.list[name]:load(keyFrames)
 end
 
 function animations:playOverride(keyFrames)
-    if type(keyFrames) == "string" then keyFrames = root.assetJson(itemInstance:path(keyFrames)) end
+    if type(keyFrames) == "string" then keyFrames = root.assetJson(configInstance:path(keyFrames)) end
     if not keyFrames then return end
     self.override = module("/gb/modules/animation.lua")
     self.override:load(keyFrames)

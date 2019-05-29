@@ -5,9 +5,9 @@ function include(util)
 end
 
 function init()
-	include "itemInstance" --needed to load certain configs
-	itemInstance:init()
-	require(itemInstance.gunScript or "/gb/systems/default.lua")
+	include "configInstance" --needed to load certain configs
+	configInstance:init()
+	require(configInstance.gunScript or "/gb/systems/default.lua")
 	if gun and gun.init then
 		gun:init()
 	end
@@ -38,5 +38,5 @@ function uninit()
 	if gun and gun.uninit then
 		gun:uninit()
 	end
-	itemInstance:uninit()
+	configInstance:uninit()
 end

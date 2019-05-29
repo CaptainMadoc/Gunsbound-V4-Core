@@ -1,6 +1,6 @@
 include "vec2"
 include "animator"
-include "itemInstance"
+include "configInstance"
 
 local function lerp(f,t,r)
     return f + (t - f) * r
@@ -84,7 +84,7 @@ end
 function transforms:load()
     self:reset()
     self.default = {}
-    local animations = itemInstance:getAnimation()
+    local animations = configInstance:getAnimation()
     for i,v in pairs(animations.transformationGroups) do
         if not v.ignore then -- check if we can use it
             self:add(i, v.transform or {})

@@ -1,4 +1,4 @@
-include "itemInstance"
+include "configInstance"
 include "vec2"
 include "vec2util"
 include "rays"
