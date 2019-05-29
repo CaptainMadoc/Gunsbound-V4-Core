@@ -1,4 +1,6 @@
 include "vec2"
+include "transforms"
+include "tableutil"
 
 module = {}
 module.key = 1
@@ -38,9 +40,8 @@ local function parseKeyFramesVec2(keyFrames)
 end
 
 --initial animation: keyFrames, Whole transforms of your item
-function module:load(keyFrames, defaultTransforms)
+function module:load(keyFrames)
     self.keyFrames = parseKeyFramesVec2(keyFrames) -- vec2 from configs are not vec2 we use
-    self.defaultTransforms = defaultTransforms
 end
 
 --internal use
@@ -122,7 +123,7 @@ end
 --removes default (makes holes if default)
 function module:stripDefault(key)
     local nkey = {}
-    for i,transform in pairs(self.defaultTransforms) do
+    for i,transform in pairs(transforms.default) do
         nkey[i] = {}
         for i2, property in pairs(transform) do
             if key[i][i2] ~= property then
@@ -136,7 +137,7 @@ end
 --full transfroms keys (fill the gaps in the key tranforms)
 function module:ftk(key)
     local fkey = {}
-    for i,transform in pairs(self.defaultTransforms) do
+    for i,transform in pairs(transforms.default) do
         fkey[i] = {}
         for i2, property in pairs(transform) do
             fkey[i][i2] = (key.transforms[i] or {})[i2] or property
@@ -150,7 +151,7 @@ function module:ktk(from, to, ratio)
     local from = self:ftk(from)
     local to = self:ftk(to)
     local current = {}
-    for i,transform in pairs(self.defaultTransforms) do
+    for i,transform in pairs(transforms.default) do
         local timeRatio = ratio ^ (to[i].curve or 1)
         current[i] = {}
         for i2, property in pairs(transform) do

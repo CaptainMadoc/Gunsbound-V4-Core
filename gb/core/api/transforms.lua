@@ -8,16 +8,19 @@ end
 
 transforms = {}
 transforms.current = {}
+transforms.override = {}
 transforms.default = nil
 
 function transforms:init()
     self:load()
+	message.setHandler("getTransforms", function(_, loc, ...) if loc then return self.default end end)
+	message.setHandler("setTransforms", function(_, loc, transforms) if loc then self.override = table.vmerge(transforms or {}, {}) end end)
     self:update(1/60)
 end
 
 function transforms:update(dt)
     for name,def in pairs(self.default) do
-        local current = self.current[name] or {}
+        local current = self.override[name] or self.current[name] or {}
         local cal = {
             scale           = vec2(current.scale or def.scale or 1),
             scalePoint      = vec2(current.scalePoint or def.scalePoint or 0),
@@ -34,6 +37,7 @@ function transforms:update(dt)
         animator.rotateTransformationGroup(name, math.rad(cal.rotation), cal.rotationPoint)
         animator.translateTransformationGroup(name, cal.position)
     end
+    self.override = {}
 end
 
 function transforms:uninit()
