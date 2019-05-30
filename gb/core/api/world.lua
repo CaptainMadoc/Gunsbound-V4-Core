@@ -16,4 +16,4 @@ function _world:__index(key)
     return _world[key] or worldWrapped[key]
 end
 
-world = Class:new(_world)
+world = class:new(_world)

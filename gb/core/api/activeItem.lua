@@ -1,5 +1,5 @@
 include "vec2"
-include "Class"
+include "class"
 
 local activeItemWrapped = activeItem
 local _activeItem = {}
@@ -12,4 +12,4 @@ function _activeItem:__index(key)
     return _activeItem[key] or activeItemWrapped[key]
 end
 
-activeItem = Class:new(_activeItem)
+activeItem = class:new(_activeItem)

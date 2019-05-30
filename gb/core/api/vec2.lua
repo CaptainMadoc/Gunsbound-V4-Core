@@ -1,4 +1,4 @@
-include "Class"
+include "class"
 
 local v2 = {}
 v2[1] = 0
@@ -22,7 +22,7 @@ function v2:__newindex(a, b)
 end
 
 function v2:__call(x, y) -- constructor
-	local cloned = Class:new(v2)
+	local cloned = class:new(v2)
 
 	if type(x) == "table" then
 		if x[1] then
@@ -144,4 +144,4 @@ function v2:__metatable(b)
 	return nil
 end
 
-vec2 = Class:new(v2)
+vec2 = class:new(v2)

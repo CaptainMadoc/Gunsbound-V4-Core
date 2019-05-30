@@ -80,17 +80,20 @@ function module:update(dt)
             self.keyTime = math.min(self.keyTime + dt, self.keyTimeTarget)
         end
         if self.keyTime == self.keyTimeTarget then
-            if self.keyFrames[self.key + 1] then
+            self.key = self.key + 1
+            if self.keyFrames[self.key] and self.keyFrames[self.key + 1] then
                 self.keyTime = 0
                 self:_reachkey(self.keyFrames[self.key])
-                self.key = self.key + 1
-                self.keyTimeTarget = self.keyFrames[self.key].wait
+                self.keyTimeTarget = self.keyFrames[self.key + 1].wait
             else
                 self.playing = false
             end
         end
     end
 
+    --sb.setLogMap("1 - key",self.key)
+    --sb.setLogMap("1 - keyTimeTarget",self.keyTimeTarget)
+    --sb.setLogMap("1 - keyTime",self.keyTime)
 end
 
 --play animation from start
@@ -172,8 +175,8 @@ end
 
 --current animation transforms interpolations
 function module:transforms()
-    if self.key == #self.keyFrames then
-        return self:ftk(self.keyFrames[#self.keyFrames])
+    if self.key >= #self.keyFrames then
+        return self:stripDefault(self:ftk(self.keyFrames[#self.keyFrames]))
     end
     return self:stripDefault(self:ktk(self.keyFrames[self.key], self.keyFrames[self.key+1], self.keyTime/self.keyTimeTarget))
 end

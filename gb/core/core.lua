@@ -1,13 +1,17 @@
+modPath = "/gb/"
+corePath = modPath.."core/"
+includePath = corePath.."api/"
+
 _included = {}
 function include(util)
-	require("/gb/core/api/"..util..".lua")
-	_included["/gb/core/api/"..util..".lua"] = true
+	require(includePath..util..".lua")
+	_included[includePath..util..".lua"] = true
 end
 
 function init()
 	include "configInstance" --needed to load certain configs
 	configInstance:init()
-	require(configInstance.gunScript or "/gb/systems/default.lua")
+	require(configInstance.gunScript or modPath.."systems/default.lua")
 	if gun and gun.init then
 		gun:init()
 	end

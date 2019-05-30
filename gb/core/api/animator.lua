@@ -1,5 +1,5 @@
 include "vec2"
-include "Class"
+include "class"
 
 local animatorWrapped = animator
 local _animator = {}
@@ -12,4 +12,4 @@ function _animator:__index(key)
     return _animator[key] or animatorWrapped[key]
 end
 
-animator = Class:new(_animator)
+animator = class:new(_animator)

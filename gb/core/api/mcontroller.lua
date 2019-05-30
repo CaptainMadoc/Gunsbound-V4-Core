@@ -1,5 +1,5 @@
 include "vec2"
-include "Class"
+include "class"
 
 local mcontrollerWrapped = mcontroller
 local _mcontroller = {}
@@ -12,4 +12,4 @@ function _mcontroller:__index(key)
     return _mcontroller[key] or mcontrollerWrapped[key]
 end
 
-mcontroller = Class:new(_mcontroller)
+mcontroller = class:new(_mcontroller)

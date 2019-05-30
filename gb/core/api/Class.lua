@@ -11,9 +11,9 @@ local function cc(t)
 	return cloned
 end
 
-Class = {}
+class = {}
 
-function Class:new(tab)
+function class:new(tab)
 	local newClass = {}
 	local inheritClass = cc(tab)
 	local inheritMetatable = {}
