@@ -86,14 +86,11 @@ function module:update(dt)
                 self:_reachkey(self.keyFrames[self.key])
                 self.keyTimeTarget = self.keyFrames[self.key + 1].wait
             else
+                self:_reachkey(self.keyFrames[self.key])
                 self.playing = false
             end
         end
     end
-
-    --sb.setLogMap("1 - key",self.key)
-    --sb.setLogMap("1 - keyTimeTarget",self.keyTimeTarget)
-    --sb.setLogMap("1 - keyTime",self.keyTime)
 end
 
 --play animation from start
@@ -181,15 +178,12 @@ function module:transforms()
     return self:stripDefault(self:ktk(self.keyFrames[self.key], self.keyFrames[self.key+1], self.keyTime/self.keyTimeTarget))
 end
 
-module._events = {}
-
---add event for "fireEvents" : []
-function module:addEvent(name, func)
-    self._events[name] = func
+function module:bindFireEvent(func)
+    self._fireEvent = func
 end
 
+module._fireEvent = function() end
+
 function module:fireEvent(name)
-    if type(self._events[name]) == "function" then
-        self._events[name]()
-    end
+    self._fireEvent(name)
 end

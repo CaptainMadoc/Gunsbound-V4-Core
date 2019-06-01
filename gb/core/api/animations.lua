@@ -27,7 +27,6 @@ function animations:update(dt)
 
     for i,v in pairs(self.list) do
         self.list[i]:update(dt)
-        sb.setLogMap("1 - "..i, sb.printJson(v.playing))
         if v.temporary and not v.playing then
             self.list[i] = nil
         end
@@ -39,16 +38,18 @@ function animations:uninit()
 end
 
 function animations:add(name, keyFrames)
-    if type(keyFrames) == "string" then keyFrames = root.assetJson(directory(keyFrames)) end
+    if type(keyFrames) == "string" then keyFrames = root.assetJson(directory(keyFrames, configInstance.directory or "/")) end
     if not keyFrames then return end
-    self.list[name] = module(modPath.."modules/animation.lua")
+    self.list[name] = module(corePath.."modules/animation.lua")
+    self.list[name]:bindFireEvent(function(name) self:fireEvents(name) end)
     self.list[name]:load(keyFrames)
 end
 
 function animations:playOverride(keyFrames)
     if type(keyFrames) == "string" then keyFrames = root.assetJson(directory(keyFrames)) end
     if not keyFrames then return end
-    self.override = module(modPath.."modules/animation.lua")
+    self.override = module(corePath.."modules/animation.lua")
+    self.override:bindFireEvent(function(name) self:fireEvents(name) end)
     self.override:load(keyFrames)
     self.override:play()
 end
@@ -104,8 +105,14 @@ function animations:transforms(animationOrder)
     return transforms
 end
 
+animations._events = {}
+
 function animations:addEvent(name, func)
-    for i,v in pairs(self.list) do --probably gonna get reworked
-        self.list[i]:addEvent(name, func)
+    self._events[name] = func
+end
+
+function animations:fireEvents(name)
+    if self._events[name] then
+        self._events[name]()
     end
 end
