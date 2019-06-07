@@ -5,8 +5,8 @@ module.item = nil
 module.part = nil
 
 function module:load(config)
-    self.item = itemConfig(config.item)
-    self.part = config.part
+	self.item = itemConfig(config.item)
+	self.part = config.part
 end
 
 function module:update()

@@ -34,7 +34,7 @@ function configInstance:getAnimation()
 		animations = root.assetJson(directory(animations), {})
 	end
 	local animationCustom = self:getParameterWithConfig("animationCustom")
-    return sb.jsonMerge(animations, animationCustom)
+	return sb.jsonMerge(animations, animationCustom)
 end
 
 function configInstance:getParameterWithConfig(name)

@@ -13,14 +13,14 @@ local function tablecopy(t)
 end
 
 local function stringsplit(inputstr, sep) 
-    if sep == nil then
-        sep = "%s"
-    end
-    local t={} ; i=1
-    for str in string.gmatch(inputstr, "([^"..sep.."]+)") do
-        t[i] = str
-        i = i + 1
-    end
+	if sep == nil then
+		sep = "%s"
+	end
+	local t={} ; i=1
+	for str in string.gmatch(inputstr, "([^"..sep.."]+)") do
+		t[i] = str
+		i = i + 1
+	end
 return t
 end
 
@@ -252,84 +252,84 @@ portrait.species = {
 --
 
 function portrait:new(id)
-    if world.entityExists(id) then
-        local n = tablecopy(self)
-        n.specie = world.entitySpecies(id)
-        n.portrait = world.entityPortrait(id, "full")
-        n.gender = world.entityGender(id)
+	if world.entityExists(id) then
+		local n = tablecopy(self)
+		n.specie = world.entitySpecies(id)
+		n.portrait = world.entityPortrait(id, "full")
+		n.gender = world.entityGender(id)
 
-	    if not portrait.species[n.specie] or not portrait.species[n.specie][n.gender] then --if not found EDIT: It will now guess the directories
-	    	portrait.species[n.specie] = {
-	    		male = {
-	    			["/humanoid/"..spe.."/malehead.png"] = "Head",
-	    			["/humanoid/"..spe.."/emote.png"] = "Face",
-	    			["/humanoid/"..spe.."/hair/"] = "Hair",
-	    			["/humanoid/"..spe.."/malebody.png"] = "Body",
-	    			["/humanoid/"..spe.."/backarm.png"] = "BackArm",
-	    			["/humanoid/"..spe.."/frontarm.png"] = "FrontArm",
-	    			["/humanoid/"..spe.."/fluff/"] = "Fluff",
-	    			["/humanoid/"..spe.."/beaks/"] = "Beaks",
-	    			["/humanoid/"..spe.."/beardfemale/"] = "Beard"
-	    		},
-	    		female = {
-	    			["/humanoid/"..spe.."/femalehead.png"] = "Head",
-	    			["/humanoid/"..spe.."/emote.png"] = "Face",
-	    			["/humanoid/"..spe.."/hair/"] = "Hair",
-	    			["/humanoid/"..spe.."/femalebody.png"] = "Body",
-	    			["/humanoid/"..spe.."/backarm.png"] = "BackArm",
-	    			["/humanoid/"..spe.."/frontarm.png"] = "FrontArm",
-	    			["/humanoid/"..spe.."/fluff/"] = "Fluff",
-	    			["/humanoid/"..spe.."/beaks/"] = "Beaks",
-	    			["/humanoid/"..spe.."/beardfemale/"] = "Beard"
-	    		}
-	    	}
-        end
+		if not portrait.species[n.specie] or not portrait.species[n.specie][n.gender] then --if not found EDIT: It will now guess the directories
+			portrait.species[n.specie] = {
+				male = {
+					["/humanoid/"..spe.."/malehead.png"] = "Head",
+					["/humanoid/"..spe.."/emote.png"] = "Face",
+					["/humanoid/"..spe.."/hair/"] = "Hair",
+					["/humanoid/"..spe.."/malebody.png"] = "Body",
+					["/humanoid/"..spe.."/backarm.png"] = "BackArm",
+					["/humanoid/"..spe.."/frontarm.png"] = "FrontArm",
+					["/humanoid/"..spe.."/fluff/"] = "Fluff",
+					["/humanoid/"..spe.."/beaks/"] = "Beaks",
+					["/humanoid/"..spe.."/beardfemale/"] = "Beard"
+				},
+				female = {
+					["/humanoid/"..spe.."/femalehead.png"] = "Head",
+					["/humanoid/"..spe.."/emote.png"] = "Face",
+					["/humanoid/"..spe.."/hair/"] = "Hair",
+					["/humanoid/"..spe.."/femalebody.png"] = "Body",
+					["/humanoid/"..spe.."/backarm.png"] = "BackArm",
+					["/humanoid/"..spe.."/frontarm.png"] = "FrontArm",
+					["/humanoid/"..spe.."/fluff/"] = "Fluff",
+					["/humanoid/"..spe.."/beaks/"] = "Beaks",
+					["/humanoid/"..spe.."/beardfemale/"] = "Beard"
+				}
+			}
+		end
 
-	    for i,drawable in pairs(n.portrait) do
-            local splited = stringsplit(drawable.image, ":")
-            local match = false
-	    	for image,part in pairs(portrait.species[n.specie][n.gender]) do
-	    		if string.match(splited[1], image) then
-	    			drawable.zLevel = i
-                    n._parts[part] = drawable
-                    match = true
-                    break
-	    		end
-            end
-            if not match then
-	    	    for image,part in pairs(portrait.armor) do
-	        	    if splited[1] and string.match(splited[1], image) then
-	        			drawable.zLevel = i
-                        n._parts[part] = drawable
-                        break
-	        		end
-                end
-            end
-        end
+		for i,drawable in pairs(n.portrait) do
+			local splited = stringsplit(drawable.image, ":")
+			local match = false
+			for image,part in pairs(portrait.species[n.specie][n.gender]) do
+				if string.match(splited[1], image) then
+					drawable.zLevel = i
+					n._parts[part] = drawable
+					match = true
+					break
+				end
+			end
+			if not match then
+				for image,part in pairs(portrait.armor) do
+					if splited[1] and string.match(splited[1], image) then
+						drawable.zLevel = i
+						n._parts[part] = drawable
+						break
+					end
+				end
+			end
+		end
 
-        return n
-    end
+		return n
+	end
 end
 
 --portrait:new(entityid)
 
 --returns a named parts list
 function portrait:parts()
-    return self._parts
+	return self._parts
 end
 
 --returns a named head parts list
 function portrait:headParts()
-    return { 
-	    HeadArmor = self._parts["HeadArmor"],
-	    Head = self._parts["Head"], 
-	    Hair = self._parts["Hair"],
-	    Face = self._parts["Face"],
-	    Brand = self._parts["Brand"],
-	    Beard = self._parts["Beard"],
-	    Fluff = self._parts["Fluff"],
-	    Beaks = self._parts["Beaks"]
-    }
+	return { 
+		HeadArmor = self._parts["HeadArmor"],
+		Head = self._parts["Head"], 
+		Hair = self._parts["Hair"],
+		Face = self._parts["Face"],
+		Brand = self._parts["Brand"],
+		Beard = self._parts["Beard"],
+		Fluff = self._parts["Fluff"],
+		Beaks = self._parts["Beaks"]
+	}
 end
 
 --Skin color
@@ -391,13 +391,13 @@ PARTS NAMES:
 
 --directory only
 function portrait:directory(part)
-    if self._parts[part] then
-        local splits = stringsplit(self._parts[part].image, "/")
-        splits[#splits] = nil
-        local str = "/"
-        for i,v in pairs(splits) do
-            str = str..v.."/"
-        end
+	if self._parts[part] then
+		local splits = stringsplit(self._parts[part].image, "/")
+		splits[#splits] = nil
+		local str = "/"
+		for i,v in pairs(splits) do
+			str = str..v.."/"
+		end
 		return str
 	else
 		return "/"
@@ -406,8 +406,8 @@ end
 
 -- file name only with extensions
 function portrait:file(part)
-    if self._parts[part] then
-        local splits = stringsplit(self:image(part), "/")
+	if self._parts[part] then
+		local splits = stringsplit(self:image(part), "/")
 		return splits[#splits]
 	else
 		return "/"

@@ -8,11 +8,11 @@ attachmentSystem.specials = {}
 
 
 function attachmentSystem:init()
-    for name,property in pairs(configInstance:getParameterWithConfig("attachments")) do
-        local attachment = module("/gb/modules/attachment.lua")
-        attachment:load(property)
-        self.list[name] = attachment
-    end
+	for name,property in pairs(configInstance:getParameterWithConfig("attachments")) do
+		local attachment = module("/gb/modules/attachment.lua")
+		attachment:load(property)
+		self.list[name] = attachment
+	end
 end
 
 function attachmentSystem:update(dt)
@@ -25,11 +25,11 @@ end
 
 -- for systems Scripts
 function attachmentSystem:activate()
-    if self.currentSpecial then
+	if self.currentSpecial then
 
-    end
+	end
 end
 
 function attachmentSystem:switch()
-    
+	
 end

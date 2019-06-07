@@ -1,36 +1,32 @@
 include "vec2"
 
 function table.merge(a, b)
-    if type(a) ~= "table" then return b end
+	if type(a) ~= "table" then return b end
 
-    for i,v in pairs(b) do
-
-		if type(v) == "table" then
-            a[i] = table.merge(a[i], v)
-		else
-			a[i] = b[i]
+		for i,v in pairs(b) do
+			if type(v) == "table" then
+				a[i] = table.merge(a[i], v)
+			else
+				a[i] = b[i]
+			end
 		end
-    end
 
-    setmetatable(a, getmetatable(b) or {})
+		setmetatable(a, getmetatable(b) or {})
 	return a
 end
 
 function table.vmerge(a, b)
-    if type(a) ~= "table" then return b end
-
-    for i,v in pairs(b) do
-
-		if type(v) == "table" then
-            a[i] = table.vmerge(a[i], v)
-            if type(a[i]) == "table" and #a[i] == 2 then
-                a[i] = vec2(a[i])
-            end
-		else
-			a[i] = b[i]
+	if type(a) ~= "table" then return b end
+		for i,v in pairs(b) do
+			if type(v) == "table" then
+				a[i] = table.vmerge(a[i], v)
+				if type(a[i]) == "table" and #a[i] == 2 then
+					a[i] = vec2(a[i])
+				end
+			else
+				a[i] = b[i]
+			end
 		end
-    end
-
 	return a
 end
 
