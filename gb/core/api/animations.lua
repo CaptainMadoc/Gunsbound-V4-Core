@@ -1,5 +1,5 @@
 include "transforms"
-include "configInstance"
+include "config"
 include "directory"
 include "module"
 include "tableutil"
@@ -11,7 +11,7 @@ function animations:init()
 	message.setHandler("isAnyPlaying", function(_, loc, ...) if loc then return self:isAnyPlaying() end end)
 	message.setHandler("play", function(_, loc, keyFrames) if loc then self:playOverride(keyFrames) end end)
 	
-	for i,v in pairs(configInstance.animations or {}) do
+	for i,v in pairs(config.animations or {}) do
 		self:add(i,v)
 	end
 end
@@ -38,7 +38,7 @@ function animations:uninit()
 end
 
 function animations:add(name, keyFrames)
-	if type(keyFrames) == "string" then keyFrames = root.assetJson(directory(keyFrames, configInstance.directory or "/")) end
+	if type(keyFrames) == "string" then keyFrames = root.assetJson(directory(keyFrames, config.directory or "/")) end
 	if not keyFrames then return end
 	self.list[name] = module(corePath.."modules/animation.lua")
 	self.list[name]:bindFireEvent(function(name) self:fireEvents(name) end)
