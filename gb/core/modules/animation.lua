@@ -72,9 +72,6 @@ end
 --update animation time
 function module:update(dt)
 	if self.playing then
-		if self.keyTime < self.keyTimeTarget then
-			self.keyTime = math.min(self.keyTime + dt, self.keyTimeTarget)
-		end
 		if self.keyTime == self.keyTimeTarget then
 			self.key = self.key + 1
 			if self.keyFrames[self.key] and self.keyFrames[self.key + 1] then
@@ -85,6 +82,9 @@ function module:update(dt)
 				self:_reachkey(self.keyFrames[self.key])
 				self.playing = false
 			end
+		end
+		if self.keyTime < self.keyTimeTarget then
+			self.keyTime = math.min(self.keyTime + dt, self.keyTimeTarget)
 		end
 	end
 end

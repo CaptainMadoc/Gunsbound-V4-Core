@@ -17,7 +17,7 @@ function module(path)
 		module = nil
 	end
 
-	require(directory(path))
+	require(directory(path, corePath))
 	if module then
 		_nestedmodules[path] = table.copy(module)
 	end

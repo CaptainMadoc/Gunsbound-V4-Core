@@ -9,3 +9,8 @@ function itemConfig(name, parameters)
 	end
 	return nil
 end
+
+function itemDirectory(name, parameters)
+	local c = root.itemConfig({name = name, count = 1, parameters = parameters})
+	return c.directory
+end
