@@ -9,7 +9,7 @@ attachmentSystem.specials = {}
 
 function attachmentSystem:init()
 	for name,property in pairs(configInstance:getParameterWithConfig("attachments")) do
-		local attachment = module("/gb/modules/attachment.lua")
+		local attachment = module("modules/attachment.lua")
 		attachment:load(property)
 		self.list[name] = attachment
 	end

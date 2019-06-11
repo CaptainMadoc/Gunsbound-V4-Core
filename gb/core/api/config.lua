@@ -1,4 +1,5 @@
 include "directory"
+include "tableutil"
 
 local _config = config
 local _parameters = {}
@@ -11,6 +12,7 @@ local function init()
 	else
 		_parameters = _config.getParameter("", {})
 	end
+	inited = true
 end
 
 local function save(i)
@@ -25,26 +27,31 @@ local function save(i)
 end
 
 function config:getAnimation()
-	if not inited then inited = true init() end
+	if not inited then init() end
 
-	local animation = self["animation"]
+	local animation = _config.getParameter("animation", {})
 	if type(animation) == "string" then
-		animation = root.assetJson(directory(animation), {})
+		animation = root.assetJson(directory(animation))
 	end
 	
-	local animationCustom = self["animationCustom"]
-	return sb.jsonMerge(animation or {}, animationCustom or {})
+	local animationCustom = _config.getParameter("animationCustom", {})
+	return table.vmerge(animation or {}, animationCustom or {})
+end
+
+
+function config.getParameter(...)
+	return _config.getParameter(...)
 end
 
 setmetatable(config,
 	{
 		__newindex = function(t, key, value)
-			if not inited then inited = true init() end
+			if not inited then init() end
 			_parameters[key] = value
 			--saving here
 		end,
 		__index = function(t, key)
-			if not inited then inited = true init() end
+			if not inited then init() end
 			return _parameters[key] or _config.getParameter(key)
 		end
 	}

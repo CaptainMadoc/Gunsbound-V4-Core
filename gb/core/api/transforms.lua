@@ -14,7 +14,9 @@ transforms.default = nil
 transforms.custom = {}
 
 function transforms:init()
-	self:load()
+	if not self.default then
+		self:load()
+	end
 	message.setHandler("getTransforms", function(_, loc, ...) if loc then return self.default end end)
 	message.setHandler("setTransforms", function(_, loc, transforms) if loc then self.override = table.vmerge(transforms or {}, {}) self.overriden = true end end)
 	self:update(1/60)
@@ -23,7 +25,7 @@ end
 function transforms:update(dt)
 	for name,def in pairs(self.default) do
 		if self.custom[name] then
-			local current = self.override[name] or self.current[name] or {}
+			local current = table.vmerge(table.copy(def), self.override[name] or self.current[name] or {})
 			self.custom[name](current)
 		elseif animator.hasTransformationGroup(name) then
 			local current = self.override[name] or self.current[name] or {}
@@ -53,8 +55,9 @@ function transforms:uninit()
 end
 
 -- custom transform application.
-function transforms:addCustom(name, f)
+function transforms:addCustom(name, default, f)
 	self.custom[name] = f
+	self:add(name, default)
 end
 
 -- apply over the current
@@ -82,6 +85,9 @@ function transforms:reset()
 end
 
 function transforms:add(name, def)
+	if not self.default then
+		self:load()
+	end
 	for i2,v2 in pairs(def) do
 		if type(v2) == "table" and #v2 == 2 then
 			def[i2] = vec2(v2)
@@ -97,7 +103,7 @@ function transforms:load()
 	for i,v in pairs(animation.transformationGroups or {}) do
 		if not v.ignore then -- check if we can use it
 			local newtrans = {position = vec2(0,0), scale = vec2(1,1), scalePoint = vec2(0,0), rotation = 0, rotationPoint = vec2(0,0)}
-			if def then
+			if v.transform then
 				newtrans = sb.jsonMerge(newtrans, v.transform or {})
 			end
 			self:add(i, newtrans)

@@ -33,7 +33,11 @@ function v2:__call(x, y) -- constructor
 			cloned[2] = x[2] or x[1]
 		end
 	elseif x and y then
-		cloned = {x,y}
+		cloned[1] = x
+		cloned[2] = y
+	elseif x then
+		cloned[1] = x
+		cloned[2] = x
 	end
 
 	cloned[1] = cloned[1] or 0

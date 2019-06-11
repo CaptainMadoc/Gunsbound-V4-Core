@@ -1,7 +1,8 @@
-include "configInstance"
+include "config"
 include "vec2"
 include "vec2util"
 include "rays"
+include "arms"
 include "mcontroller"
 include "activeItem"
 include "transforms"
@@ -16,9 +17,6 @@ include "magazine"
 --[[
 
 - Firing implementation
-- Ammo management
-- Adaptable Animation
-- Animation Manager
 - Attachments System
 
 ]]
@@ -26,13 +24,15 @@ include "magazine"
 gun = {}
 
 function gun:init()
-	aim:init()
 	animations:init()
 	transforms:init()
+	aim:init()
+	arms:init()
 end
 
 function gun:update(dt, fireMode, shift, moves)
 	aim:update(dt)
+	arms:update(dt)
 	animations:update(dt)
 	transforms:apply(animations:transforms({"reload","cock","draw","shoot"}))
 	transforms:update(dt)

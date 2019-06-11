@@ -11,7 +11,11 @@ function table.merge(a, b)
 			end
 		end
 
-		setmetatable(a, getmetatable(b) or {})
+		local mt = getmetatable(b)
+		if type(mt) == "table" then
+			setmetatable(a, mt)
+		end
+
 	return a
 end
 
@@ -40,6 +44,9 @@ function table.copy(t)
 			nt[i] = v
 		end
 	end
-	setmetatable(nt, getmetatable(t))
+	local mt = getmetatable(t)
+	if type(mt) == "table" then
+		setmetatable(nt, mt)
+	end
 	return nt
 end
