@@ -86,18 +86,6 @@ function main:updateFire(firemode)
 
 end
 
---[[
-function main:updateLoadAmmo()
-    if magazine:count() == 0 and magazine:playerHasAmmo() and gun:chamberDry() then
-        magazine:insert(1)
-    else
-        if gun:chamberDry() and gun:ready() then
-            gun:load_chamber(magazine:take())
-        end
-    end
-end
-]]
-
 -- our queued burst fires
 function main:updateQueuedFire()
 

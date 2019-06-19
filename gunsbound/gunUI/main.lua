@@ -12,10 +12,7 @@ function lp(var)
 	end 
 end
 
-RETRY = 3
-RPCOWNER = nil
 ISLOCAL = false
-LOCALCHECKDONE = false
 ownerID = nil
 
 --
@@ -26,13 +23,11 @@ FX = loadModule(lp("uiclass.lua"))
 FX.configPath = "FX.config"
 localUI = nil
 
--- world.sendEntityMessage(nil , "isLocal")
-
 function init()
 
 	entityID = animationConfig.animationParameter("entityID")
 	if type(entityID) == "number" then
-		RPCOWNER = world.sendEntityMessage(entityID, "isLocal")
+		ISLOCAL = world.sendEntityMessage(entityID, "isLocal"):finished()
 	end
 	FX:init()
 end
@@ -51,19 +46,6 @@ function update()
 	if ISLOCAL then
 		if not localUI then load_localUI() end
 		localUI:update(dt)
-	elseif not RPCOWNER then
-		entityID = animationConfig.animationParameter("entityID")
-		if type(entityID) == "number" then
-			RPCOWNER = world.sendEntityMessage(entityID, "isLocal")
-		end
-	elseif not LOCALCHECKDONE and RPCOWNER:finished() then
-		if type(RPCOWNER:result()) == "nil" and RETRY > 0 then
-			RPCOWNER = nil
-			RETRY = RETRY - 1
-		else
-			ISLOCAL = RPCOWNER:result()
-			LOCALCHECKDONE = true
-		end
 	end
 
 	FX:update(dt)

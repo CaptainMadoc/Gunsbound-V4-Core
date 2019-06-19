@@ -128,7 +128,7 @@ function magazine:createElement()
 	return element
 end
 
-		--API-
+--API-
 
 --counts how much bullets in the magazine
 function magazine:count()
@@ -149,18 +149,6 @@ function magazine:getCompatibleAmmo()
 		return {"gbtestammo"}
 	end
 	return compat
-end
-
---Check if player has ammo for it (obsolete) use ammo:inInventory()
-function magazine:playerHasAmmo()
-	for i,v in pairs(self:getCompatibleAmmo()) do
-		local finditem = {name = v, count = 1}
-		if type(v) == "table" then finditem = v end
-		if player.hasItem(finditem, true) then
-			return true
-		end
-	end
-	return false
 end
 
 function magazine:insert(co)

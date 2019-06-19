@@ -26,7 +26,7 @@ function gun:gbDebug()
 end
 
 
-function gun:init()
+function gun:init() 
 
 	--DATA ITEM LOADS
     dataManager:load("gunLoad", true)
@@ -72,22 +72,21 @@ function gun:init()
 	
 	self:setFireSound( self.fireSounds )
 
-	animation:addEvent("eject_chamber", function() self:eject_chamber() end)
-	animation:addEvent("load_ammo", function() self:load_chamber() end)
-
-	if magazine then 
-		magazine.size = self.stats.maxMagazine 
-	end
-
 	self:gbDebug()
 
 	--main gun script
 	require(processDirectory(data.gunScript))
+	if main and main.init then
+		main:init()
+	end
 end
 
-function gun:lateinit(...)
-	if main and main.init then
-		main:init(...)
+function gun:lateinit()
+	if main and main.lateinit then
+		main:lateinit()
+	end
+	if main and main.lateInit then
+		main:lateInit()
 	end
 end
 
@@ -126,13 +125,6 @@ function gun:update(dt, fireMode, shiftHeld, moves)
 		aim.direction = dir
 	end
 
-	--rpm system
-	if self.hasToLoad and gun:ready() then
-		self.hasToLoad = false
-		self:load_chamber()
-		self.cooldown = 0.016
-    end
-
 	--main gun script update
 	if main and main.update then
 		main:update(dt, fireMode, shiftHeld, moves)
@@ -142,9 +134,9 @@ function gun:update(dt, fireMode, shiftHeld, moves)
 	self.cooldown = math.max(self.cooldown - updateInfo.dt, 0)
 end
 
-		--API--
+--API--
 
---Use for calculation RPM to shots timer
+--Use for calculation RPM to per shots timer
 function gun:rpm()
     return math.max((60/(self.stats.rpm or 666)) - 0.016, 0.016)
 end
@@ -214,7 +206,6 @@ function gun:rawDamage(projectilename)
 	return dmg
 end
 
-
 --You know
 function gun:fire(overrideStats)
 	if not overrideStats then overrideStats = {} end
@@ -253,15 +244,6 @@ function gun:fire(overrideStats)
 
 		--marks ammo as a fired bullet
 		data.gunLoad.parameters.fired = true
-		
-		--used by action lever style
-		if self.settings.chamberEjection then
-			self:eject_chamber()
-			if magazine:count() > 0 and self.settings.chamberEjection then
-				self.hasToLoad = true
-			end
-		end
-		--
 		
 		--emits FX muzzle flash sometimes changed by a silencer/flash hider
 		if (overrideStats.muzzleFlash or self.stats.muzzleFlash) == 1 then
@@ -322,7 +304,7 @@ function gun:load_chamber(bullet)
 	if data.gunLoad then 
 		self:eject_chamber()
 	end
-	data.gunLoad = bullet or magazine:take()
+	data.gunLoad = bullet
 	dataManager:save("gunLoad")
 end
 
@@ -337,7 +319,7 @@ function gun:chamberDry()
 end
 
 function gun:dry()
-	return self:chamberDry() and magazine:count() == 0
+	return self:chamberDry()
 end
 
 --Gun full ready
@@ -348,7 +330,6 @@ function gun:ready()
 	return false
 end
 
-
 --Adding armOffsets
 function gun:addRecoil(custom)
 	local a = custom
@@ -357,7 +338,6 @@ function gun:addRecoil(custom)
 	end
 	self.recoil = self.recoil + a * 2
 end
-
 
 --Gets Current Firemode
 function gun:fireMode()
