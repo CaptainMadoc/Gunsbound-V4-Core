@@ -23,7 +23,10 @@ function transforms:init()
 end
 
 function transforms:update(dt)
-	for name,def in pairs(self.default) do
+	if not self.default then
+		self:load()
+	end
+	for name,def in pairs(self.default or {}) do
 		if self.custom[name] then
 			local current = table.vmerge(table.copy(def), self.override[name] or self.current[name] or {})
 			self.custom[name](current)

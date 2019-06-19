@@ -78,10 +78,8 @@ portrait.zLevelHead = {
 	Head = 3, 
 	Hair = 4,
 	Face = 5,
-	Brand = 6,
-	Beard = 7,
-	Fluff = 8,
-	Beaks = 9
+	FacialHair = 6,
+	FacialMask = 7,
 }
 
 portrait.armor = {
@@ -93,6 +91,7 @@ portrait.armor = {
 	["/pantsM.png"] = "LegArmor",
 	["/PantsF.png"] = "LegArmor",
 	["/PantsM.png"] = "LegArmor",
+
 	["/chest.png"] = "BodyArmor",
 	["/Chest.png"] = "BodyArmor",
 	["/chestm.png"] = "BodyArmor",
@@ -101,14 +100,26 @@ portrait.armor = {
 	["/chestF.png"] = "BodyArmor",
 	["/ChestM.png"] = "BodyArmor",
 	["/ChestF.png"] = "BodyArmor",
+
 	["/head.png"] = "HeadArmor",
 	["/Head.png"] = "HeadArmor",
+	["/headm.png"] = "HeadArmor",
+	["/Headm.png"] = "HeadArmor",
+	["/headM.png"] = "HeadArmor",
+	["/HeadM.png"] = "HeadArmor",
+	["/headf.png"] = "HeadArmor",
+	["/Headf.png"] = "HeadArmor",
+	["/headF.png"] = "HeadArmor",
+	["/HeadF.png"] = "HeadArmor",
+
 	["/fsleeve.png"] = "FrontArmArmor",
-	["/bsleeve.png"] = "BackArmArmor",
 	["/Fsleeve.png"] = "FrontArmArmor",
-	["/Bsleeve.png"] = "BackArmArmor",
 	["/FSleeve.png"] = "FrontArmArmor",
+
+	["/Bsleeve.png"] = "BackArmArmor",
+	["/bsleeve.png"] = "BackArmArmor",
 	["/BSleeve.png"] = "BackArmArmor",
+	
 	["/back.png"] = "BackArmor",
 	["/Back.png"] = "BackArmor"
 }
@@ -140,8 +151,8 @@ portrait.species = {
 			["/humanoid/avian/malebody.png"] = "Body",
 			["/humanoid/avian/backarm.png"] = "BackArm",
 			["/humanoid/avian/frontarm.png"] = "FrontArm",
-			["/humanoid/avian/fluff/"] = "Fluff",
-			["/humanoid/avian/beaks/"] = "Beaks"
+			["/humanoid/avian/fluff/"] = "FacialHair",
+			["/humanoid/avian/beaks/"] = "FacialMask"
 		},
 		female = {
 			["/humanoid/avian/femalehead.png"] = "Head",
@@ -150,8 +161,8 @@ portrait.species = {
 			["/humanoid/avian/femalebody.png"] = "Body",
 			["/humanoid/avian/backarm.png"] = "BackArm",
 			["/humanoid/avian/frontarm.png"] = "FrontArm",
-			["/humanoid/avian/fluff/"] = "Fluff",
-			["/humanoid/avian/beaks/"] = "Beaks"
+			["/humanoid/avian/fluff/"] = "FacialHair",
+			["/humanoid/avian/beaks/"] = "FacialMask"
 		}
 	},
 	apex = {
@@ -162,7 +173,7 @@ portrait.species = {
 			["/humanoid/apex/malebody.png"] = "Body",
 			["/humanoid/apex/backarm.png"] = "BackArm",
 			["/humanoid/apex/frontarm.png"] = "FrontArm",
-			["/humanoid/apex/beardmale/"] = "Beard"
+			["/humanoid/apex/beardmale/"] = "FacialHair"
 		},
 		female = {
 			["/humanoid/apex/femalehead.png"] = "Head",
@@ -171,7 +182,7 @@ portrait.species = {
 			["/humanoid/apex/femalebody.png"] = "Body",
 			["/humanoid/apex/backarm.png"] = "BackArm",
 			["/humanoid/apex/frontarm.png"] = "FrontArm",
-			["/humanoid/apex/beardfemale/"] = "Beard"
+			["/humanoid/apex/beardfemale/"] = "FacialHair"
 		}
 	},
 	floran = {
@@ -215,7 +226,7 @@ portrait.species = {
 			["/humanoid/novakid/malehead.png"] = "Head",
 			["/humanoid/novakid/emote.png"] = "Face",
 			["/humanoid/novakid/hair/"] = "Hair",
-			["/humanoid/novakid/brand/"] = "Brand",
+			["/humanoid/novakid/brand/"] = "FacialHair",
 			["/humanoid/novakid/malebody.png"] = "Body",
 			["/humanoid/novakid/backarm.png"] = "BackArm",
 			["/humanoid/novakid/frontarm.png"] = "FrontArm"
@@ -224,7 +235,7 @@ portrait.species = {
 			["/humanoid/novakid/femalehead.png"] = "Head",
 			["/humanoid/novakid/emote.png"] = "Face",
 			["/humanoid/novakid/hair/"] = "Hair",
-			["/humanoid/novakid/brand/"] = "Brand",
+			["/humanoid/novakid/brand/"] = "FacialHair",
 			["/humanoid/novakid/femalebody.png"] = "Body",
 			["/humanoid/novakid/backarm.png"] = "BackArm",
 			["/humanoid/novakid/frontarm.png"] = "FrontArm"
@@ -259,43 +270,46 @@ function portrait:new(id)
 		n.gender = world.entityGender(id)
 
 		if not portrait.species[n.specie] or not portrait.species[n.specie][n.gender] then --if not found EDIT: It will now guess the directories
-			portrait.species[n.specie] = {
-				male = {
-					["/humanoid/"..spe.."/malehead.png"] = "Head",
-					["/humanoid/"..spe.."/emote.png"] = "Face",
-					["/humanoid/"..spe.."/hair/"] = "Hair",
-					["/humanoid/"..spe.."/malebody.png"] = "Body",
-					["/humanoid/"..spe.."/backarm.png"] = "BackArm",
-					["/humanoid/"..spe.."/frontarm.png"] = "FrontArm",
-					["/humanoid/"..spe.."/fluff/"] = "Fluff",
-					["/humanoid/"..spe.."/beaks/"] = "Beaks",
-					["/humanoid/"..spe.."/beardfemale/"] = "Beard"
-				},
-				female = {
-					["/humanoid/"..spe.."/femalehead.png"] = "Head",
-					["/humanoid/"..spe.."/emote.png"] = "Face",
-					["/humanoid/"..spe.."/hair/"] = "Hair",
-					["/humanoid/"..spe.."/femalebody.png"] = "Body",
-					["/humanoid/"..spe.."/backarm.png"] = "BackArm",
-					["/humanoid/"..spe.."/frontarm.png"] = "FrontArm",
-					["/humanoid/"..spe.."/fluff/"] = "Fluff",
-					["/humanoid/"..spe.."/beaks/"] = "Beaks",
-					["/humanoid/"..spe.."/beardfemale/"] = "Beard"
-				}
-			}
+			local speciesConfig = root.assetJson("/species/"..n.specie..".species")
+
+			portrait.species[n.specie] = {}
+			if speciesConfig then
+				for i=1,#speciesConfig.genders do
+					local gender = speciesConfig.genders[i]
+					portrait.species[n.specie][gender.name] = {
+						["/humanoid/"..n.specie.."/emote.png"] = "Face",
+						["/humanoid/"..n.specie.."/backarm.png"] = "BackArm",
+						["/humanoid/"..n.specie.."/frontarm.png"] = "FrontArm",
+						["/humanoid/"..n.specie.."/"..(gender.hairGroup or "hair").."/"] = "Hair",
+						
+						["/humanoid/"..n.specie.."/"..gender.name.."head.png"] = "Head",
+						["/humanoid/"..n.specie.."/"..gender.name.."body.png"] = "Body"
+					}
+
+					if gender.facialHairGroup then
+						portrait.species[n.specie][gender.name]["/humanoid/"..n.specie.."/"..gender.facialHairGroup.."/"] = "FacialHair"
+					end
+					if gender.facialMaskGroup then
+						portrait.species[n.specie][gender.name]["/humanoid/"..n.specie.."/"..gender.facialMaskGroup.."/"] = "FacialMask"
+					end
+
+				end
+			end
 		end
 
 		for i,drawable in pairs(n.portrait) do
 			local splited = stringsplit(drawable.image, ":")
 			local match = false
+
 			for image,part in pairs(portrait.species[n.specie][n.gender]) do
-				if string.match(splited[1], image) then
+				if image == drawable.image:sub(1,image:len()) then
 					drawable.zLevel = i
 					n._parts[part] = drawable
 					match = true
 					break
 				end
 			end
+
 			if not match then
 				for image,part in pairs(portrait.armor) do
 					if splited[1] and string.match(splited[1], image) then
@@ -325,10 +339,8 @@ function portrait:headParts()
 		Head = self._parts["Head"], 
 		Hair = self._parts["Hair"],
 		Face = self._parts["Face"],
-		Brand = self._parts["Brand"],
-		Beard = self._parts["Beard"],
-		Fluff = self._parts["Fluff"],
-		Beaks = self._parts["Beaks"]
+		FacialHair = self._parts["FacialHair"],
+		FacialMask = self._parts["FacialMask"],
 	}
 end
 
@@ -377,9 +389,8 @@ PARTS NAMES:
 "Body"
 "BackArm"
 "FrontArm"
-"Fluff"
-"Beaks"
-"Beard"
+"FacialHair"
+"FacialMask"
 
 "HeadArmor"
 "BodyArmor"
