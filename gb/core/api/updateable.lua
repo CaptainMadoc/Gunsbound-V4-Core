@@ -56,6 +56,9 @@ function init(...)
 end
 
 function update(...)
+	if not updateable.hasInited then
+		updateable:init(...)
+	end
 	oldupdate(...)
 	updateable:update(...)
 end

@@ -1,6 +1,4 @@
 include "itemConfig"
-include "vec2"
-include "vec2util"
 include "tableutil"
 
 module = {}
@@ -10,13 +8,18 @@ module.parameters = {}
 module.count = 0
 
 function module:load(item) -- loads from a item
-	local orignalItemConfig = itemConfig(item.name)
+	local orignalItemConfig = itemConfig(item.name, {})
 	self.itemName = item.name
-	self.config = orignalItemConfig.parameters
+	self.config = orignalItemConfig
 	self.parameters = item.parameters or {}
 	self.count = item.count
 end
 
+--test placeholder
+function module:create(projectileName, projectileConfig)
+	self.parameters.projectile = projectileName
+	self.parameters.projectileConfig = projectileConfig
+end
 
 function module:save() -- returns a item
 	return {
@@ -39,9 +42,9 @@ end
 function module:projectileArgs(position, direction)
 	return {
 		self.parameters.projectile or self.config.projectile,
-		nil, -- will be overriden
+		position,
 		0,
-		vec2util.angle(direction),
+		direction,
 		false,
 		self.parameters.projectileConfig or self.config.projectileConfig
 	}
