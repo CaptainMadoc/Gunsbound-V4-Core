@@ -32,6 +32,14 @@ function magazine:reload(ammos)
 	end
 end
 
+function magazine:unload()
+	for i,v in ipairs(self.storage) do 
+		local item = self.storage[#self.storage]:save()
+		player.giveItem(item)
+		self.storage[#self.storage] = nil
+	end
+end
+
 function magazine:count()
 	local counts = 0
 	for i,v in ipairs(self.storage) do

@@ -74,11 +74,15 @@
 		"showCasings" : true,
 		"chamberEjection" : true,
 
-		"casingPosition" : {"part":"casingPosition", "offset":[0,0]}
+		"magazinePart" : "magazine" // we use this for mag attachments
 	},
 
+	"casing" : [
+		{"part": "casingPosition", "offset": [0,0]}
+	],
+
 	"muzzle" : [
-		{"part" : "firePosition", "offset":[0,0]}
+		{"part": "firePosition", "offset": [0,0]}
 	],
 
 	"animation" : "/gb/core/core.animation",

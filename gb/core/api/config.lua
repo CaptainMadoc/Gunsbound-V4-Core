@@ -48,7 +48,9 @@ setmetatable(config,
 		__newindex = function(t, key, value)
 			if not inited then init() end
 			_parameters[key] = value
-			--saving here
+			if activeItem then
+				activeItem.setInstanceValue(key, value)
+			end
 		end,
 		__index = function(t, key)
 			if not inited then init() end

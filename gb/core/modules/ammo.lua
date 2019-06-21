@@ -49,3 +49,14 @@ function module:projectileArgs(position, direction)
 		self.parameters.projectileConfig or self.config.projectileConfig
 	}
 end
+
+function module:casing(position, direction)
+	return {
+		self.parameters.casingProjectile or self.config.casingProjectile,
+		position,
+		0,
+		direction,
+		false,
+		self.parameters.casingProjectileConfig or self.config.casingProjectileConfig
+	}
+end
