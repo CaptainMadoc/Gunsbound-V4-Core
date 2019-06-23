@@ -2,7 +2,6 @@ include "config"
 include "updateable"
 
 include "vec2"
-include "vec2util"
 include "rays"
 
 include "mcontroller"
