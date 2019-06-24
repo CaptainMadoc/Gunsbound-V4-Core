@@ -19,6 +19,8 @@ include "magazine"
 include "ammoGroup"
 include "attachmentSystem"
 
+include "localAnimator"
+
 --this is the default system for any gun
 
 --THING TODO:
@@ -49,6 +51,8 @@ function gun:init()
 	gun.settings = config.settings or gun.settings
 	gun.chamber = config.chamber or false
 
+	magazine.max = stats.maxMagazine or 30
+
 	animations:init()
 	animations:addEvent("eject_chamber", function() gun:eject_chamber() end)
     animations:addEvent("load_ammo", function() gun:load_chamber(magazine:use()) end)
@@ -62,6 +66,46 @@ function gun:init()
 	magazine:init()
 	aim:init()
 	arms:init()
+end
+
+gun.uiPosition = vec2(0)
+
+function gun:updateUI()
+	local handPosition = activeItem.handPosition()
+	self.uiPosition = self.uiPosition:lerp(activeItem.handPosition(), 0.125)
+	localAnimator.addDrawable(
+		{
+			line = {handPosition, vec2(0,-5) + self.uiPosition},
+			width = 0.5,
+			color = {255,255,255,128},
+			fullbright = true,
+			position = {0,0}
+		},
+		"overlay"
+	)
+	localAnimator.addDrawable(
+		{
+			line = {vec2(0,-5), vec2(10,-5)},
+			width = 4,
+			color = {0,0,0,128},
+			fullbright = true,
+			position = self.uiPosition
+		},
+		"overlay"
+	)
+	localAnimator.addDrawable(
+		{
+			line = {
+				vec2(0.125,-5),
+				vec2((0.125) + 10 * (magazine:count() / magazine.max),-5)
+			},
+			width = 2,
+			color = {255,255,255,255},
+			fullbright = true,
+			position = self.uiPosition
+		},
+		"overlay"
+	)
 end
 
 function gun:update(dt, fireMode, shift, moves)
@@ -84,6 +128,7 @@ function gun:update(dt, fireMode, shift, moves)
 		self:fire()
 	end
 
+	self:updateUI()
 end
 
 function gun:eject_chamber()

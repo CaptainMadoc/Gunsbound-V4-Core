@@ -5,10 +5,45 @@ v2[1] = 0
 v2[2] = 0
 
 function v2:__index(a)
-	if a == "x" then 
-		return self[1]
-	elseif a == "y" then 
-		return self[2]
+	if type(a) == "string" then
+		if a == "x" then 
+			return self[1]
+		elseif a == "y" then 
+			return self[2]
+		elseif a == "angle" then
+			return 
+			function(self)		
+				local angle = math.atan(self[1], self[2])
+				if angle < 0 then angle = angle + 2 * math.pi end
+				return angle
+			end
+		elseif a == "angle" then
+			return 
+			function()		
+				local angle = math.atan(self[1], self[2])
+				if angle < 0 then angle = angle + 2 * math.pi end
+				return angle
+			end
+		elseif a == "rotate" then
+			return
+			function(self, angle)
+				local sinAngle = math.sin(angle)
+				local cosAngle = math.cos(angle)
+
+				return vec2(
+					{
+						self[1] * cosAngle - self[2] * sinAngle,
+						self[1] * sinAngle + self[2] * cosAngle,
+					}
+				)
+			end
+		elseif a == "lerp" then
+			return
+			function(self, b, ratio)
+				if type(b) == "number" then b = vec2(b) end
+				return self + (b - self) * ratio
+			end
+		end
 	end
 end
 
