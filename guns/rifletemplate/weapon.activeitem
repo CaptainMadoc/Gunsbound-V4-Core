@@ -17,8 +17,11 @@
 
 	"animations" : {
 		"reload" : "animations/reload.keyframes",
+		"reload_dry" : "animations/reload_dry.keyframes",
 		"shoot" : "animations/shoot.keyframes",
+		"shoot_dry" : "animations/shoot_dry.keyframes",
 		"cock" : "animations/cock.keyframes",
+		"cock_dry" : "animations/cock_dry.keyframes",
 		"draw" : "animations/draw.keyframes"
 	},
 

@@ -49,12 +49,13 @@ gun.settings = {
 function gun:init()
 	gun.settings = config.settings or gun.settings
 	gun.chamber = config.chamber or false
+	gun.dry = config.dry or false
 
 	magazine.max = stats.maxMagazine or 30
 
 	animations:init()
 	animations:addEvent("eject_chamber", function() gun:eject_chamber() end)
-    animations:addEvent("load_ammo", function() gun:load_chamber(magazine:use()) end)
+	animations:addEvent("load_ammo", function() gun:load_chamber(magazine:use()) end)
 	animations:addEvent("reload_loop", function() self.reloadLoop = true end)
 	animations:addEvent("reloadLoop", function() self.reloadLoop = true end)
 	animations:addEvent("insert_mag", function() magazine:reload() end)
@@ -67,8 +68,108 @@ function gun:init()
 	arms:init()
 end
 
-gun.uiPosition = vec2(0)
+function gun:update(dt, fireMode, shift, moves)
+	aim:update(dt)
+	arms:update(dt)
 
+	animations:update(dt)
+	if animations:isAnyPlaying() then
+		transforms:apply(animations:transforms())
+	end
+	transforms:update(dt)
+
+	if self.cooldown > 0 then
+		self.cooldown = math.max(self.cooldown - dt,0)
+	end
+
+	aim:at(activeItem.ownerAimPosition())
+	self:autoReload()
+
+
+	if fireMode == "primary" then
+		self:fire()
+	end
+
+	self:updateUI()
+end
+
+function gun:activate(fireMode, shift) end
+
+function gun:uninit()
+	config.load = self.chamber
+	config.dry = self.dry
+	magazine:uninit()
+	transforms:uninit()
+end
+
+function gun:eject_chamber()
+	if self.chamber then
+		if self.chamber.count <= 0 then
+			casingEmitter:fire(self.chamber)
+		else
+			local saved = self.chamber:save()
+			player.giveItem(saved)
+		end
+		self.chamber = false
+	end
+end
+
+function gun:load_chamber(ammo)
+	self.chamber = ammo
+	self.dry = false
+end
+
+gun.dry = false
+
+function gun:autoReload()
+
+	if not self.chamber and self.cooldown == 0 and not self.dry and self.settings.chamberEjection then
+		self:load_chamber(magazine:use())
+	elseif not self.chamber and not animations:isAnyPlaying() and magazine:count() > 0 then
+		self:animatePrefix("cock")
+	end
+
+	if self.cooldown == 0 then
+		if self.dry and magazine:count() == 0 and not animations:isAnyPlaying() and self.cooldown == 0 and ammoGroup:available() then
+			self:animatePrefix("reload")
+		end
+	end
+end
+
+function gun:fire()
+	if self.chamber and self.chamber.count > 0 and (not animations:isAnyPlaying() or animations:isPlaying("shoot")) and self.cooldown == 0 then
+		local ammo = self.chamber:use()
+		muzzle:fire(self.chamber)
+		self.chamber:use()
+		if self.chamber.count <= 0 and self.settings.chamberEjection then
+			self:eject_chamber()
+			if magazine:count() == 0 then
+				self.dry = true
+			end
+		end
+		
+		self:animatePrefix("shoot")
+		animator.playSound(gun.settings.fireSound)
+		self.cooldown = 60 / stats:get("rpm")
+	elseif not self.chamber and self.cooldown == 0 then
+		animator.playSound(gun.settings.drySound)
+		self.cooldown = 60 / stats:get("rpm")
+	end
+end
+
+function gun:animatePrefix(animationName)
+	local prefix = ""
+	if self.dry then
+		prefix = "_dry"
+	end
+	if animations:has(animationName..prefix) then
+		animations:play(animationName..prefix)
+	elseif animations:has(animationName) then
+		animations:play(animationName)
+	end
+end
+
+gun.uiPosition = vec2(0)
 function gun:updateUI()
 	local handPosition = activeItem.handPosition()
 	self.uiPosition = self.uiPosition:lerp(activeItem.handPosition(), 0.125)
@@ -105,80 +206,4 @@ function gun:updateUI()
 		},
 		"overlay"
 	)
-end
-
-function gun:update(dt, fireMode, shift, moves)
-	aim:update(dt)
-	arms:update(dt)
-
-	animations:update(dt)
-	transforms:apply(animations:transforms({"reload","cock","draw","shoot"}))
-	transforms:update(dt)
-
-	if self.cooldown > 0 then
-		self.cooldown = math.max(self.cooldown - dt,0)
-	end
-
-	aim:at(activeItem.ownerAimPosition())
-	self:autoReload()
-
-
-	if fireMode == "primary" then
-		self:fire()
-	end
-
-	self:updateUI()
-end
-
-function gun:eject_chamber()
-	if self.chamber then
-		if self.chamber.count <= 0 then
-			casingEmitter:fire(self.chamber)
-		else
-			local saved = self.chamber:save()
-			player.giveItem(saved)
-		end
-		self.chamber = false
-	end
-end
-
-function gun:load_chamber(ammo)
-	self.chamber = ammo
-end
-
-function gun:autoReload()
-	if self.chamber and self.chamber.count <= 0 and self.settings.chamberEjection then
-		self:eject_chamber()
-	elseif not self.chamber and self.cooldown == 0 then
-		self:load_chamber(magazine:use())
-	end
-
-	if self.cooldown == 0 then
-		if magazine:count() == 0 and not animations:isAnyPlaying() and self.cooldown == 0 and ammoGroup:available() then
-			animations:play("reload")
-		end
-	end
-end
-
-function gun:fire()
-	if self.chamber and self.chamber.count > 0 and (not animations:isAnyPlaying() or animations:isPlaying("shoot")) and self.cooldown == 0 then
-		local ammo = self.chamber:use()
-		muzzle:fire(self.chamber)
-		animations:play("shoot")
-		animator.playSound(gun.settings.fireSound)
-		self.chamber:use()
-		self.cooldown = 60 / stats:get("rpm")
-	elseif not self.chamber and self.cooldown == 0 then
-		animator.playSound(gun.settings.drySound)
-		self.cooldown = 60 / stats:get("rpm")
-	end
-end
-
-function gun:activate(fireMode, shift)
-end
-
-function gun:uninit()
-	config.load = gun.load
-	magazine:uninit()
-	transforms:uninit()
 end

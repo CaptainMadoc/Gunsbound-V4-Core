@@ -71,6 +71,13 @@ function animations:isPlaying(name)
 	return false
 end
 
+function animations:has(name)
+	if self.list[name] then
+		return true
+	end
+	return false
+end
+
 function animations:play(name)
 	if self.list[name] then
 		self.list[name]:play()
@@ -120,6 +127,10 @@ end
 animations._events = {}
 
 function animations:addEvent(name, func)
+	self._events[name] = func
+end
+
+function animations:setEvent(name, func)
 	self._events[name] = func
 end
 

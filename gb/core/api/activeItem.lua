@@ -8,8 +8,18 @@ function  _activeItem.ownerAimPosition()
 	return vec2(activeItemWrapped.ownerAimPosition())
 end
 
-function  _activeItem.handPosition(a)
-	return vec2(activeItemWrapped.handPosition(a))
+local armAngle = 0
+function  _activeItem.setArmAngle(angle)
+	armAngle = angle
+	activeItemWrapped.setArmAngle(angle)
+end
+
+function  _activeItem.getArmAngle()
+	return armAngle
+end
+
+function _activeItem.handPosition(relative)
+	return vec2(activeItemWrapped.handPosition(relative))
 end
 
 function _activeItem:__index(key)
