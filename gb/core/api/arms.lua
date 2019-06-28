@@ -57,14 +57,14 @@ function arms:init()
 	--get skin directives
 	self.directives = port:skinDirectives()
 	
-	if port.FrontArmArmor then 
-		self.directory = port:getDirectory("FrontArmArmor")
-		self.armordirectives = port:getDirectives("FrontArmArmor")
+	if port:parts().FrontArmArmor then 
+		self.directory = port:image("FrontArmArmor")
+		self.armordirectives = port:directives("FrontArmArmor")
 	end
 	
-	if port.BackArmArmor then
-		self.Bdirectory = port:getDirectory("BackArmArmor")
-		self.Barmordirectives = port:getDirectives("BackArmArmor")
+	if port:parts().BackArmArmor then
+		self.Bdirectory = port:image("BackArmArmor")
+		self.Barmordirectives = port:directives("BackArmArmor")
 	end
 	
 	--humanoid config for offsets
