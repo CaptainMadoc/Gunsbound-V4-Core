@@ -1,26 +1,31 @@
 include "config"
 include "ammoGroup"
 include "module"
+include "updateable"
+include "animator"
 
 magazine = {}
 magazine.max = 30
 magazine.storage = {}
 
 function magazine:init()
-	for i,v in ipairs(config.magazine or {}) do
+	self.storage = jarray()
+	for i,v in ipairs(config.magazineStorage or {}) do
 		local newAmmo = module("modules/ammo.lua")
 		newAmmo:load(v)
 		self.storage[#self.storage + 1] = newAmmo
 	end
+	animator.setPartTag(config.magazine.part, config.magazine.tag or "partImage", config.magazine.image or "/assetmissing.png")
 end
 
 function magazine:uninit()
-	local saveMag = {}
-	for i,v in pairs(self.storage) do
+	local saveMag = jarray()
+	for i,v in ipairs(self.storage) do
 		local ammoItem = v:save()
+		sb.logInfo(sb.printJson(ammoItem))
 		saveMag[#saveMag + 1] = ammoItem
 	end
-	config.magazine = saveMag
+	config.magazineStorage = saveMag
 end
 
 function magazine:reload(ammos)
@@ -60,3 +65,13 @@ function magazine:use()
 		return ammo
 	end
 end
+
+function magazine:hide()
+	animator.setPartTag(config.magazine.part, config.magazine.tag or "partImage", "/assetmissing.png")	
+end
+
+function magazine:show()
+	animator.setPartTag(config.magazine.part, config.magazine.tag or "partImage", config.magazine.image or "/assetmissing.png")
+end
+
+updateable:add("magazine")

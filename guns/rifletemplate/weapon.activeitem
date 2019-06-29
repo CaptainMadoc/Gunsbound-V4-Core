@@ -80,6 +80,11 @@
 		"magazinePart" : "magazine" // we use this for mag attachments
 	},
 
+	"magazine" : {
+		"part" : "magazine",
+		"image": "mag.png"
+	},
+
 	"casing" : [
 		{"part": "casingPosition", "offset": [0,0]}
 	],
@@ -90,7 +95,7 @@
 
 	"animation" : "/gb/core/core.animation",
 	"animationParts" : {
-		"magazine" : "mag.png",
+		"magazine" : "/assetmissing.png",
 		"gun" : "gun.png",
 		"gunlever" : "lever.png"
 	},

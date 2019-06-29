@@ -4,6 +4,7 @@ include "transforms"
 include "portrait"
 include "vec2"
 include "tableutil"
+include "updateable"
 
 local function lerp(a,b,r)
 	return a + (b - a) * r
@@ -362,3 +363,5 @@ function arms:setFullArm(side, show)
 		self:setArmorArm(side, "", false)
 	end
 end
+
+updateable:add("arms")

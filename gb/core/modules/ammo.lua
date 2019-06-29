@@ -51,7 +51,7 @@ function module:projectileArgs(position, direction)
 end
 
 function module:casing(position, direction)
-	return {
+	local projectileArgs = {
 		self.parameters.casingProjectile or self.config.casingProjectile,
 		position,
 		0,
@@ -59,4 +59,11 @@ function module:casing(position, direction)
 		false,
 		self.parameters.casingProjectileConfig or self.config.casingProjectileConfig
 	}
+	if self.count > 0 then
+		projectileArgs[6] = projectileArgs[6] or {}
+		projectileArgs[6].actionOnReap = projectileArgs[6].actionOnReap or jarray()
+		local ammoitem = self:save()
+		projectileArgs[6].actionOnReap[#projectileArgs[6].actionOnReap + 1] = {action = "item", name = ammoitem.name, count = ammoitem.count, parameters = ammoitem.parameters} 
+	end
+	return projectileArgs
 end

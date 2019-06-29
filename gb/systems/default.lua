@@ -11,11 +11,15 @@ include "transforms"
 include "animations"
 
 include "arms"
+
 include "aim"
+
 include "muzzle"
 include "casingEmitter"
+
 include "magazine"
 include "ammoGroup"
+
 include "attachmentSystem"
 
 include "localAnimator"
@@ -34,8 +38,6 @@ include "stats"
 
 gun = {}
 gun.cooldown = 0
-gun.chamber = false
-gun.reloadLoop = false
 gun.settings = {
 	drySound = "dry",
 	fireSound = "fire",
@@ -48,34 +50,31 @@ gun.settings = {
 
 function gun:init()
 	gun.settings = config.settings or gun.settings
-	gun.chamber = config.chamber or false
-	gun.dry = config.dry or false
+	gun.chamber = config.chamber
+	if gun.chamber then
+		local ammo = module("modules/ammo.lua")
+		ammo:load(gun.chamber)
+		gun.chamber = ammo
+	end
+
+	gun.dry = config.dry or true
 
 	magazine.max = stats.maxMagazine or 30
 
 	animations:init()
-	animations:addEvent("eject_chamber", function() gun:eject_chamber() end)
-	animations:addEvent("load_ammo", function() gun:load_chamber(magazine:use()) end)
-	animations:addEvent("reload_loop", function() self.reloadLoop = true end)
-	animations:addEvent("reloadLoop", function() self.reloadLoop = true end)
-	animations:addEvent("insert_mag", function() magazine:reload() end)
-	animations:addEvent("insert_bullet", function() magazine:reload(1) end)
-	animations:addEvent("remove_mag", function() magazine:unload() end)
-
+	self:setupEvents()
 	transforms:init()
-	magazine:init()
 	aim:init()
-	arms:init()
 end
 
 function gun:update(dt, fireMode, shift, moves)
 	aim:update(dt)
-	arms:update(dt)
-
 	animations:update(dt)
+
 	if animations:isAnyPlaying() then
 		transforms:apply(animations:transforms())
 	end
+
 	transforms:update(dt)
 
 	if self.cooldown > 0 then
@@ -83,8 +82,8 @@ function gun:update(dt, fireMode, shift, moves)
 	end
 
 	aim:at(activeItem.ownerAimPosition())
-	self:autoReload()
 
+	self:updateReload(dt, fireMode, shift, moves)
 
 	if fireMode == "primary" then
 		self:fire()
@@ -96,46 +95,66 @@ end
 function gun:activate(fireMode, shift) end
 
 function gun:uninit()
-	config.load = self.chamber
+	config.chamber = self.chamber:save()
 	config.dry = self.dry
-	magazine:uninit()
+
 	transforms:uninit()
+	animations:uninit()
 end
+
+function gun:setupEvents()
+	animations:addEvent("eject_chamber", function() gun:eject_chamber() end)
+	animations:addEvent("load_ammo", function() gun:load_chamber(magazine:use()) end)
+	animations:addEvent("reload_loop", function() self.reloadLoop = true end)
+	animations:addEvent("reloadLoop", function() self.reloadLoop = true end)
+	animations:addEvent("insert_mag", function() magazine:reload() end)
+	animations:addEvent("insert_bullet", function() magazine:reload(1) end)
+	animations:addEvent("remove_mag", function() magazine:unload() end)
+end
+
+-- gun ammo management
+gun.chamber = false
+gun.reloadLoop = false
+gun.dry = false
 
 function gun:eject_chamber()
 	if self.chamber then
-		if self.chamber.count <= 0 then
-			casingEmitter:fire(self.chamber)
-		else
-			local saved = self.chamber:save()
-			player.giveItem(saved)
-		end
+		casingEmitter:fire(self.chamber)
 		self.chamber = false
 	end
 end
 
 function gun:load_chamber(ammo)
+	if self.chamber then
+		self:eject_chamber()
+	end
 	self.chamber = ammo
 	self.dry = false
 end
 
-gun.dry = false
-
-function gun:autoReload()
-
+function gun:updateReload(dt, fireMode, shift, moves)
+	local animationPlaying = animations:isAnyPlaying()
+	
 	if not self.chamber and self.cooldown == 0 and not self.dry and self.settings.chamberEjection then
 		self:load_chamber(magazine:use())
-	elseif not self.chamber and not animations:isAnyPlaying() and magazine:count() > 0 then
+	elseif not self.chamber and not animationPlaying and magazine:count() > 0 then
 		self:animatePrefix("cock")
 	end
 
 	if self.cooldown == 0 then
-		if self.dry and magazine:count() == 0 and not animations:isAnyPlaying() and self.cooldown == 0 and ammoGroup:available() then
+		if self.dry and magazine:count() == 0 and not animationPlaying and ammoGroup:available() then
 			self:animatePrefix("reload")
+		elseif moves.up and not animationPlaying then
+			if shift then
+				self:animatePrefix("reload")
+			else
+				self:animatePrefix("cock")
+			end
 		end
 	end
 end
 
+--event
 function gun:fire()
 	if self.chamber and self.chamber.count > 0 and (not animations:isAnyPlaying() or animations:isPlaying("shoot")) and self.cooldown == 0 then
 		local ammo = self.chamber:use()
@@ -157,6 +176,7 @@ function gun:fire()
 	end
 end
 
+--play animation with dry prefix 
 function gun:animatePrefix(animationName)
 	local prefix = ""
 	if self.dry then
@@ -169,10 +189,12 @@ function gun:animatePrefix(animationName)
 	end
 end
 
+--gun ui
 gun.uiPosition = vec2(0)
 function gun:updateUI()
 	local handPosition = activeItem.handPosition()
 	self.uiPosition = self.uiPosition:lerp(activeItem.handPosition(), 0.125)
+	--background
 	localAnimator.addDrawable(
 		{
 			line = {handPosition, vec2(0,-5) + self.uiPosition},
@@ -183,6 +205,7 @@ function gun:updateUI()
 		},
 		"overlay"
 	)
+	--background ammo
 	localAnimator.addDrawable(
 		{
 			line = {vec2(0,-5), vec2(10,-5)},
