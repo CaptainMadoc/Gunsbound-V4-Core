@@ -30,7 +30,6 @@ include "localAnimator"
 --[[
 
 - Attachments System
-- ui system
 
 ]]
 
@@ -38,6 +37,10 @@ include "stats"
 
 gun = {}
 gun.cooldown = 0
+gun.burstcooldown = 0
+gun.ready = false
+gun._firemode = 1
+
 gun.settings = {
 	drySound = "dry",
 	fireSound = "fire",
@@ -48,63 +51,36 @@ gun.settings = {
 	chamberEjection = true
 }
 
-function gun:init()
-	gun.settings = config.settings or gun.settings
-	gun.chamber = config.chamber
-	if gun.chamber then
-		local ammo = module("modules/ammo.lua")
-		ammo:load(gun.chamber)
-		gun.chamber = ammo
-	end
+--callbacks
 
-	gun.dry = config.dry or true
+function gun:init()
+	self.settings = config.settings or self.settings
+	self.chamber = config.chamber
+	if self.chamber then
+		local ammo = module("modules/ammo.lua")
+		ammo:load(self.chamber)
+		self.chamber = ammo
+	end
+	if type(config.dry) == "boolean" then
+		self.dry = config.dry
+	else
+		self.dry = true
+	end
+	self._firemode = config.fireMode or 1
 
 	magazine.max = stats.maxMagazine or 30
 
-	animations:init()
 	self:setupEvents()
+	animations:init()
 	transforms:init()
 	aim:init()
-end
-
-function gun:update(dt, fireMode, shift, moves)
-	aim:update(dt)
-	animations:update(dt)
-
-	if animations:isAnyPlaying() then
-		transforms:apply(animations:transforms())
-	end
-
-	transforms:update(dt)
-
-	if self.cooldown > 0 then
-		self.cooldown = math.max(self.cooldown - dt,0)
-	end
-
-	aim:at(activeItem.ownerAimPosition())
-
-	self:updateReload(dt, fireMode, shift, moves)
-
-	if fireMode == "primary" then
-		self:fire()
-	end
-
-	self:updateUI()
-end
-
-function gun:activate(fireMode, shift) end
-
-function gun:uninit()
-	config.chamber = self.chamber:save()
-	config.dry = self.dry
-
-	transforms:uninit()
-	animations:uninit()
+	
+	self:animate("draw")
 end
 
 function gun:setupEvents()
-	animations:addEvent("eject_chamber", function() gun:eject_chamber() end)
-	animations:addEvent("load_ammo", function() gun:load_chamber(magazine:use()) end)
+	animations:addEvent("eject_chamber", function() self:eject_chamber() end)
+	animations:addEvent("load_ammo", function() self:load_chamber(magazine:use()) end)
 	animations:addEvent("reload_loop", function() self.reloadLoop = true end)
 	animations:addEvent("reloadLoop", function() self.reloadLoop = true end)
 	animations:addEvent("insert_mag", function() magazine:reload() end)
@@ -112,15 +88,127 @@ function gun:setupEvents()
 	animations:addEvent("remove_mag", function() magazine:unload() end)
 end
 
+function gun:update(dt, fireMode, shift, moves)
+	
+	if not gun.ready and not animations:isAnyPlaying() then
+		gun.ready = true
+	end
+	
+	animations:update(dt)
+	if animations:isAnyPlaying() then
+		transforms:apply(animations:transforms())
+	end
+	transforms:update(dt)
+
+	aim:update(dt)
+
+	if self.cooldown > 0 then
+		self.cooldown = math.max(self.cooldown - dt,0)
+	elseif self.burstcooldown > 0 then
+		self.burstcooldown = math.max(self.burstcooldown - dt,0)
+	end
+
+	aim:at(activeItem.ownerAimPosition())
+
+	if fireMode == "primary" and self.cooldown == 0 and self.queueFire == 0 then
+		local firemode = self:firemode() or "nil"
+		if firemode == "semi" and update_lastInfo[2] ~= fireMode then
+			self.queueFire = 1
+		elseif firemode == "auto" then
+			self.queueFire = 1
+		elseif firemode == "burst" and self.burstcooldown == 0 then
+			local burst = stats:get("burst")
+			self.queueFire = burst
+			self.burstcooldown = 0.2
+		end
+	end
+
+	if moves.up and not animations:isAnyPlaying() and self.cooldown == 0 then
+		if shift then
+			self:animate("reload")
+		else
+			self:animate("cock")
+		end
+	end
+
+	if moves.down then
+		if shift and not update_lastInfo[3] then
+			self:switchFiremode()
+		end
+	end
+
+	self:updateReload(dt)
+	self:updateFire(dt)
+end
+
+function gun:activate(fireMode, shift)
+	
+end
+
+function gun:uninit()
+	if self.chamber then
+		config.chamber = self.chamber:save()
+	else
+		config.chamber = nil
+	end
+	config.dry = self.dry
+	config.fireMode = self._firemode
+
+	transforms:uninit()
+	animations:uninit()
+end
+
+-- functions
+
+function gun:firemode()
+	return self.settings.fireTypes[self._firemode]
+end
+
+function gun:switchFiremode()
+	if #self.settings.fireTypes <= self._firemode then
+		self._firemode = 1
+	else
+		self._firemode = self._firemode + 1
+	end
+end
+
 -- gun ammo management
-gun.chamber = false
+gun.chamber = nil
 gun.reloadLoop = false
 gun.dry = false
+
+function gun:updateReload(dt)
+	if self.ready then
+		local chamberEjection = self.settings.chamberEjection
+
+		if not self.chamber and self.cooldown == 0 then
+			if self.dry and magazine:count() > 0 and not animations:isAnyPlaying() then
+				self:animate("cock")
+			elseif not self.dry and chamberEjection and magazine:count() > 0 then
+				self:load_chamber(magazine:use())
+				self.cooldown = dt
+			end
+		elseif self.chamber and self.chamber.count == 0 and self.cooldown == 0 then
+			if self.settings.chamberEjection then
+				self:eject_chamber()
+			elseif not animationPlaying then
+				self:animate("cock")
+			end
+		end
+
+		if magazine:count() == 0 and ammoGroup:available() and not animations:isAnyPlaying() then
+			self:animate("reload")
+		end
+	end
+end
 
 function gun:eject_chamber()
 	if self.chamber then
 		casingEmitter:fire(self.chamber)
 		self.chamber = false
+		if magazine:count() == 0 then
+			self.dry = true
+		end
 	end
 end
 
@@ -129,36 +217,27 @@ function gun:load_chamber(ammo)
 		self:eject_chamber()
 	end
 	self.chamber = ammo
-	self.dry = false
-end
-
-function gun:updateReload(dt, fireMode, shift, moves)
-	local animationPlaying = animations:isAnyPlaying()
-	
-	if not self.chamber and self.cooldown == 0 and not self.dry and self.settings.chamberEjection then
-		self:load_chamber(magazine:use())
-	elseif not self.chamber and not animationPlaying and magazine:count() > 0 then
-		self:animatePrefix("cock")
-	end
-
-	if self.cooldown == 0 then
-		if self.dry and magazine:count() == 0 and not animationPlaying and ammoGroup:available() then
-			self:animatePrefix("reload")
-		elseif moves.up and not animationPlaying then
-			if shift then
-				self:animatePrefix("reload")
-			else
-				self:animatePrefix("cock")
-			end
-		end
+	if type(self.chamber) == "table" and self.chamber.count > 0 then
+		self.dry = false
 	end
 end
 
---event
+--firing functions
+gun.queueFire = 0
+function gun:updateFire(dt)
+	if self.queueFire > 0 and self.chamber and self.chamber.count > 0 and self.cooldown == 0 and (not animations:isAnyPlaying() or animations:isPlaying("shoot")) then
+		self.queueFire = math.max(self.queueFire - 1, 0)
+		self:fire()
+	elseif self.queueFire > 0 and (magazine:count() == 0 or (animations:isAnyPlaying() and not animations:isPlaying("shoot"))) then
+		self.queueFire = 0
+	end
+end
+
 function gun:fire()
-	if self.chamber and self.chamber.count > 0 and (not animations:isAnyPlaying() or animations:isPlaying("shoot")) and self.cooldown == 0 then
+	if self.chamber and self.chamber then
 		local ammo = self.chamber:use()
 		muzzle:fire(self.chamber)
+
 		self.chamber:use()
 		if self.chamber.count <= 0 and self.settings.chamberEjection then
 			self:eject_chamber()
@@ -166,40 +245,46 @@ function gun:fire()
 				self.dry = true
 			end
 		end
-		
-		self:animatePrefix("shoot")
-		animator.playSound(gun.settings.fireSound)
+
+		self:animate("shoot")
+		animator.playSound(self.settings.fireSound)
 		self.cooldown = 60 / stats:get("rpm")
-	elseif not self.chamber and self.cooldown == 0 then
-		animator.playSound(gun.settings.drySound)
+	elseif not self.chamber then
+		animator.playSound(self.settings.drySound)
 		self.cooldown = 60 / stats:get("rpm")
 	end
 end
 
 --play animation with dry prefix 
-function gun:animatePrefix(animationName)
-	local prefix = ""
-	if self.dry then
-		prefix = "_dry"
-	end
-	if animations:has(animationName..prefix) then
-		animations:play(animationName..prefix)
+function gun:animate(animationName)
+	if self.dry and animations:has(animationName.."_dry") then
+		animations:play(animationName.."_dry")
 	elseif animations:has(animationName) then
 		animations:play(animationName)
 	end
 end
 
 --gun ui
-gun.uiPosition = vec2(0)
-function gun:updateUI()
+gunUI = {}
+gunUI.offset = vec2(0)
+gunUI.lerpMag = 0
+gunUI.lerpBurstMode = 0
+gunUI.lerpAutoMode = 0
+
+function gunUI:update(dt)
 	local handPosition = activeItem.handPosition()
-	self.uiPosition = self.uiPosition:lerp(activeItem.handPosition(), 0.125)
-	--background
+	local hand = activeItem.hand()
+	local direction = (hand == "alt" and 1) or (hand == "primary" and -1)
+	self.offset = self.offset:lerp(activeItem.handPosition() + vec2(2 * direction,0), 0.125)
+	local currentMag = (magazine:count() / magazine.max)
+	self.lerpMag = self.lerpMag + (currentMag - self.lerpMag) * 0.125
+
+	--connecting line
 	localAnimator.addDrawable(
 		{
-			line = {handPosition, vec2(0,-5) + self.uiPosition},
+			line = {handPosition, vec2(0,-5) + self.offset},
 			width = 0.5,
-			color = {255,255,255,128},
+			color = {255,255,255,32},
 			fullbright = true,
 			position = {0,0}
 		},
@@ -208,25 +293,129 @@ function gun:updateUI()
 	--background ammo
 	localAnimator.addDrawable(
 		{
-			line = {vec2(0,-5), vec2(10,-5)},
+			line = {vec2(0 * direction,-5), vec2(10 * direction,-5)},
 			width = 4,
 			color = {0,0,0,128},
 			fullbright = true,
-			position = self.uiPosition
+			position = self.offset
+		},
+		"overlay"
+	)
+
+	--chamber status
+	if gun.chamber then
+		local color = {255,255,255}
+		if gun.chamber.count == 0 then
+			color = {255,0,0}
+		end
+		localAnimator.addDrawable(
+			{
+				line = {vec2(0.125 * direction,-5), vec2(1.125 * direction,-5)},
+				width = 2,
+				color = color,
+				fullbright = true,
+				position = self.offset
+			},
+			"overlay"
+		)
+	end
+
+	--magazine status
+	localAnimator.addDrawable(
+		{
+			line = {
+				vec2(1.25 * direction,-5),
+				vec2((1.25 + (10 - 1.375) * self.lerpMag) * direction,-5)
+			},
+			width = 2,
+			color = {255,255,255},
+			fullbright = true,
+			position = self.offset
+		},
+		"overlay"
+	)
+
+	--firemode status
+	local currentFireMode = gun:firemode()
+	if currentFireMode == "burst" or currentFireMode == "auto" then
+		self.lerpBurstMode = self.lerpBurstMode + (1 - self.lerpBurstMode) * 0.125
+	else
+		self.lerpBurstMode = self.lerpBurstMode + (0 - self.lerpBurstMode) * 0.125
+	end
+	if currentFireMode == "auto" then
+		self.lerpAutoMode = self.lerpAutoMode + (1 - self.lerpAutoMode) * 0.125
+	else
+		self.lerpAutoMode = self.lerpAutoMode + (0 - self.lerpAutoMode) * 0.125
+	end
+	--semi
+	localAnimator.addDrawable(
+		{
+			line = {
+				vec2(0.125 * direction,-5.5),
+				vec2(1.125 * direction,-5.5)
+			},
+			width = 2,
+			color = {255,255,255},
+			fullbright = true,
+			position = self.offset
+		},
+		"overlay"
+	)
+	--burst
+	localAnimator.addDrawable(
+		{
+			line = {
+				vec2(0.125 * direction,-5.5 - (0.5 * self.lerpBurstMode)),
+				vec2(1.125 * direction,-5.5 - (0.5 * self.lerpBurstMode))
+			},
+			width = 2,
+			color = {255,255,255},
+			fullbright = true,
+			position = self.offset
 		},
 		"overlay"
 	)
 	localAnimator.addDrawable(
 		{
 			line = {
-				vec2(0.125,-5),
-				vec2((0.125) + 10 * (magazine:count() / magazine.max),-5)
+				vec2(0.125 * direction,-5.5 - (1.0 * self.lerpBurstMode)),
+				vec2(1.125 * direction,-5.5 - (1.0 * self.lerpBurstMode))
 			},
 			width = 2,
-			color = {255,255,255,255},
+			color = {255,255,255},
 			fullbright = true,
-			position = self.uiPosition
+			position = self.offset
 		},
 		"overlay"
 	)
+	--auto
+	localAnimator.addDrawable(
+		{
+			line = {
+				vec2(0.125 * direction,-5.5 - (1.5 * self.lerpAutoMode)),
+				vec2(1.125 * direction,-5.5 - (1.5 * self.lerpAutoMode))
+			},
+			width = 2,
+			color = {255,255,255},
+			fullbright = true,
+			position = self.offset
+		},
+		"overlay"
+	)
+	localAnimator.addDrawable(
+		{
+			line = {
+				vec2(0.125 * direction,-5.5 - (2 * self.lerpAutoMode)),
+				vec2(1.125 * direction,-5.5 - (2 * self.lerpAutoMode))
+			},
+			width = 2,
+			color = {255,255,255},
+			fullbright = true,
+			position = self.offset
+		},
+		"overlay"
+	)
+
 end
+
+updateable:add("gunUI")
