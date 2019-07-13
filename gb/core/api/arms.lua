@@ -45,9 +45,9 @@ function arms:init()
 	activeItem.setFrontArmFrame("rotation?scale=0")
 	activeItem.setBackArmFrame("rotation?scale=0")
 	
-	self.current = config.twoHanded or true
-	self.target = self.current
-	self.twohand = self.current
+	self.twohand_current = config.twoHanded
+	self.twohand_target = self.twohand_current
+	self.twohand = self.twohand_current
 	
 	self.specie = world.entitySpecies(activeItem.ownerEntityId())
 	if not self.specie then	return end -- some how it errors due probably the player is still beaming in
