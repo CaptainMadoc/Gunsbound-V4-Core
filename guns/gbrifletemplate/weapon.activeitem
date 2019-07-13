@@ -1,6 +1,7 @@
 {
 	"itemName" : "gbrifletemplate",
-	"shortdescription" : "TestGun",
+
+	"shortdescription" : "Gunsbound Rifle Template",
 	"description" : "description here",
 
 	"category" : "base",
@@ -9,11 +10,10 @@
 	"rarity" : "common",
 	"maxStack" : 1,
 	"price" : 0,
+	"twoHanded" : true,
 
 	"scripts" : ["/gb/core/core.lua"],
 	"gunScript" : "/gb/systems/default.lua",
-
-	"twoHanded" : true,
 
 	"animations" : {
 		"reload" : "animations/reload.keyframes",

@@ -1,0 +1,381 @@
+{
+	//UIinfo
+	"itemName" : "gbshotguntemplate",
+
+	"shortdescription" : "Gunsbound Shotgun Template",
+	"description" : "description here",
+
+	"category" : "base",
+	"tooltipKind" : "base",
+	"inventoryIcon" : "icon.png",
+	"rarity" : "common",
+	"maxStack" : 1,
+	"price" : 0,
+	"twoHanded" : true,
+
+	"scripts" : ["/gb/core/core.lua"],
+	"gunScript" : "/gb/systems/default.lua",
+
+	"animations" : {
+		"reload" : "animations/reload.keyframes",
+		"reloadLoop" : "animations/reloadLoop.keyframes",
+		"reloadEnd" : "animations/reloadEnd.keyframes",
+		"shoot" : "animations/shoot.keyframes",
+		"cock" : "animations/cock.keyframes",
+		"draw" : "animations/draw.keyframes"
+	},
+
+	"compatibleAmmo" : "/ammoGroup/gb12gauge.json",
+
+	"attachments" : {
+		"sight" : {
+			"item" : null,
+			"part" : "attachment_sight"
+		}
+	},
+	
+	"stats" : {
+		"maxMagazine" : 7,
+		"aimLookRatio" : 0,
+
+		"burst" : 3,
+
+		"recoil" : 6,
+		"recoilRecovery" : 12,
+		"movingInaccuracy" : 5,
+		"standingInaccuracy" : 2,
+		"crouchInaccuracyMultiplier" : 0.25,
+
+		"muzzleFlash" : 1,
+		"rpm" : 300
+	},
+	
+	"settings" : { 
+		"drySound" : "dry",
+		"fireSound" : "fire",
+
+		"fireTypes" : ["semi"],
+		
+		"showCasings" : true,
+		"chamberEjection" : false
+	},
+	
+	"casing" : [
+		{"part": "casingPosition", "offset": [0,0]}
+	],
+
+	"muzzle" : [
+		{"part": "firePosition", "offset": [0,0]}
+	],
+
+	"gunAnimations" : {
+		"shoot" : "shoot",
+		"cock" : "cock",
+		"dry" : "dry",
+		"reload" : "reload",
+		"reloadLoop" : "reloadLoop",
+		"reloadEnd" : "reloadEnd"
+	},
+
+	"animation" : "/gb/core/core.animation",
+	"animationParts" : {
+		"gun" : "gun.png",
+		"gunlever" : "lever.png",
+		"gunlever2" : "lever2.png"
+	},
+
+	"animationCustom" : {
+		"globalTagDefaults" : {},
+		"sounds" : {
+			"dry" : ["/sfx/gun/reload/machinepistol_reload_clip2.ogg"],
+			"fire" : ["12Gauge.ogg"],
+
+			"pump" : ["/guns/shotgun/gbm2/pump1.ogg"],
+			"pump2" : ["/guns/shotgun/gbm2/pump2.ogg"],
+			"cock" : ["/sfx/gun/reload/shotgun_reload_clip1.ogg"],
+			"cock2" : ["/guns/shotgun/gbm2/reloadingshotgun.ogg"]
+		},
+		"animatedParts" : {
+			"parts" : {
+				"gunlever" : {
+					"properties" : {
+						"zLevel" : 18,
+						"centered" : false,
+						"image" : "<partImage>",
+						"offset" : [0.0, 0.0],
+						"transformationGroups" : ["lever"],
+						"anchorPart" : "gun"
+					}
+				},
+				
+				"gun" : {
+					"properties" : {
+						"zLevel" : 19,
+						"centered" : false,
+						"image" : "<partImage>",
+						"offset" : [0.0, 0.0],
+						"transformationGroups" : ["gun", "base"]
+					}
+				},
+				
+				"gunlever2" : {
+					"properties" : {
+						"zLevel" : 20,
+						"centered" : false,
+						"image" : "<partImage>",
+						"offset" : [0.0, 0.0],
+						"transformationGroups" : ["lever2"],
+						"anchorPart" : "gun"
+					}
+				},
+				
+				"firePosition" : {
+					"properties" : {
+						"offset":[3.5, 1.125],
+						"anchorPart" : "gun"
+					}
+				},
+
+				"casingPosition" : {
+					"properties" : {
+						"offset":[2.25, 1.125],
+						"anchorPart" : "gun"
+					}
+				},
+
+				//
+				"attachment_sight" : {
+					"properties" : {
+						"zLevel" : 53,
+						"centered" : false,
+						"image" : "<partImage>",
+						"offset" : [2.5, 1],
+						"anchorPart" : "gun", 
+						"transformationGroups" : ["attachment_sight"]
+					}
+				},
+				
+				//
+				"muzzleFlash" : {
+					"properties" : {
+						"offset" : [2.75, -0.5],
+						"zLevel" : 51,
+						"fullbright" : true,
+						"centered" : false,
+						"anchorPart" : "firePosition"
+					},
+					"partStates" : {
+						"firing" : {
+							"off" : {
+								"properties" : {
+									"image" : "/assetmissing.png"
+								}
+							},
+							"on" : {
+								"properties" : {
+									"image" : "bulletmuzzle3.png:<frame>"
+								}
+							}
+						}
+					}
+				}
+			},
+			"stateTypes" : {
+				"firing" : {
+					"default" : "off",
+					"states" : {
+						"on" : {
+							"frames" : 3,
+							"mode" : "transition",
+							"transition" : "off",
+							"cycle" : 0.1,
+							"properties" : {
+								"lightsOn" : ["muzzleFlash"]
+							}
+						},
+						"off" : {
+							"frames" : 1,
+							"mode" : "end",
+							"cycle" : 0.1,
+							"properties" : {
+								"lightsOff" : ["muzzleFlash"]
+							}
+						}
+					}
+				},
+				"smoking" : {
+					"default" : "off",
+					"states" : {
+						"on" : {
+							"frames" : 1,
+							"mode" : "end",
+							"cycle" : 0.5,
+							"properties" : {
+								"particleEmittersOn" : ["smoke"]
+							}
+						},
+						"timer" : {
+							"frames" : 1,
+							"mode" : "transition",
+							"cycle" : 0.5,
+							"transition" : "off",
+							"properties" : {
+								"particleEmittersOn" : ["smoke"]
+							}
+						},
+						"off" : {
+							"frames" : 1,
+							"mode" : "end",
+							"cycle" : 0.5,
+							"properties" : {
+								"particleEmittersOff" : ["smoke"]
+							}
+						}
+					}
+				},
+				"vapor" : {
+					"default" : "off",
+					"states" : {
+						"on" : {
+							"frames" : 1,
+							"mode" : "end",
+							"cycle" : 0.5,
+							"properties" : {
+								"particleEmittersOn" : ["vapor"]
+							}
+						},
+						"timer" : {
+							"frames" : 1,
+							"mode" : "transition",
+							"cycle" : 1,
+							"transition" : "vape",
+							"properties" : {
+								"particleEmittersOff" : ["vapor"]
+							}
+						},
+						"vape" : {
+							"frames" : 1,
+							"mode" : "transition",
+							"cycle" : 1,
+							"transition" : "off",
+							"properties" : {
+								"particleEmittersOn" : ["vapor"]
+							}
+						},
+						"off" : {
+							"frames" : 1,
+							"mode" : "end",
+							"cycle" : 0.5,
+							"properties" : {
+								"particleEmittersOff" : ["vapor"]
+							}
+						}
+					}
+				}
+			}
+		},
+		"particleEmitters" : {
+			"smoke" : {
+				"emissionRate" : 32.0,
+				"zLevel" : 100,
+				"anchorPart" : "casingPosition",
+				"particles" : [
+					{ "particle" : "gbsmoke"}
+				]
+			},
+			"vapor" : {
+				"emissionRate" : 128.0,
+				"zLevel" : 100,
+				"anchorPart" : "firePosition",
+				"particles" : [
+					{ "particle" : "gbvapor"}//, "offset" : [4, 1]}
+				]
+			},
+			"spark" : {
+				"emissionRate" : 32.0,
+				"zLevel" : 100,
+				"anchorPart" : "firePosition",
+				"particles" : [
+					{"particle" : "gbspark1"},
+					{"particle" : "gbspark1"},
+					{"particle" : "gbspark1"}
+				]
+			}
+		},
+		"lights" : {
+			"muzzleFlash" : {
+				"pointBeam" : 0,
+				"pointAngle" : 0,
+				"color" : [200, 200, 0],
+				"pointLight" : false,
+				"anchorPart" : "firePosition",
+				"active" : false,
+				"position" : [0, 0]
+			}
+		},
+		"transformationGroups" : {
+			
+			"L_offset" : {
+				"transform" : {
+					"position" : [0.9375, -0.03125]
+				}
+			},
+			"R_offset" : {
+				"transform" : {
+					"position" : [-0.15625, 0]
+				}
+			},
+			"R_arm1" : {
+				"transform" : {
+					"rotation" : -14
+				}
+			},
+			"R_arm2" : {
+				"transform" : {
+					"rotation" : 45
+				}
+			},
+			"R_hand" : {
+				"transform" : {
+					"rotation" : -30.75
+				}
+			},
+			"L_arm1" : {
+				"transform" : {
+					"rotation" : 15
+				}
+			},
+			"L_arm2" : {
+				"transform" : {
+					"rotation" : 0
+				}
+			},
+			
+			
+			"gun" : {
+				"interpolated" : false,
+				"transform" : {
+					"rotationPoint" : [1.6875, 0.5625],
+					"position" : [-1.8125, -0.3125]
+				}
+			},
+			"lever" : {
+				"interpolated" : false
+			},
+			"lever2" : {
+				"interpolated" : false
+			},
+			"mag" : {
+				"interpolated" : false
+			},
+			
+			
+			//attachments
+			"attachment_sight" : {
+				"ignore" : true,
+				"interpolated" : false
+			}
+		}
+	}
+
+}

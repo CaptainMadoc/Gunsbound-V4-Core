@@ -15,7 +15,9 @@ function magazine:init()
 		newAmmo:load(v)
 		self.storage[#self.storage + 1] = newAmmo
 	end
-	animator.setPartTag(config.magazine.part, config.magazine.tag or "partImage", config.magazine.image or "/assetmissing.png")
+	if config.magazine then
+		animator.setPartTag(config.magazine.part, config.magazine.tag or "partImage", config.magazine.image or "/assetmissing.png")
+	end
 end
 
 function magazine:uninit()
@@ -67,11 +69,15 @@ function magazine:use()
 end
 
 function magazine:hide()
-	animator.setPartTag(config.magazine.part, config.magazine.tag or "partImage", "/assetmissing.png")	
+	if config.magazine then
+		animator.setPartTag(config.magazine.part, config.magazine.tag or "partImage", "/assetmissing.png")	
+	end
 end
 
 function magazine:show()
-	animator.setPartTag(config.magazine.part, config.magazine.tag or "partImage", config.magazine.image or "/assetmissing.png")
+	if config.magazine then
+		animator.setPartTag(config.magazine.part, config.magazine.tag or "partImage", config.magazine.image or "/assetmissing.png")
+	end
 end
 
 updateable:add("magazine")

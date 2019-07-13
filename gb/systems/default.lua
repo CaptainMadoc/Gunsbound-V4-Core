@@ -68,8 +68,9 @@ function gun:init()
 	end
 	self._firemode = config.fireMode or 1
 
-	magazine.max = stats.maxMagazine or 30
-
+	magazine.max = stats:get("maxMagazine") or 30
+	aim.recoilRecovery = stats:get("recoilRecovery") or 7
+	
 	self:setupEvents()
 	animations:init()
 	transforms:init()
@@ -84,7 +85,7 @@ function gun:setupEvents()
 	animations:addEvent("reload_loop", function() self.reloadLoop = true end)
 	animations:addEvent("reloadLoop", function() self.reloadLoop = true end)
 	animations:addEvent("insert_mag", function() magazine:reload() end)
-	animations:addEvent("insert_bullet", function() magazine:reload(1) end)
+	animations:addEvent("insert_bullet", function() magazine:reload(ammoGroup:get(1)) end)
 	animations:addEvent("remove_mag", function() magazine:unload() end)
 end
 
@@ -123,7 +124,7 @@ function gun:update(dt, fireMode, shift, moves)
 		end
 	end
 
-	if moves.up and not animations:isAnyPlaying() and self.cooldown == 0 then
+	if moves.up and not animations:isAnyPlaying() and self.cooldown <= 0 then
 		if shift then
 			self:animate("reload")
 		else
@@ -179,25 +180,36 @@ gun.dry = false
 
 function gun:updateReload(dt)
 	if self.ready then
-		local chamberEjection = self.settings.chamberEjection
-
-		if not self.chamber and self.cooldown == 0 then
-			if self.dry and magazine:count() > 0 and not animations:isAnyPlaying() then
-				self:animate("cock")
-			elseif not self.dry and chamberEjection and magazine:count() > 0 then
-				self:load_chamber(magazine:use())
-				self.cooldown = dt
+		if self.reloadLoop then
+			if not animations:isAnyPlaying() then
+				if magazine:count() == stats:get("maxMagazine") or not ammoGroup:available() then
+					self.reloadLoop = false
+					self:animate("reloadEnd")
+				else
+					self:animate("reloadLoop")
+				end
 			end
-		elseif self.chamber and self.chamber.count == 0 and self.cooldown == 0 then
-			if self.settings.chamberEjection then
-				self:eject_chamber()
-			elseif not animationPlaying then
-				self:animate("cock")
-			end
-		end
+		else
+			local chamberEjection = self.settings.chamberEjection
 
-		if magazine:count() == 0 and ammoGroup:available() and not animations:isAnyPlaying() then
-			self:animate("reload")
+			if not self.chamber and self.cooldown == 0 then
+				if self.dry and magazine:count() > 0 and not animations:isAnyPlaying() then
+					self:animate("cock")
+				elseif not self.dry and chamberEjection and magazine:count() > 0 then
+					self:load_chamber(magazine:use())
+					self.cooldown = dt
+				end
+			elseif self.chamber and self.chamber.count == 0 and self.cooldown == 0 then
+				if self.settings.chamberEjection then
+					self:eject_chamber()
+				elseif not animations:isAnyPlaying() then
+					self:animate("cock")
+				end
+			end
+
+			if magazine:count() == 0 and (not self.chamber or self.chamber.count == 0) and ammoGroup:available() and not animations:isAnyPlaying() then
+				self:animate("reload")
+			end
 		end
 	end
 end
@@ -245,7 +257,8 @@ function gun:fire()
 				self.dry = true
 			end
 		end
-
+		
+		aim.recoil = aim.recoil + stats:get("recoil")
 		self:animate("shoot")
 		animator.playSound(self.settings.fireSound)
 		self.cooldown = 60 / stats:get("rpm")
