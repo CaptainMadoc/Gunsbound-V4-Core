@@ -1,16 +1,30 @@
 
 
 --nil if the item does not exist anymore
-function itemConfig(name, parameters)
-	if not name then return end
-	local c = root.itemConfig({name = name, count = 1})
-	if c.config then
+function itemConfig(itm, parameters)
+	if not itm and not itm.name then return end
+
+	local c
+	if type(itm) == "table" then
+		c = root.itemConfig({name = itm.name, count = itm.count or 1, parameters = itm.parameters})
+	else
+		c = root.itemConfig({name = itm, count = 1})
+	end
+
+	if c and c.config then
 		return sb.jsonMerge(c.config, parameters or {})
 	end
+
 	return nil
 end
 
 function itemDirectory(name, parameters)
-	local c = root.itemConfig({name = name, count = 1, parameters = parameters})
+	local c
+	if type(parameters) == "table" then
+		c = root.itemConfig({name = name, count = 1, parameters = parameters})
+	else
+		c = root.itemConfig({name = name, count = 1})
+	end
+
 	return c.directory
 end

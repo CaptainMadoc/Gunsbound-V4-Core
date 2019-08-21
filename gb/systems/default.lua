@@ -17,6 +17,7 @@ include "aim"
 include "muzzle"
 include "casingEmitter"
 
+include "ammo"
 include "magazine"
 include "ammoGroup"
 
@@ -57,9 +58,8 @@ function gun:init()
 	self.settings = config.settings or self.settings
 	self.chamber = config.chamber
 	if self.chamber then
-		local ammo = module("modules/ammo.lua")
-		ammo:load(self.chamber)
-		self.chamber = ammo
+		local a = ammo:new(self.chamber)
+		self.chamber = a
 	end
 	if type(config.dry) == "boolean" then
 		self.dry = config.dry
@@ -120,7 +120,7 @@ function gun:update(dt, fireMode, shift, moves)
 		elseif firemode == "burst" and self.burstcooldown == 0 then
 			local burst = stats:get("burst")
 			self.queueFire = burst
-			self.burstcooldown = 0.2
+			self.burstcooldown = stats:get("burstCooldown") or 0.2
 		end
 	end
 
@@ -246,7 +246,7 @@ function gun:updateFire(dt)
 end
 
 function gun:fire()
-	if self.chamber and self.chamber then
+	if self.chamber and self.chamber.count > 0 then
 		local ammo = self.chamber:use()
 		muzzle:fire(self.chamber)
 

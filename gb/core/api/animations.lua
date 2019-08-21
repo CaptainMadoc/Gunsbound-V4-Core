@@ -1,10 +1,11 @@
 include "config"
 include "directory"
-include "module"
+include "animation"
 include "tableutil"
 
 animations = {}
 animations.list = {}
+animations._isAnyPlaying = false
 
 function animations:init()
 	message.setHandler("isAnyPlaying", function(_, loc, ...) if loc then return self:isAnyPlaying() end end)
@@ -23,9 +24,12 @@ function animations:update(dt)
 			self.override = nil
 		end
 	end
-
+	self._isAnyPlaying = false
 	for i,v in pairs(self.list) do
 		self.list[i]:update(dt)
+		if self.list[i].playing then
+			self._isAnyPlaying = true
+		end
 		if v.temporary and not v.playing then
 			self.list[i] = nil
 		end
@@ -39,29 +43,22 @@ end
 function animations:add(name, keyFrames)
 	if type(keyFrames) == "string" then keyFrames = root.assetJson(directory(keyFrames)) end
 	if not keyFrames then return end
-	self.list[name] = module("modules/animation.lua")
+	self.list[name] = animation:new(keyFrames)
 	self.list[name]:bindFireEvent(function(name) self:fireEvents(name) end)
-	self.list[name]:load(keyFrames)
 end
 
 function animations:playOverride(keyFrames)
 	if type(keyFrames) == "string" then keyFrames = root.assetJson(directory(keyFrames)) end
 	if not keyFrames then return end
-	self.override = module("modules/animation.lua")
+	self.override = animation:new(keyFrames)
 	self.override:bindFireEvent(function(name) self:fireEvents(name) end)
-	self.override:load(keyFrames)
 	self.override:play()
 end
 
 function animations:isAnyPlaying()
 	if self.override and self.override.playing then return true end
 
-	for i,animation in pairs(self.list) do
-		if animation.playing then
-			return true
-		end
-	end
-	return false
+	return self._isAnyPlaying
 end
 
 function animations:isPlaying(name)
@@ -81,6 +78,7 @@ end
 function animations:play(name)
 	if self.list[name] then
 		self.list[name]:play()
+		self._isAnyPlaying = true
 		return true
 	end
 end

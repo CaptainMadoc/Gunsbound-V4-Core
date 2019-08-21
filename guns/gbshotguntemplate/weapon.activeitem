@@ -46,6 +46,8 @@
 		"standingInaccuracy" : 2,
 		"crouchInaccuracyMultiplier" : 0.25,
 
+		"burstCooldown" : 0.2,
+
 		"muzzleFlash" : 1,
 		"rpm" : 300
 	},

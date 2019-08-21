@@ -1,6 +1,6 @@
 include "config"
 include "ammoGroup"
-include "module"
+include "ammo"
 include "updateable"
 include "animator"
 
@@ -11,8 +11,7 @@ magazine.storage = {}
 function magazine:init()
 	self.storage = jarray()
 	for i,v in ipairs(config.magazineStorage or {}) do
-		local newAmmo = module("modules/ammo.lua")
-		newAmmo:load(v)
+		local newAmmo = ammo:new(v)
 		self.storage[#self.storage + 1] = newAmmo
 	end
 	if config.magazine then
@@ -33,8 +32,7 @@ end
 function magazine:reload(ammos)
 	local getAmmo = ammos or ammoGroup:get(self.max - self:count())
 	for i,v in ipairs(getAmmo) do 
-		local newAmmo = module("modules/ammo.lua")
-		newAmmo:load(v)
+		local newAmmo = ammo:new(v)
 		self.storage[#self.storage + 1] = newAmmo
 	end
 end
