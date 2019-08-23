@@ -5,21 +5,31 @@ ammoGroup = {}
 --returns compatibleAmmo types
 function ammoGroup:types()
 	local compat = config.getParameter("compatibleAmmo", jarray())
-
+	local itemList = {}
+	
 	if type(compat) == "string" then
 		compat = root.assetJson(directory(compat))
 	end
+
+	for i,v in pairs(compat) do
+		if v.list then
+			for i2 = 1,#v.list do
+				itemList[#itemList + 1] = v.list[i2]
+			end
+		end
+	end
+	
 	--error
-	if not compat or #compat == 0 then
-		compat = {"gbtestammo"}
+	if #itemList == 0 then
+		return {"gbtestammo"}
 	end
 
-	return compat
+	return itemList
 end
 
 --return true if player has compatible ammo
 function ammoGroup:available()
-	for i,v in pairs(self:types()) do
+	for i,v in ipairs(self:types()) do
 		local finditem = {name = v, count = 1}
 		if type(v) == "table" then 
 			finditem = v
@@ -38,7 +48,7 @@ function ammoGroup:get(amount)
 		amount = 1
 	end
 
-	for i,v in pairs(self:types()) do
+	for i,v in ipairs(self:types()) do
 		if amount > 0 then
 
 			local finditem = {name = v, count = 1}

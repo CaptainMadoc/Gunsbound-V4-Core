@@ -25,7 +25,7 @@
 		"draw" : "animations/draw.keyframes"
 	},
 
-	"compatibleAmmo" : "/ammoGroup/gb762x39mm.json",
+	"compatibleAmmo" : "/ammo/group/default.ammogroup",
 
 	"attachments" : {
 		"grip" : {

@@ -25,7 +25,7 @@
 		"draw" : "animations/draw.keyframes"
 	},
 
-	"compatibleAmmo" : "/ammoGroup/gb12gauge.json",
+	"compatibleAmmo" : "/ammo/group/default.ammogroup",
 
 	"attachments" : {
 		"sight" : {
