@@ -240,7 +240,7 @@ function gun:updateFire(dt)
 	if self.queueFire > 0 and self.chamber and self.chamber.count > 0 and self.cooldown == 0 and (not animations:isAnyPlaying() or animations:isPlaying("shoot")) then
 		self.queueFire = math.max(self.queueFire - 1, 0)
 		self:fire()
-	elseif self.queueFire > 0 and (magazine:count() == 0 or (animations:isAnyPlaying() and not animations:isPlaying("shoot"))) then
+	elseif self.queueFire > 0 and ((magazine:count() == 0 and (not self.chamber or self.chamber.count == 0)) or (animations:isAnyPlaying() and not animations:isPlaying("shoot"))) then
 		self.queueFire = 0
 	end
 end
