@@ -8,6 +8,8 @@ include "updateable"
 
 muzzle = {}
 muzzle._parts = {}
+muzzle.inaccuracy = 0
+muzzle.damageMultplier = 1
 
 function muzzle:init()
     local muzzleConfig = config.muzzle or {}
@@ -24,7 +26,8 @@ function muzzle:fire(ammo)
     for i,v in pairs(self._parts) do
         local position = activeItem.handPosition(animator.transformPoint(v,i))
         local end_position = activeItem.handPosition(animator.transformPoint(v + vec2(1,0), i))
-        local projectileArgs = ammo:projectileArgs(position + mcontroller.position() , end_position - position)
+        local projectileArgs = ammo:projectileArgs(position + mcontroller.position(), end_position - position)
+        if not projectileArgs[1] then return end
         projectileArgs[3] = activeItem.ownerEntityId()
         world.spawnProjectile(table.unpack(projectileArgs))
     end
