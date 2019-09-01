@@ -27,17 +27,16 @@ function attachment:new(name, config)
 	sb.logInfo(name.." = "..sb.printJson(config))
 	if config.item then
 		n.item = config.item
-		n.item.parameters = sb.jsonMerge(itemConfig(config.item), config.item.parameters)
+		n.itemconfig = sb.jsonMerge(itemConfig(config.item), config.item.parameters)
 	end
 	n.part = config.part or "attachment_"..name
 	n.transform = config.transform or "attachment_"..name
-
 	n.name = name
 	n.config = config
-	if n.item and n.item.parameters.attachment.script then
-		n.instance = module(n.item.parameters.attachment.script)
+	if n.itemconfig and n.itemconfig.attachment.script then
+		n.instance = module(n.itemconfig.attachment.script)
 		n.instance.storage = config.storage or {}
-		n.instance.config = n.item.parameters.attachment or {}
+		n.instance.config = n.itemconfig.attachment or {}
 		n.instance.transform = n.transform
 		n.instance.partName = n.part
 		n.instance.directory = itemDirectory(n.item)

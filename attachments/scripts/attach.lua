@@ -10,15 +10,19 @@ function apply(input)
 	--check if the item has a attachment table
 	if not input.parameters.attachments and originalItem.attachments then
 		input.parameters.attachments = {}
-	else -- fail
+	elseif not originalItem.attachments then -- fail
 		return
 	end
 
-	if originalItem.attachments[attachType] then
+	if originalItem.attachments and originalItem.attachments[attachType] then
+		if not input.parameters.attachments then
+			input.parameters.attachments = {}
+		end
+
 		if not input.parameters.attachments[attachType] then
 			input.parameters.attachments[attachType] = {}
 		end
-		
+
 		-- has a item in the slot
 		if input.parameters.attachments[attachType].item then
 			if not input.parameters.giveback then
@@ -27,7 +31,7 @@ function apply(input)
 			input.parameters.giveback[#input.parameters.giveback + 1] = input.attachments[attachType].item
 		end
 
-		input.attachments[attachType].item = item.descriptor()
+		input.parameters.attachments[attachType].item = item.descriptor()
 	end
 	return input
 end
