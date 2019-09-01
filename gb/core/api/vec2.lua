@@ -17,13 +17,6 @@ function v2:__index(a)
 				if angle < 0 then angle = angle + 2 * math.pi end
 				return angle
 			end
-		elseif a == "angle" then
-			return 
-			function()		
-				local angle = math.atan(self[1], self[2])
-				if angle < 0 then angle = angle + 2 * math.pi end
-				return angle
-			end
 		elseif a == "rotate" then
 			return
 			function(self, angle)

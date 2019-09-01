@@ -1,0 +1,23 @@
+{
+	"itemName" : "reddotsight",
+	"rarity" : "common",
+	"category" : "Attachments | Sights",
+	"price" : 0,
+	"attachment" : {
+		"offset" : [-0.125,0],
+		"scale" : [1,1],
+		"image" : "image.png",
+		"stats" : {
+			"aimLookRatio" : 0.125
+		},
+		"script" : "/attachments/scripts/test.lua"
+	},
+	"attachmentType" : "sight",
+	"maxStack" : 1,
+
+	"inventoryIcon" : "image.png",
+	"description" : "",
+	"shortdescription" : "Red Dot Sight",
+	"scripts" : ["/attachments/scripts/attach.lua"]
+}
+ 

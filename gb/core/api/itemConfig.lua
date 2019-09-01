@@ -18,12 +18,12 @@ function itemConfig(itm, parameters)
 	return nil
 end
 
-function itemDirectory(name, parameters)
+function itemDirectory(itm, parameters)
 	local c
-	if type(parameters) == "table" then
-		c = root.itemConfig({name = name, count = 1, parameters = parameters})
+	if type(itm) == "table" then
+		c = root.itemConfig({name = itm.name, count = 1, parameters = itm.parameters})
 	else
-		c = root.itemConfig({name = name, count = 1})
+		c = root.itemConfig({name = itm, count = 1})
 	end
 
 	return c.directory

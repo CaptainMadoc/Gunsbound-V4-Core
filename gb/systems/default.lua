@@ -76,6 +76,8 @@ function gun:init()
 	transforms:init()
 	aim:init()
 	
+	attachmentSystem:init()
+
 	self:animate("draw")
 end
 
@@ -138,6 +140,8 @@ function gun:update(dt, fireMode, shift, moves)
 		end
 	end
 
+	attachmentSystem:update(dt)
+
 	self:updateReload(dt)
 	self:updateFire(dt)
 end
@@ -155,6 +159,7 @@ function gun:uninit()
 	config.dry = self.dry
 	config.fireMode = self._firemode
 
+	attachmentSystem:uninit()
 	transforms:uninit()
 	animations:uninit()
 end
