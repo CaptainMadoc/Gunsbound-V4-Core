@@ -28,7 +28,7 @@ function apply(input)
 			if not input.parameters.giveback then
 				input.parameters.giveback = {}
 			end
-			input.parameters.giveback[#input.parameters.giveback + 1] = input.attachments[attachType].item
+			input.parameters.giveback[#input.parameters.giveback + 1] = input.parameters.attachments[attachType].item
 		end
 
 		input.parameters.attachments[attachType].item = item.descriptor()
