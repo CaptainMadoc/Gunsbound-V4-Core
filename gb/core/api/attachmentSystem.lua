@@ -39,6 +39,42 @@ function attachmentSystem:update(dt)
 			self.list[i]:update(dt)
 		end
 	end
+
+	if self.uishow > 0 and self.currentSpecial then
+		self.uishow = math.max(self.uishow - dt, 0)
+		self.uiposlerp = self.uiposlerp + (activeItem.handPosition(self.list[self.specials[self.currentSpecial].name]:position()) - self.uiposlerp) / vec2(8)
+
+		localAnimator.addDrawable(
+			{
+				line = {activeItem.handPosition(self.list[self.specials[self.currentSpecial].name]:position()), self.uiposlerp + vec2(4,4)},
+				width = 0.5,
+				color = {255,255,255,math.floor(128 * self.uishow)},
+				fullbright = true,
+				position = {0,0}
+			},
+			"overlay"
+		)
+		localAnimator.addDrawable(
+			{
+				line = {self.uiposlerp + vec2(9,4), self.uiposlerp + vec2(4,4)},
+				width = 8,
+				color = {0,0,0,math.floor(172 * self.uishow)},
+				fullbright = true,
+				position = {0,0}
+			},
+			"overlay"
+		)
+		localAnimator.addDrawable(
+			{
+				image = "/gb/core/selected.png",
+				color = {255,255,255,math.floor(255 * self.uishow)},
+				fullbright = true,
+				scale = 0.5,
+				position = self.uiposlerp + vec2(6.5,4)
+			},
+			"overlay"
+		)
+	end
 end
 
 function attachmentSystem:save()
@@ -66,6 +102,7 @@ function attachmentSystem:addSpecial(name, callbackFunction)
 
 	if not self.currentSpecial then
 		self.currentSpecial = 1
+		self.uishow = 1
 	end
 end
 
@@ -75,12 +112,15 @@ function attachmentSystem:activate()
 	end
 end
 
+attachmentSystem.uishow = 0
+attachmentSystem.uiposlerp = vec2(0)
 function attachmentSystem:switch()
 	if self.currentSpecial then
 		self.currentSpecial = self.currentSpecial + 1
 
 		if self.currentSpecial > #self.specials then
 			self.currentSpecial = 1
+			self.uishow = 1
 		end
 	end
 end

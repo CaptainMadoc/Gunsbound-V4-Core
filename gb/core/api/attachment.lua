@@ -2,6 +2,8 @@ include "itemConfig"
 include "tableutil"
 include "attachmentSystem"
 include "module"
+include "vec2"
+include "mcontroller"
 
 attachment = {}
 
@@ -41,6 +43,9 @@ function attachment:new(name, config)
 		n.instance.partName = n.part
 		n.instance.directory = itemDirectory(n.item)
 		n.instance.name = name
+		if n.instance.activate then
+			attachmentSystem:addSpecial(name, function() n.instance:activate() end)
+		end
 	end
 
 	return n
@@ -62,6 +67,10 @@ function attachment:uninit()
 	if self.instance and self.instance.uninit then 
 		self.instance:uninit()
 	end
+end
+
+function attachment:position(offset)
+	return animator.transformPoint(offset or {0,0},self.part)
 end
 
 function attachment:save()
