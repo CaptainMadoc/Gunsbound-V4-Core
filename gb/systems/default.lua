@@ -142,8 +142,26 @@ function gun:update(dt, fireMode, shift, moves)
 
 	attachmentSystem:update(dt)
 
+	self:updateAccuracy(dt)
 	self:updateReload(dt)
 	self:updateFire(dt)
+end
+
+function gun:getInaccuracy()
+	local vel = math.max(math.abs(mcontroller.xVelocity()), math.abs(mcontroller.yVelocity()))
+	local movingRatio = math.min(vel / 14, 1)
+
+	local acc = (stats:get("movingInaccuracy") * movingRatio) + (stats:get("standingInaccuracy") * (1 - movingRatio))
+
+	if mcontroller.crouching() then
+		return acc * stats:get("crouchInaccuracyMultiplier")
+	else
+		return acc
+	end
+end
+
+function gun:updateAccuracy(dt)
+	muzzle.inaccuracy = self:getInaccuracy()
 end
 
 function gun:activate(fireMode, shift)
@@ -252,6 +270,9 @@ end
 
 function gun:fire()
 	if self.chamber and self.chamber.count > 0 then
+		muzzle.damageMultplier = stats:get("damageMultiplier")
+
+
 		local ammo = self.chamber:use()
 		muzzle:fire(self.chamber)
 
