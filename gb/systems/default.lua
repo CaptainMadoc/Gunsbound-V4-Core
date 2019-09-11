@@ -9,6 +9,7 @@ include "activeItem"
 
 include "transforms"
 include "animations"
+include "crosshair"
 
 include "arms"
 

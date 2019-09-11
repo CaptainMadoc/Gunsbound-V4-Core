@@ -61,7 +61,7 @@ function attachment:update()
 	if self.instance and self.instance.update then 
 		self.instance:update()
 	end
-end   
+end
 
 function attachment:uninit()
 	if self.instance and self.instance.uninit then 
