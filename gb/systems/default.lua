@@ -36,6 +36,7 @@ include "localAnimator"
 ]]
 
 include "stats"
+include "settings"
 
 gun = {}
 gun.cooldown = 0
@@ -43,20 +44,9 @@ gun.burstcooldown = 0
 gun.ready = false
 gun._firemode = 1
 
-gun.settings = {
-	drySound = "dry",
-	fireSound = "fire",
-
-	fireTypes = {"auto", "burst", "semi"},
-
-	showCasings = true,
-	chamberEjection = true
-}
-
 --callbacks
 
 function gun:init()
-	self.settings = config.settings or self.settings
 	self.chamber = config.chamber
 	if self.chamber then
 		local a = ammo:new(self.chamber)
@@ -186,11 +176,11 @@ end
 -- functions
 
 function gun:firemode()
-	return self.settings.fireTypes[self._firemode]
+	return settings:get("fireTypes")[self._firemode]
 end
 
 function gun:switchFiremode()
-	if #self.settings.fireTypes <= self._firemode then
+	if #settings:get("fireTypes") <= self._firemode then
 		self._firemode = 1
 	else
 		self._firemode = self._firemode + 1
@@ -214,7 +204,7 @@ function gun:updateReload(dt)
 				end
 			end
 		else
-			local chamberEjection = self.settings.chamberEjection
+			local chamberEjection = settings:get("chamberEjection")
 
 			if not self.chamber and self.cooldown == 0 then
 				if self.dry and magazine:count() > 0 and not animations:isAnyPlaying() then
@@ -224,7 +214,7 @@ function gun:updateReload(dt)
 					self.cooldown = dt
 				end
 			elseif self.chamber and self.chamber.count == 0 and self.cooldown == 0 then
-				if self.settings.chamberEjection then
+				if settings:get("chamberEjection") then
 					self:eject_chamber()
 				elseif not animations:isAnyPlaying() then
 					self:animate("cock")
@@ -281,7 +271,7 @@ function gun:fire()
 		muzzle:fire(self.chamber)
 
 		self.chamber:use()
-		if self.chamber.count <= 0 and self.settings.chamberEjection then
+		if self.chamber.count <= 0 and settings:get("chamberEjection") then
 			self:eject_chamber()
 			if magazine:count() == 0 then
 				self.dry = true
@@ -290,10 +280,12 @@ function gun:fire()
 		
 		aim.recoil = aim.recoil + stats:get("recoil")
 		self:animate("shoot")
-		animator.playSound(self.settings.fireSound)
+		
+		animator.playSound(settings:get("fireSound"))
+
 		self.cooldown = 60 / stats:get("rpm")
 	elseif not self.chamber then
-		animator.playSound(self.settings.drySound)
+		animator.playSound(settings:get("drySound"))
 		self.cooldown = 60 / stats:get("rpm")
 	end
 end

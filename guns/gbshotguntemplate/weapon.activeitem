@@ -70,6 +70,12 @@
 		{"part": "firePosition", "offset": [0,0]}
 	],
 
+	"muzzleFlash" : {
+		"animationStates" : {
+			"firing" : "on"
+		}
+	},
+
 	"gunAnimations" : {
 		"shoot" : "shoot",
 		"cock" : "cock",
@@ -160,7 +166,7 @@
 				//
 				"muzzleFlash" : {
 					"properties" : {
-						"offset" : [2.75, -0.5],
+						"offset" : [0, -1.125],
 						"zLevel" : 51,
 						"fullbright" : true,
 						"centered" : false,

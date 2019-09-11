@@ -97,7 +97,8 @@
 		"customSound_9" : [],
 		"customSound_10" : [],
 		"customSound_11" : [],
-		"customSound_12" : []
+		"customSound_12" : [],
+		"null" : []
 	},
 	"transformationGroups" : {
 		"R_hand" 	: {"ignore" : true,"interpolated" : false},
