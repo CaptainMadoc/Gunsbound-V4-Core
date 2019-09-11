@@ -7,6 +7,7 @@ include "activeItem"
 include "updateable"
 
 muzzle = {}
+muzzle._flash = {}
 muzzle._parts = {}
 muzzle.inaccuracy = 0
 muzzle.damageMultplier = 1
@@ -15,6 +16,13 @@ function muzzle:init()
 	local muzzleConfig = config.muzzle or {}
 	for i,v in pairs(muzzleConfig) do
 		self:addPart(v.part, v.offset)
+	end
+	self._flash = config.muzzleFlash or {animationStates = {}}
+end
+
+function muzzle:flash()
+	for i,v in pairs(self._flash.animationStates) do
+		animator.setAnimationState(i,v)
 	end
 end
 

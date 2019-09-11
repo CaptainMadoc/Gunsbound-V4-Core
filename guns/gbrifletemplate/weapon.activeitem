@@ -93,6 +93,12 @@
 		{"part": "firePosition", "offset": [0,0]}
 	],
 
+	"muzzleFlash" : {
+		"animationStates" : {
+			"firing" : "on"
+		}
+	},
+
 	"animation" : "/gb/core/core.animation",
 	"animationParts" : {
 		"magazine" : "/assetmissing.png",
@@ -161,7 +167,7 @@
 
 				"muzzleFlash" : {
 					"properties" : {
-						"offset" : [2.75, -0.5],
+						"offset" : [0, -1.125],
 						"zLevel" : 51,
 						"fullbright" : true,
 						"centered" : false,

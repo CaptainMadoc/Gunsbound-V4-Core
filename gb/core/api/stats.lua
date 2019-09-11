@@ -3,6 +3,20 @@ include "vec2"
 include "vec2tableparser"
 
 stats = {}
+stats.default = {
+	maxMagazine = 30,
+	recoilRecovery = 7,
+	burst = 3,
+	burstCooldown = 0.2,
+	movingInaccuracy = 20,
+	standingInaccuracy = 0,
+	crouchInaccuracyMultiplier = 0.5,
+	damageMultiplier = 1.0,
+	recoil = 10.0,
+	rpm = 500.0,
+	aimLookRatio = 0.125,
+	muzzleFlash = 0,
+}
 stats._values = {}
 stats.inited = false
 
@@ -26,5 +40,5 @@ end
 
 function stats:get(i)
 	if not self.inited then self:init() end
-	return self._values[i]
+	return self._values[i] or self.default[i]
 end

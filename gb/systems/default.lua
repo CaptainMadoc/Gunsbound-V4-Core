@@ -69,8 +69,8 @@ function gun:init()
 	end
 	self._firemode = config.fireMode or 1
 
-	magazine.max = stats:get("maxMagazine") or 30
-	aim.recoilRecovery = stats:get("recoilRecovery") or 7
+	magazine.max = stats:get("maxMagazine")
+	aim.recoilRecovery = stats:get("recoilRecovery")
 	
 	self:setupEvents()
 	animations:init()
@@ -123,7 +123,7 @@ function gun:update(dt, fireMode, shift, moves)
 		elseif firemode == "burst" and self.burstcooldown == 0 then
 			local burst = stats:get("burst")
 			self.queueFire = burst
-			self.burstcooldown = stats:get("burstCooldown") or 0.2
+			self.burstcooldown = stats:get("burstCooldown")
 		end
 	end
 
@@ -273,6 +273,9 @@ function gun:fire()
 	if self.chamber and self.chamber.count > 0 then
 		muzzle.damageMultplier = stats:get("damageMultiplier")
 
+		if stats:get("muzzleFlash") > 0 then
+			muzzle:flash()
+		end
 
 		local ammo = self.chamber:use()
 		muzzle:fire(self.chamber)
