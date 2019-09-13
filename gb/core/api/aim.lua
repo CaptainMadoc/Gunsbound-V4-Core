@@ -54,3 +54,7 @@ end
 function aim:recoil(angle)
 	self._recoil = self._recoil + angle
 end
+
+function aim:getRecoil()
+	return self._recoil
+end

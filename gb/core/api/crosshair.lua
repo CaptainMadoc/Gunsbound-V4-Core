@@ -37,7 +37,7 @@ function crosshair:update(dt)
 	local muzzleDistance = world.distance(activeItem.ownerAimPosition(), activeItem.handPosition(muzzlePosition) + mcontroller.position())
 	local distance = (math.abs(muzzleDistance[2]) + math.abs(muzzleDistance[1])) / 2
 	local cir = circle((0.125 + (inAccuracy / 45) * distance), 32)
-	local position = (activeItem.ownerAimPosition() + vec2(0.03125,-0.03125) - mcontroller.position()):rotate(math.rad(aim.recoil) * mcontroller.facingDirection())
+	local position = (activeItem.ownerAimPosition() + vec2(0.03125,-0.03125) - mcontroller.position()):rotate(math.rad(aim:getRecoil()) * mcontroller.facingDirection())
 	
 	for i=2,#cir do
 		localAnimator.addDrawable(
