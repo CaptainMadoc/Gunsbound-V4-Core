@@ -278,7 +278,7 @@ function gun:fire()
 			end
 		end
 		
-		aim.recoil = aim.recoil + stats:get("recoil")
+		aim:recoil(stats:get("recoil"))
 		self:animate("shoot")
 		
 		animator.playSound(settings:get("fireSound"))
