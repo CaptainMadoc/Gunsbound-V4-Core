@@ -66,4 +66,28 @@ function muzzle:fire(ammo)
 	end
 end
 
+function muzzle:fireProjectile(projectileName, projectileConfig)
+	local ownerId = activeItem.ownerEntityId()
+	for i,v in pairs(self._parts) do
+		-- world.spawnProjectile(`String` projectileName [arg1], `Vec2F` position [arg2], [`EntityId` sourceEntityId] [arg3], [`Vec2F` direction] [arg4], [`bool` trackSourceEntity] [arg5], [`Json` parameters] [arg6])
+
+		local position = activeItem.handPosition(animator.transformPoint(v,i))
+		local end_position = activeItem.handPosition(animator.transformPoint(v + vec2(1,0), i))
+
+		--inaccuracy
+		local direction = end_position - position
+		if self.inaccuracy ~= 0 then
+			local rand = math.random(math.floor(-self.inaccuracy * 100), math.ceil(self.inaccuracy * 100)) / 100
+			direction = direction:rotate(math.rad(rand))
+		end
+
+		--damageMultplier
+		if self.damageMultplier ~= 1 and projectileConfig and projectileConfig.power then
+			projectileConfig.power = (projectileConfig.power or 1) * self.damageMultplier
+		end
+
+		world.spawnProjectile(projectileName, position + mcontroller.position(), ownerId, direction, false, projectileConfig)
+	end
+end
+
 updateable:add("muzzle")

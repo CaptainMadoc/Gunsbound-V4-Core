@@ -24,7 +24,7 @@ function casingEmitter:fire(ammo)
     for i,v in pairs(self._parts) do
         local position = activeItem.handPosition(animator.transformPoint(v,i))
         local end_position = activeItem.handPosition(animator.transformPoint(v + vec2(0,1), i))
-        local projectileArgs = ammo:casing(position + mcontroller.position() , end_position - position)
+        local projectileArgs = ammo:casing(position + mcontroller.position(), end_position - position)
         if not projectileArgs[1] then return end
         projectileArgs[3] = activeItem.ownerEntityId()
         world.spawnProjectile(table.unpack(projectileArgs))

@@ -25,6 +25,7 @@ include "ammoGroup"
 include "attachmentSystem"
 
 include "localAnimator"
+include "camera"
 
 --this is the default system for any gun
 
@@ -130,6 +131,8 @@ function gun:update(dt, fireMode, shift, moves)
 			self:switchFiremode()
 		end
 	end
+
+	camera.target = ((activeItem.ownerAimPosition() - mcontroller.position()) * vec2(stats:get("aimLookRatio") / 2)) + vec2(0, aim:getRecoil() * 0.125)
 
 	attachmentSystem:update(dt)
 
