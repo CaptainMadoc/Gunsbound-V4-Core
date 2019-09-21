@@ -142,7 +142,7 @@ function gun:update(dt, fireMode, shift, moves)
 end
 
 function gun:getInaccuracy()
-	local vel = math.max(math.abs(mcontroller.xVelocity()), math.abs(mcontroller.yVelocity()))
+	local vel = math.max(math.abs(mcontroller.xVelocity()), math.abs(mcontroller.yVelocity() + 1.27))
 	local movingRatio = math.min(vel / 14, 1)
 
 	local acc = (stats:get("movingInaccuracy") * movingRatio) + (stats:get("standingInaccuracy") * (1 - movingRatio))
