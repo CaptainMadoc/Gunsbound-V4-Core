@@ -39,12 +39,23 @@ arms = {
 	cropA1 = "?crop=0;0;24;43",
 	cropA2 = "?crop=23;0;27;43",
 	cropA3 = "?crop=26;0;43;43",
+	fullbright = true
 }
+
+local function speciesFullbright(specie)
+	if not specie then return false end
+	local speciesConfig = root.assetJson("/species/"..specie..".species")
+	if speciesConfig and speciesConfig.humanoidOverrides and speciesConfig.humanoidOverrides.bodyFullbright then
+		return speciesConfig.humanoidOverrides.bodyFullbright
+	end
+	return false
+end
 
 function arms:init()
 	activeItem.setFrontArmFrame("rotation?scale=0")
 	activeItem.setBackArmFrame("rotation?scale=0")
-	
+	self:resetArm("R")
+	self:resetArm("L")
 	self.twohand_current = config.twoHanded
 	self.twohand_target = self.twohand_current
 	self.twohand = self.twohand_current
@@ -277,7 +288,9 @@ function arms:init()
 				end
 			end
 		)
-	end	
+	end
+
+	self.fullbright = speciesFullbright(self.specie)
 
 	createTransform()
 	self.inited = true
@@ -306,13 +319,13 @@ function arms:update(dt)
 		if not self.twohand then --non two hand here
 			animator.setAnimationState("left", whatlayer(direction, handhold))
 			animator.setAnimationState("right", whatlayer(-direction, handhold))
-			self:setFullArm("L", false) -- it will hide it
-			self:setFullArm("R", true)
+			self:setFullArm("L", false, self.fullbright) -- it will hide it
+			self:setFullArm("R", true, self.fullbright)
 		else
 			animator.setAnimationState("left", "back")
 			animator.setAnimationState("right", "front")
-			self:setFullArm("L", true)
-			self:setFullArm("R", true)
+			self:setFullArm("L", true, self.fullbright)
+			self:setFullArm("R", true, self.fullbright)
 		end
 	end
 end
@@ -331,35 +344,49 @@ function arms:setArmorArm(side, img, crop)
 end
 
 --API--
+
 function arms:setTwoHandedGrip(bool)
 	self.twohand = bool
 	self.curdirection = -self.curdirection
 	activeItem.setTwoHandedGrip(bool)
 end
 
-function arms:setArm(side, img, crop)
+function arms:resetArm(side)
+	animator.setGlobalTag(side.."_a1", "")
+	animator.setGlobalTag(side.."_a2", "")
+	animator.setGlobalTag(side.."_hand", "")
+	animator.setGlobalTag(side.."_a1_FB", "")
+	animator.setGlobalTag(side.."_a2_FB", "")
+	animator.setGlobalTag(side.."_hand_FB", "")
+end
+
+function arms:setArm(side, img, crop, fullbright)
+	local suffix = ""
+	if fullbright then
+		suffix = "_FB"
+	end
 	if crop then
-		animator.setGlobalTag(side.."_a1", img..self.cropA1)
-		animator.setGlobalTag(side.."_a2", img..self.cropA2)
-		animator.setGlobalTag(side.."_hand", img..self.cropA3)
+		animator.setGlobalTag(side.."_a1"..suffix, img..self.cropA1)
+		animator.setGlobalTag(side.."_a2"..suffix, img..self.cropA2)
+		animator.setGlobalTag(side.."_hand"..suffix, img..self.cropA3)
 	else
-		animator.setGlobalTag(side.."_a1", img)
-		animator.setGlobalTag(side.."_a2", img)
-		animator.setGlobalTag(side.."_hand", img)
+		animator.setGlobalTag(side.."_a1"..suffix, img)
+		animator.setGlobalTag(side.."_a2"..suffix, img)
+		animator.setGlobalTag(side.."_hand"..suffix, img)
 	end
 end
 
 -- side = "back", show = true
-function arms:setFullArm(side, show)
+function arms:setFullArm(side, show, fullbright)
 	if show then
-		self:setArm(side, "/humanoid/"..self.specie.."/frontarm.png:rotation"..self.directives, true)
+		self:setArm(side, "/humanoid/"..self.specie.."/frontarm.png:rotation"..self.directives, true, fullbright)
 		if self.directory and self.armordirectives then
 			self:setArmorArm(side, self.directory..":rotation"..self.armordirectives, true)
 		else
 			self:setArmorArm(side, "", false)
 		end
 	else
-		self:setArm(side, "", false)
+		self:setArm(side, "", false, fullbright)
 		self:setArmorArm(side, "", false)
 	end
 end

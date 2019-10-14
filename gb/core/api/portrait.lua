@@ -84,44 +84,22 @@ portrait.zLevelHead = {
 
 portrait.armor = {
 	["/pants.png"] = "LegArmor",
-	["/Pants.png"] = "LegArmor",
 	["/pantsf.png"] = "LegArmor",
 	["/pantsm.png"] = "LegArmor",
-	["/pantsF.png"] = "LegArmor",
-	["/pantsM.png"] = "LegArmor",
-	["/PantsF.png"] = "LegArmor",
-	["/PantsM.png"] = "LegArmor",
 
 	["/chest.png"] = "BodyArmor",
-	["/Chest.png"] = "BodyArmor",
 	["/chestm.png"] = "BodyArmor",
 	["/chestf.png"] = "BodyArmor",
-	["/chestM.png"] = "BodyArmor",
-	["/chestF.png"] = "BodyArmor",
-	["/ChestM.png"] = "BodyArmor",
-	["/ChestF.png"] = "BodyArmor",
 
 	["/head.png"] = "HeadArmor",
-	["/Head.png"] = "HeadArmor",
 	["/headm.png"] = "HeadArmor",
-	["/Headm.png"] = "HeadArmor",
-	["/headM.png"] = "HeadArmor",
-	["/HeadM.png"] = "HeadArmor",
 	["/headf.png"] = "HeadArmor",
-	["/Headf.png"] = "HeadArmor",
-	["/headF.png"] = "HeadArmor",
-	["/HeadF.png"] = "HeadArmor",
 
 	["/fsleeve.png"] = "FrontArmArmor",
-	["/Fsleeve.png"] = "FrontArmArmor",
-	["/FSleeve.png"] = "FrontArmArmor",
 
-	["/Bsleeve.png"] = "BackArmArmor",
 	["/bsleeve.png"] = "BackArmArmor",
-	["/BSleeve.png"] = "BackArmArmor",
 	
-	["/back.png"] = "BackArmor",
-	["/Back.png"] = "BackArmor"
+	["/back.png"] = "BackArmor"
 }
 
 portrait.species = {
@@ -312,7 +290,7 @@ function portrait:new(id)
 
 			if not match then
 				for image,part in pairs(portrait.armor) do
-					if splited[1] and string.match(splited[1], image) then
+					if splited[1] and string.match(splited[1]:lower(), image) then
 						drawable.zLevel = i
 						n._parts[part] = drawable
 						break
