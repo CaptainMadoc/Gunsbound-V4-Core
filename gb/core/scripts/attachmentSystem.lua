@@ -1,6 +1,7 @@
 include "config"
 include "attachment"
 include "localAnimator"
+include "animator"
 
 attachmentSystem = {}
 attachmentSystem.currentSpecial = false
@@ -46,6 +47,17 @@ function attachmentSystem:update(dt)
 
 		localAnimator.addDrawable(
 			{
+				image = "/gb/image/select.png",
+				color = {255,255,255,math.floor(255 * self.uishow)},
+				fullbright = true,
+				centered = true,
+				scale = 0.5,
+				position = activeItem.handPosition(self.list[self.specials[self.currentSpecial].name]:position())
+			},
+			"overlay"
+		)
+		localAnimator.addDrawable(
+			{
 				line = {activeItem.handPosition(self.list[self.specials[self.currentSpecial].name]:position()), self.uiposlerp + vec2(4,4)},
 				width = 0.5,
 				color = {255,255,255,math.floor(128 * self.uishow)},
@@ -66,7 +78,7 @@ function attachmentSystem:update(dt)
 		)
 		localAnimator.addDrawable(
 			{
-				image = "/gb/core/selected.png",
+				image = "/gb/image/selected.png",
 				color = {255,255,255,math.floor(255 * self.uishow)},
 				fullbright = true,
 				scale = 0.5,
@@ -78,13 +90,13 @@ function attachmentSystem:update(dt)
 end
 
 function attachmentSystem:save()
-	local conf = {}
+	local attachments = {}
 	for i,v in pairs(self.list) do
 		if v.save then
-			conf[i] = self.list[i]:save()
+			attachments[i] = self.list[i]:save()
 		end
 	end
-	config.attachments = conf
+	config.attachments = attachments
 end
 
 function attachmentSystem:uninit()
@@ -121,6 +133,34 @@ function attachmentSystem:switch()
 		if self.currentSpecial > #self.specials then
 			self.currentSpecial = 1
 			self.uishow = 1
+		end
+	end
+end
+
+function attachmentSystem:remove(name)
+	if self.list[name] then
+		local config = self.list[name]:save()
+		if config.item then
+			player.giveItem(config.item)
+			config.item = nil
+		end
+		self.list[name] = attachment:new(name, config)
+	end
+end
+
+function attachmentSystem:supressFiresound(sound)
+	local soundName = settings:get("fireSound")
+	if soundName and animator.hasSound(soundName) then
+		if type(sound) == "string" then
+			animator.setSoundPool(soundName, {sound})
+		elseif type(sound) == "table" and sound.path then
+			animator.setSoundPool(soundName, {sound.path})
+			if sound.pitchMultiplier then
+				animator.setSoundPitch(soundName, sound.pitchMultiplier)
+			end
+			if sound.volume then
+				animator.setSoundVolume(soundName, sound.volume)
+			end
 		end
 	end
 end

@@ -1,6 +1,8 @@
 local oldInit = init or function () end
 local oldUpdate = update or function() localAnimator.clearDrawables() end
 
+-- this hooks into the player deployment
+
 function init()
 
     x, e = pcall(oldInit)

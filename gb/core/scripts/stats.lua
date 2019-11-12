@@ -15,7 +15,7 @@ stats.default = {
 	recoil = 10.0,
 	rpm = 500.0,
 	aimLookRatio = 0.125,
-	muzzleFlash = 0,
+	muzzleFlash = 1,
 }
 stats._values = {}
 stats.inited = false
@@ -41,4 +41,9 @@ end
 function stats:get(i)
 	if not self.inited then self:init() end
 	return self._values[i] or self.default[i]
+end
+
+function stats:set(i,v)
+	if not self.inited then self:init() end
+	self._values[i] = v
 end

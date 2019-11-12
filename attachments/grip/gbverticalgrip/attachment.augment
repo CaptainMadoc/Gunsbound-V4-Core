@@ -1,17 +1,18 @@
 {
-	"itemName" : "grenadelaunchergrip",
+	"itemName" : "gbverticalgrip",
 	"rarity" : "common",
-	"shortdescription" : "Grenade Launcher",
+	"shortdescription" : "Vertical Grip",
 	"category" : "Attachments | Grip",
-	"compatibleAmmo" : "/ammoGroup/gbgrenadeLauncher.json",
 
 	"price" : 0,
 	"attachment" : {
 		"offset" : [0.0,0.0],
-		"scale" : [1,1],
+		"scale" : [0.5,0.5],
 		"image" : "image.png",
-		"compatibleAmmo" : "/ammoGroup/gbgrenadeLauncher.json",
-		"script" : "/attachments/scripts/testspecial.lua"
+		"script" : "/attachments/scripts/attachmentStats.lua",
+		"statsRatio" : {
+			"recoil" : 0.5
+		}
 	},
 	"attachmentType" : "grip",
 	"maxStack" : 1,

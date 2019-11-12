@@ -193,7 +193,6 @@
 				"attachment_muzzle" : {
 					"properties" : {
 						"zLevel" : 53,
-						"centered" : false,
 						"image" : "<partImage>",
 						"offset" : [4.125, 1],
 						"anchorPart" : "gun", 
@@ -204,7 +203,6 @@
 				"attachment_tactical" : {
 					"properties" : {
 						"zLevel" : 53,
-						"centered" : false,
 						"image" : "<partImage>",
 						"offset" : [2.875, 1.125],
 						"anchorPart" : "gun", 
@@ -215,7 +213,6 @@
 				"attachment_grip" : {
 					"properties" : {
 						"zLevel" : 53,
-						"centered" : false,
 						"image" : "<partImage>",
 						"offset" : [2.875,0.875],
 						"anchorPart" : "gun", 
@@ -226,7 +223,6 @@
 				"attachment_sight" : {
 					"properties" : {
 						"zLevel" : 53,
-						"centered" : false,
 						"image" : "<partImage>",
 						"offset" : [1.5, 1.25],
 						"anchorPart" : "gun", 
@@ -237,7 +233,6 @@
 				"attachment_magazine_762x39mm" : {
 					"properties" : {
 						"zLevel" : 48,
-						"centered" : false,
 						"image" : "<partImage>",
 						"offset" : [2.0, 1.0],
 						"anchorPart" : "magazine", 
@@ -256,7 +251,8 @@
 							"transition" : "off",
 							"cycle" : 0.1,
 							"properties" : {
-								"lightsOn" : ["muzzleFlash"]
+								"lightsOn" : ["muzzleFlash"],
+								"particleEmittersOn" : ["spark"]
 							}
 						},
 						"off" : {
@@ -264,7 +260,8 @@
 							"mode" : "end",
 							"cycle" : 0.1,
 							"properties" : {
-								"lightsOff" : ["muzzleFlash"]
+								"lightsOff" : ["muzzleFlash"],
+								"particleEmittersOff" : ["spark"]
 							}
 						}
 					}
@@ -370,7 +367,7 @@
 				]
 			},
 			"spark" : {
-				"emissionRate" : 32.0,
+				"emissionRate" : 64.0,
 				"zLevel" : 100,
 				"anchorPart" : "firePosition",
 				"particles" : [

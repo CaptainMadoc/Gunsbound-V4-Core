@@ -134,6 +134,14 @@ function gun:update(dt, fireMode, shift, moves)
 
 	camera.target = ((activeItem.ownerAimPosition() - mcontroller.position()) * vec2(stats:get("aimLookRatio") / 2)) + vec2(0, aim:getRecoil() * 0.125)
 
+	if fireMode == "alt" then
+		if shift then
+			attachmentSystem:switch()
+		else
+			attachmentSystem:activate()
+		end
+	end
+
 	attachmentSystem:update(dt)
 
 	self:updateAccuracy(dt)
@@ -318,16 +326,16 @@ function gunUI:update(dt)
 	self.lerpMag = self.lerpMag + (currentMag - self.lerpMag) * 0.125
 
 	--connecting line
-	localAnimator.addDrawable(
-		{
-			line = {handPosition, vec2(0,-5) + self.offset},
-			width = 0.5,
-			color = {255,255,255,32},
-			fullbright = true,
-			position = {0,0}
-		},
-		"overlay"
-	)
+	--localAnimator.addDrawable(
+	--	{
+	--		line = {handPosition, vec2(0,-5) + self.offset},
+	--		width = 0.5,
+	--		color = {255,255,255,32},
+	--		fullbright = true,
+	--		position = {0,0}
+	--	},
+	--	"overlay"
+	--)
 	--background ammo
 	localAnimator.addDrawable(
 		{
@@ -392,7 +400,7 @@ function gunUI:update(dt)
 				vec2(0.125 * direction,-5.5),
 				vec2(1.125 * direction,-5.5)
 			},
-			width = 2,
+			width = 1,
 			color = {255,255,255},
 			fullbright = true,
 			position = self.offset
@@ -403,10 +411,10 @@ function gunUI:update(dt)
 	localAnimator.addDrawable(
 		{
 			line = {
-				vec2(0.125 * direction,-5.5 - (0.5 * self.lerpBurstMode)),
-				vec2(1.125 * direction,-5.5 - (0.5 * self.lerpBurstMode))
+				vec2(0.125 * direction,-5.5 - (0.25 * self.lerpBurstMode)),
+				vec2(1.125 * direction,-5.5 - (0.25 * self.lerpBurstMode))
 			},
-			width = 2,
+			width = 1,
 			color = {255,255,255},
 			fullbright = true,
 			position = self.offset
@@ -416,10 +424,10 @@ function gunUI:update(dt)
 	localAnimator.addDrawable(
 		{
 			line = {
-				vec2(0.125 * direction,-5.5 - (1.0 * self.lerpBurstMode)),
-				vec2(1.125 * direction,-5.5 - (1.0 * self.lerpBurstMode))
+				vec2(0.125 * direction,-5.5 - (0.5 * self.lerpBurstMode)),
+				vec2(1.125 * direction,-5.5 - (0.5 * self.lerpBurstMode))
 			},
-			width = 2,
+			width = 1,
 			color = {255,255,255},
 			fullbright = true,
 			position = self.offset
@@ -430,10 +438,10 @@ function gunUI:update(dt)
 	localAnimator.addDrawable(
 		{
 			line = {
-				vec2(0.125 * direction,-5.5 - (1.5 * self.lerpAutoMode)),
-				vec2(1.125 * direction,-5.5 - (1.5 * self.lerpAutoMode))
+				vec2(0.125 * direction,-5.5 - (0.75 * self.lerpAutoMode)),
+				vec2(1.125 * direction,-5.5 - (0.75 * self.lerpAutoMode))
 			},
-			width = 2,
+			width = 1,
 			color = {255,255,255},
 			fullbright = true,
 			position = self.offset
@@ -443,10 +451,10 @@ function gunUI:update(dt)
 	localAnimator.addDrawable(
 		{
 			line = {
-				vec2(0.125 * direction,-5.5 - (2 * self.lerpAutoMode)),
-				vec2(1.125 * direction,-5.5 - (2 * self.lerpAutoMode))
+				vec2(0.125 * direction,-5.5 - (1 * self.lerpAutoMode)),
+				vec2(1.125 * direction,-5.5 - (1 * self.lerpAutoMode))
 			},
-			width = 2,
+			width = 1,
 			color = {255,255,255},
 			fullbright = true,
 			position = self.offset

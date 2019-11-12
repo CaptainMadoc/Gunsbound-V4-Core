@@ -1,11 +1,12 @@
 modPath = "/gb/"
 corePath = modPath.."core/"
-includePath = corePath.."api/"
+includePath = corePath.."scripts/"
 
-_included = {}
+local _included = {}
 function include(util)
-	require(includePath..util..".lua")
+	if _included[includePath..util..".lua"] then return end
 	_included[includePath..util..".lua"] = true
+	require(includePath..util..".lua")
 end
 
 function init()

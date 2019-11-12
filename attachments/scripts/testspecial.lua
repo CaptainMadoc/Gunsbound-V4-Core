@@ -40,7 +40,7 @@ function module:updateTransform()
 end
 
 function module:activate()
-
+	sb.logInfo("TEST ATTACHMENT ACTIVATE")
 end
 
 function module:uninit()
