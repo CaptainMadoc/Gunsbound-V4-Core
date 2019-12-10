@@ -26,7 +26,7 @@ function stats:init()
 end
 
 function stats:reset()
-	self._values = vec2tableparser(config.stats) or {}
+	self._values = vec2tableparser(config.parseValue("stats", "table")) or {}
 end
 
 function stats:add(a)

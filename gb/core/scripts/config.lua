@@ -38,6 +38,13 @@ function config:getAnimation()
 	return table.vmerge(animation or {}, animationCustom or {})
 end
 
+function config.parseValue(name, expectedType)
+	local v = _config.getParameter(name)
+	if type(v) == "string" and expectedType ~= "string" then
+		return root.assetJson(directory(v))
+	end
+	return v
+end
 
 function config.getParameter(...)
 	return _config.getParameter(...)

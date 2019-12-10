@@ -1,8 +1,8 @@
-{ //TEMPLATE FOR A AMMO GROUP
-    "1" : { //tier 1
+{
+    "1" : {
         "list" : ["gb9mmammo"]
     },
-    "2" : { //tier 2
+    "2" : {
         "list" : ["gbtestammo"]
     }
 }

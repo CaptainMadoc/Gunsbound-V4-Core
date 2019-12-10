@@ -4,11 +4,11 @@ ammoGroup = {}
 
 --returns compatibleAmmo types
 function ammoGroup:types()
-	local compat = config.getParameter("compatibleAmmo", jarray())
+	local compat = config.getParameter("ammoType", jarray())
 	local itemList = {}
 	
 	if type(compat) == "string" then
-		compat = root.assetJson(directory(compat))
+		compat = root.assetJson(directory(compat, "/ammo/group/", ".ammogroup"))
 	end
 
 	for i,v in pairs(compat) do

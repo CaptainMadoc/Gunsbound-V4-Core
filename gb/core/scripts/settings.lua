@@ -20,7 +20,7 @@ function settings:init()
 end
 
 function settings:reset()
-	self._values = config.settings or {}
+	self._values = config.parseValue("settings", "table") or {}
 end
 
 function settings:get(i)
