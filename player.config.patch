@@ -13,5 +13,10 @@
         "path" : "/defaultBlueprints/tier1/-",
         "op" : "add",
         "value" : {"item" : "attachmentsremover"}
+    },
+    {
+        "op": "add",
+        "path": "/deploymentConfig/scripts/-",
+        "value": "/gb/hooks/gunUI.lua"
     }
 ]
