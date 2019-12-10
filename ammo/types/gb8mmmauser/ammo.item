@@ -9,5 +9,5 @@
 	"shortdescription" : "8mm Mauser",
 	"casingProjectile" : "gb8mmmauser_casing",
 	"projectile" : "gbbullet",
-	"projectileConfig" : {"speed" : 200}
+	"projectileConfig" : {"speed" : 200, "power" : 40}
 }

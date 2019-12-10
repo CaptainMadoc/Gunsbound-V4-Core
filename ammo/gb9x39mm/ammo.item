@@ -1,13 +1,13 @@
 {
-	"itemName" : "gb556mmammo",
+	"itemName" : "gb9x39mmammo",
 	"price" : 5,
 	"rarity" : "common",
 	"maxStack" : 25000,
 	"category" : "craftingMaterial",
-	"inventoryIcon" : "gb556mm.png",
+	"inventoryIcon" : "gb9x39mm.png",
 	"description" : "test",
 	"shortdescription" : "5.56mm",
-	"casingProjectile" : "gb556mm_casing",
+	"casingProjectile" : "gb9x39mm_casing",
 	"projectile" : "gbbullet",
-	"projectileConfig" : {"speed" : 175, "power" : 35}
+	"projectileConfig" : {"speed" : 90, "power" : 37}
 }
