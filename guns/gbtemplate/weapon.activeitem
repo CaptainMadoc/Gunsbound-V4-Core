@@ -286,7 +286,7 @@
 				"zLevel" : 100,
 				"anchorPart" : "casingPosition",
 				"particles" : [
-					{ "particle" : "gbsmoke"}
+					//{ "particle" : "gbsmoke"}
 				]
 			},
 			"vapor" : {
@@ -294,7 +294,7 @@
 				"zLevel" : 100,
 				"anchorPart" : "firePosition",
 				"particles" : [
-					{ "particle" : "gbvapor"}//, "offset" : [4, 1]}
+					//{ "particle" : "gbvapor"}
 				]
 			},
 			"spark" : {
@@ -302,9 +302,9 @@
 				"zLevel" : 100,
 				"anchorPart" : "firePosition",
 				"particles" : [
-					{"particle" : "gbspark1"},
-					{"particle" : "gbspark1"},
-					{"particle" : "gbspark1"}
+					//{"particle" : "gbspark1"},
+					//{"particle" : "gbspark1"},
+					//{"particle" : "gbspark1"}
 				]
 			}
 		},
