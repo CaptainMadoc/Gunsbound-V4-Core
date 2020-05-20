@@ -26,7 +26,7 @@ attachment.instance = nil
 
 function attachment:new(name, config)
 	local n = table.copy(self)
-	sb.logInfo(name.." = "..sb.printJson(config))
+	--sb.logInfo(name.." = "..sb.printJson(config))
 	if config.item then
 		n.item = config.item
 		n.itemconfig = sb.jsonMerge(itemConfig(config.item), config.item.parameters)

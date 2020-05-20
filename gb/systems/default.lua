@@ -11,7 +11,7 @@ include "transforms"
 include "animations"
 include "crosshair"
 
-include "arms"
+include "altarms"
 
 include "aim"
 
@@ -63,6 +63,8 @@ function gun:init()
 	magazine.max = stats:get("maxMagazine")
 	aim.recoilRecovery = stats:get("recoilRecovery")
 	
+	altarms:init()
+
 	self:setupEvents()
 	animations:init()
 	transforms:init()
@@ -71,6 +73,8 @@ function gun:init()
 	attachmentSystem:init()
 
 	self:animate("draw")
+
+	
 end
 
 function gun:setupEvents()
@@ -147,6 +151,12 @@ function gun:update(dt, fireMode, shift, moves)
 	self:updateAccuracy(dt)
 	self:updateReload(dt)
 	self:updateFire(dt)
+
+	altarms.frontTarget = activeItem.handPosition(animator.transformPoint({0,0},"R_handPoint"))
+	altarms.backTarget = activeItem.handPosition(animator.transformPoint({0,0},"L_handPoint"))
+	world.debugPoint(activeItem.handPosition(animator.transformPoint({0,0},"R_handPoint")) + mcontroller.position(),"green")
+	world.debugPoint(activeItem.handPosition(animator.transformPoint({0,0},"L_handPoint")) + mcontroller.position(),"green")
+	altarms:update(dt, fireMode, shift, moves)
 end
 
 function gun:getInaccuracy()

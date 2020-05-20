@@ -22,9 +22,12 @@ function save()
     object.setConfigParameter("description", "Remaining dispenses: ^green;"..remaining)
 end
 
-function procdir(str,dir)
-    if str:sub(1,1) == "/" then return str end
-    return dir..str
+function directory(path, default, suffix)
+	if path:sub(1,1) == "/" then return path end
+	if not default then default = config.getParameter("directory") or "/" end
+
+	if suffix and path:sub(path:len() - suffix:len() + 1,path:len()):lower() ~= suffix then return default..path..suffix end
+	return default..path
 end
 
 function getAmmoPool(hands)
@@ -33,11 +36,11 @@ function getAmmoPool(hands)
         local a = root.itemConfig(v)
         local Item = sb.jsonMerge(a.config, a.parameters)
 
-        if Item.compatibleAmmo then
+        if Item.ammoType then
             local tierlist
 
-            if type(Item.compatibleAmmo) == "string" then
-                tierlist = root.assetJson(procdir(Item.compatibleAmmo, Item.directory or a.directory), jarray())
+            if type(Item.ammoType) == "string" then
+                tierlist = root.assetJson(directory(Item.ammoType, "/ammo/group/", ".ammogroup"), jarray())
             end
 
             if tierlist and tierlist[tier] and tierlist[tier].list then

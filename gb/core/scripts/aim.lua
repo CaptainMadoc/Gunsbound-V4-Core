@@ -21,7 +21,7 @@ aim.offset = 0
 
 aim.enabled = true
 aim.current = 0
-aim.angle = 0
+aim._angle = 0
 aim.facing = 0
 
 function aim:init()
@@ -40,7 +40,7 @@ function aim:update(dt)
 			end
 		end
 
-		self.current = self.angle
+		self.current = self._angle
 		activeItem.setArmAngle(math.rad(self.current + self.offset + self._recoillerp))
 		activeItem.setFacingDirection(self.facing)
 	else
@@ -50,7 +50,7 @@ end
 
 function aim:at(at)
 	local aim, facing = activeItem.aimAngleAndDirection(0, at)
-	self.angle = aim * 180/math.pi
+	self._angle = aim * 180/math.pi
 	self.facing = facing
 end
 
@@ -67,11 +67,15 @@ function aim:recoil(angle)
 		angle = -angle
 	end
 	self._recoil = self._recoil + angle
-	if not config.twoHanded then
+	if not activeItem.twoHanded() then
 		local otherhandfunc = activeItem.callOtherHandScript("dualwieldrecoil", angle)
 	end
 end
 
 function aim:getRecoil()
 	return self._recoil
+end
+
+function aim:angle()
+	return math.rad(self.current + self.offset + self._recoillerp)
 end
