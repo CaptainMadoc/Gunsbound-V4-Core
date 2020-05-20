@@ -69,6 +69,15 @@ function gun:init()
 	animations:init()
 	transforms:init()
 	aim:init()
+
+	local confanimation = config:getAnimation()
+    transforms:addCustom(
+        "armRotation", 
+            (confanimation.transformationGroups.armRotation or {rotation = 0}).transform or {rotation = 0}, 
+        function(tr)
+	        aim.offset = tr.rotation or 0
+        end
+	)
 	
 	attachmentSystem:init()
 
