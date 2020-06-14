@@ -1,5 +1,5 @@
 {
-	"itemName" : "gbtemplate",
+	"itemName" : "gbtemplate_armflex",
 
 	"shortdescription" : "Gunsbound Gun Template",
 	"description" : "description here",
@@ -68,7 +68,8 @@
 		}
 	},
 
-	"animation" : "/gb/core/core.animation",
+	"animation" : "/gb/core/corearmflex.animation",
+
 	"animationParts" : { // define your part sprite here
 		"magazine" : "/assetmissing.png",
 		"gun" : "image/gun.png",
@@ -311,18 +312,73 @@
 
 		// TRANSFORMS
 		"transformationGroups" : {
-			"attachment_muzzle":{"ignore":true},
-			"attachment_sight":{"ignore":true},
-			"armRotation":{"ignore":true,"transform":{"rotation":0}},
-			"gun":{"transform":{"rotationPoint":[1.5625,0.8125],"scale":[0.75,0.75],"rotation":0,"position":[-1.8125,-0.25625]}},
-			"L_handPoint":{"interpolated":false,"transform":{"position":[0.5,0.375]}},
-			"lever":{},
-			"mag":{"transform":{"rotationPoint":[2.25,0.5],"rotation":0,"position":[0,0]}},
-			"attachment_tactical":{"ignore":true},
-			"globalRecoil":{"ignore":true,"interpolated":true},
-			"base":{"interpolated":false},
-			"attachment_grip":{"ignore":true},
-			"attachment_magazine_762x39mm":{"ignore":true}
+			
+			"L_offset" : {
+				"transform" : {
+					"position" : [1.15625, 0.15625]
+				}
+			},
+			"R_arm1" : {
+				"transform" : {
+					"rotation" : 15
+				}
+			},
+			"R_arm2" : {
+				"transform" : {
+					"rotation" : -15
+				}
+			},
+			"L_arm1" : {
+				"transform" : {
+					"rotation" : -5
+				}
+			},
+			"L_arm2" : {
+				"transform" : {
+					"rotation" : 15
+				}
+			},
+			
+			
+			"gun" : {
+				"interpolated" : false,
+				"transform" : {
+					"rotationPoint" : [1.5625, 0.8125],
+					"position" : [-1.25, -0.50625]
+				}
+			},
+			"lever" : {
+				"interpolated" : false
+			},
+			"mag" : {
+				"interpolated" : false
+			},
+
+			//attachments
+			"attachment_muzzle" : {
+				"ignore" : true,
+				"interpolated" : false
+			},
+			
+			"attachment_tactical" : {
+				"ignore" : true,
+				"interpolated" : false
+			},
+			
+			"attachment_grip" : {
+				"ignore" : true,
+				"interpolated" : false
+			},
+			
+			"attachment_magazine_762x39mm" : {
+				"ignore" : true,
+				"interpolated" : false
+			},
+			
+			"attachment_sight" : {
+				"ignore" : true,
+				"interpolated" : false
+			}
 		}
 	}
 }

@@ -41,6 +41,7 @@ include "settings"
 
 gun = {}
 gun.ready = false
+gun.armFlex = false
 
 --callbacks
 
@@ -56,8 +57,9 @@ function gun:init()
 	magazine.max = stats:get("maxMagazine")
 	aim.recoilRecovery = stats:get("recoilRecovery")
 	
-	if config.FlexArm then
+	if animator.hasTransformationGroup("L_offset") then
 		include "arms"
+		self.armFlex = true
 	else
 		include "altarms"
 		altarms:init()
@@ -113,7 +115,7 @@ function gun:update(dt, firemode, shift, moves)
 	self:updateFire(dt)
 	self:updateTimers(dt)
 
-	if not config.FlexArm then
+	if not self.armFlex then
 		altarms.frontTarget = activeItem.handPosition(animator.transformPoint({0,0},"R_handPoint"))
 		altarms.backTarget = activeItem.handPosition(animator.transformPoint({0,0},"L_handPoint"))
 		world.debugPoint(activeItem.handPosition(animator.transformPoint({0,0},"R_handPoint")) + mcontroller.position(),"green")
@@ -238,7 +240,7 @@ function gun:updateReload(dt)
 		else
 			local chamberEjection = settings:get("chamberEjection")
 
-			if (chamber:loads() == 0 or chamber:ready() == 0) and magazine:count() > 0 and self.cooldown == 0 then
+			if not self.shouldLoad and (chamber:loads() == 0 or chamber:ready() == 0) and magazine:count() > 0 and self.cooldown == 0 then
 				if not animations:isAnyPlaying() then
 					self:animate("cock")
 				end
