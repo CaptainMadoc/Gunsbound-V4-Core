@@ -22,6 +22,15 @@ function ammo:create(projectileName, projectileConfig)
 	self.parameters.projectileConfig = projectileConfig
 end
 
+function ammo:projectileCount()
+	if self.parameters.projectileCount then
+		return self.parameters.projectileCount
+	elseif self.config.projectileCount then
+		return self.config.projectileCount
+	end
+	return 1
+end
+
 function ammo:save() -- returns a item
 	return {
 		name = self.itemName,

@@ -10,6 +10,7 @@ settings.default = {
     fireTypes = {"auto", "burst", "semi"},
     showCasings = true,
     chamberEjection = true,
+    chamberAutoLoad = true
 }
 settings._values = {}
 settings.inited = false

@@ -41,7 +41,7 @@ end
 
 function vec2OP.lerp(self, b, ratio)
 	if type(b) == "number" then b = vec2(b) end
-	return self + (b - self) * ratio
+	return vec2(self + (b - self) * ratio)
 end
 
 

@@ -11,10 +11,10 @@ include "transforms"
 include "animations"
 include "crosshair"
 
-include "altarms"
 
 include "aim"
 
+include "chamber"
 include "muzzle"
 include "casingEmitter"
 
@@ -40,19 +40,12 @@ include "stats"
 include "settings"
 
 gun = {}
-gun.cooldown = 0
-gun.burstcooldown = 0
 gun.ready = false
-gun._firemode = 1
 
 --callbacks
 
 function gun:init()
-	self.chamber = config.chamber
-	if self.chamber then
-		local a = ammo:new(self.chamber)
-		self.chamber = a
-	end
+
 	if type(config.dry) == "boolean" then
 		self.dry = config.dry
 	else
@@ -63,12 +56,18 @@ function gun:init()
 	magazine.max = stats:get("maxMagazine")
 	aim.recoilRecovery = stats:get("recoilRecovery")
 	
-	altarms:init()
+	if config.FlexArm then
+		include "arms"
+	else
+		include "altarms"
+		altarms:init()
+	end
 
 	self:setupEvents()
 	animations:init()
 	transforms:init()
 	aim:init()
+	attachmentSystem:init()
 
 	local confanimation = config:getAnimation()
     transforms:addCustom(
@@ -78,17 +77,13 @@ function gun:init()
 	        aim.offset = tr.rotation or 0
         end
 	)
-	
-	attachmentSystem:init()
 
 	self:animate("draw")
-
-	
 end
 
 function gun:setupEvents()
-	animations:addEvent("eject_chamber", function() self:eject_chamber() end)
-	animations:addEvent("load_ammo", function() self:load_chamber(magazine:use()) end)
+	animations:addEvent("eject_chamber", function() self:eject_chambers() end)
+	animations:addEvent("load_ammo", function() self:load_chambers() end)
 	animations:addEvent("reload_loop", function() self.reloadLoop = true end)
 	animations:addEvent("reloadLoop", function() self.reloadLoop = true end)
 	animations:addEvent("insert_mag", function() magazine:reload() end)
@@ -96,31 +91,66 @@ function gun:setupEvents()
 	animations:addEvent("remove_mag", function() magazine:unload() end)
 end
 
-function gun:update(dt, fireMode, shift, moves)
-	
-	if not gun.ready and not animations:isAnyPlaying() then
-		gun.ready = true
+function gun:update(dt, firemode, shift, moves)
+	if not self.ready and not animations:isAnyPlaying() then
+		self.ready = true
 	end
-	
+
 	animations:update(dt)
-	if animations:isAnyPlaying() then
+	if animations:isAnyPlaying() and not transforms.overriden then
 		transforms:apply(animations:transforms())
 	end
 	transforms:update(dt)
 
+	aim:at(activeItem.ownerAimPosition())
 	aim:update(dt)
+	camera.target = ((activeItem.ownerAimPosition() - mcontroller.position()) * vec2(stats:get("aimLookRatio") / 2)) + vec2(0, aim:getRecoil() * 0.125)
 
+	attachmentSystem:update(dt)
+	self:updateControls(dt, firemode, shift, moves)
+	self:updateAccuracy(dt)
+	self:updateReload(dt)
+	self:updateFire(dt)
+	self:updateTimers(dt)
+
+	if not config.FlexArm then
+		altarms.frontTarget = activeItem.handPosition(animator.transformPoint({0,0},"R_handPoint"))
+		altarms.backTarget = activeItem.handPosition(animator.transformPoint({0,0},"L_handPoint"))
+		world.debugPoint(activeItem.handPosition(animator.transformPoint({0,0},"R_handPoint")) + mcontroller.position(),"green")
+		world.debugPoint(activeItem.handPosition(animator.transformPoint({0,0},"L_handPoint")) + mcontroller.position(),"green")
+		altarms:update(dt, fireMode, shift, moves)
+	end
+end
+
+function gun:activate(firemode, shift)
+	
+end
+
+function gun:uninit()
+	config.dry = self.dry
+	config.fireMode = self._firemode
+
+	attachmentSystem:uninit()
+	transforms:uninit()
+	animations:uninit()
+end
+
+function gun:updateTimers(dt)
+	if self.cooldown == 0 and self.shouldLoad then
+		self:load_chambers()
+		self.shouldLoad = false
+	end
 	if self.cooldown > 0 then
 		self.cooldown = math.max(self.cooldown - dt,0)
 	elseif self.burstcooldown > 0 then
 		self.burstcooldown = math.max(self.burstcooldown - dt,0)
 	end
+end
 
-	aim:at(activeItem.ownerAimPosition())
-
-	if fireMode == "primary" and self.cooldown == 0 and self.queueFire == 0 then
+function gun:updateControls(dt, firemode, shift, moves)
+	if firemode == "primary" and self.cooldown == 0 and self.queueFire == 0 then
 		local firemode = self:firemode() or "nil"
-		if firemode == "semi" and update_lastInfo[2] ~= fireMode then
+		if firemode == "semi" and update_lastInfo[2] ~= firemode then
 			self.queueFire = 1
 		elseif firemode == "auto" then
 			self.queueFire = 1
@@ -145,28 +175,19 @@ function gun:update(dt, fireMode, shift, moves)
 		end
 	end
 
-	camera.target = ((activeItem.ownerAimPosition() - mcontroller.position()) * vec2(stats:get("aimLookRatio") / 2)) + vec2(0, aim:getRecoil() * 0.125)
-
-	if fireMode == "alt" then
+	if firemode == "alt" then
 		if shift then
 			attachmentSystem:switch()
 		else
 			attachmentSystem:activate()
 		end
 	end
-
-	attachmentSystem:update(dt)
-
-	self:updateAccuracy(dt)
-	self:updateReload(dt)
-	self:updateFire(dt)
-
-	altarms.frontTarget = activeItem.handPosition(animator.transformPoint({0,0},"R_handPoint"))
-	altarms.backTarget = activeItem.handPosition(animator.transformPoint({0,0},"L_handPoint"))
-	world.debugPoint(activeItem.handPosition(animator.transformPoint({0,0},"R_handPoint")) + mcontroller.position(),"green")
-	world.debugPoint(activeItem.handPosition(animator.transformPoint({0,0},"L_handPoint")) + mcontroller.position(),"green")
-	altarms:update(dt, fireMode, shift, moves)
 end
+
+function gun:updateAccuracy(dt)
+	muzzle.inaccuracy = self:getInaccuracy()
+end
+
 
 function gun:getInaccuracy()
 	local vel = math.max(math.abs(mcontroller.xVelocity()), math.abs(mcontroller.yVelocity() + 1.27))
@@ -181,30 +202,10 @@ function gun:getInaccuracy()
 	end
 end
 
-function gun:updateAccuracy(dt)
-	muzzle.inaccuracy = self:getInaccuracy()
-end
 
-function gun:activate(fireMode, shift)
-	
-end
+-- firemode functions
 
-function gun:uninit()
-	if self.chamber then
-		config.chamber = self.chamber:save()
-	else
-		config.chamber = nil
-	end
-	config.dry = self.dry
-	config.fireMode = self._firemode
-
-	attachmentSystem:uninit()
-	transforms:uninit()
-	animations:uninit()
-end
-
--- functions
-
+gun._firemode = 1
 function gun:firemode()
 	return settings:get("fireTypes")[self._firemode]
 end
@@ -218,6 +219,7 @@ function gun:switchFiremode()
 end
 
 -- gun ammo management
+
 gun.chamber = nil
 gun.reloadLoop = false
 gun.dry = false
@@ -236,76 +238,72 @@ function gun:updateReload(dt)
 		else
 			local chamberEjection = settings:get("chamberEjection")
 
-			if not self.chamber and self.cooldown == 0 then
-				if self.dry and magazine:count() > 0 and not animations:isAnyPlaying() then
-					self:animate("cock")
-				elseif not self.dry and chamberEjection and magazine:count() > 0 then
-					self:load_chamber(magazine:use())
-					self.cooldown = dt
-				end
-			elseif self.chamber and self.chamber.count == 0 and self.cooldown == 0 then
-				if settings:get("chamberEjection") then
-					self:eject_chamber()
-				elseif not animations:isAnyPlaying() then
+			if (chamber:loads() == 0 or chamber:ready() == 0) and magazine:count() > 0 and self.cooldown == 0 then
+				if not animations:isAnyPlaying() then
 					self:animate("cock")
 				end
 			end
 
-			if magazine:count() == 0 and (not self.chamber or self.chamber.count == 0) and ammoGroup:available() and not animations:isAnyPlaying() then
+			if magazine:count() == 0 and (chamber:ready() == 0) and ammoGroup:available() and not animations:isAnyPlaying() then
 				self:animate("reload")
 			end
 		end
 	end
 end
 
-function gun:eject_chamber()
-	if self.chamber then
-		casingEmitter:fire(self.chamber)
-		self.chamber = false
-		if magazine:count() == 0 then
-			self.dry = true
-		end
+function gun:eject_chambers()
+	chamber:ejectAll()
+	if magazine:count() == 0 then
+		self.dry = true
 	end
 end
 
-function gun:load_chamber(ammo)
-	if self.chamber then
-		self:eject_chamber()
+function gun:load_chambers()
+	if chamber:loads() > 0 then
+		chamber:ejectAll()
 	end
-	self.chamber = ammo
-	if type(self.chamber) == "table" and self.chamber.count > 0 then
-		self.dry = false
-	end
+
+	self.dry = false
+	chamber:fillFromMagazine(magazine)
 end
 
 --firing functions
 gun.queueFire = 0
 function gun:updateFire(dt)
-	if self.queueFire > 0 and self.chamber and self.chamber.count > 0 and self.cooldown == 0 and (not animations:isAnyPlaying() or animations:isPlaying("shoot")) then
+	if self.queueFire > 0 and chamber:ready() > 0 and self.cooldown == 0 and (not animations:isAnyPlaying() or animations:isPlaying("shoot")) then
 		self.queueFire = math.max(self.queueFire - 1, 0)
 		self:fire()
-	elseif self.queueFire > 0 and ((magazine:count() == 0 and (not self.chamber or self.chamber.count == 0)) or (animations:isAnyPlaying() and not animations:isPlaying("shoot"))) then
+	elseif magazine:count() == 0 and chamber:ready() == 0 then
 		self.queueFire = 0
 	end
 end
 
+gun.cooldown = 0
+gun.burstcooldown = 0
+function gun:addCooldown()
+	self.cooldown = 60 / stats:get("rpm")
+end
+
+local function firecallback(at, ammo)
+	muzzle:fireFromMuzzle(at, ammo)
+	ammo:use()
+end
+
 function gun:fire()
-	if self.chamber and self.chamber.count > 0 then
+	if chamber:ready() > 0 then
 		muzzle.damageMultplier = stats:get("damageMultiplier")
 
 		if stats:get("muzzleFlash") > 0 then
 			muzzle:flash()
 		end
 
-		local ammo = self.chamber:use()
-		muzzle:fire(self.chamber)
+		chamber:use(firecallback)
 
-		self.chamber:use()
-		if self.chamber.count <= 0 and settings:get("chamberEjection") then
-			self:eject_chamber()
-			if magazine:count() == 0 then
-				self.dry = true
-			end
+		if settings:get("chamberEjection") then
+			self:eject_chambers()
+		end
+		if magazine:count() > 0 and settings:get("chamberAutoLoad") then
+			self.shouldLoad = true
 		end
 		
 		aim:recoil(stats:get("recoil"))
@@ -313,10 +311,11 @@ function gun:fire()
 		
 		animator.playSound(settings:get("fireSound"))
 
-		self.cooldown = 60 / stats:get("rpm")
-	elseif not self.chamber then
+		self:addCooldown()
+	else
 		animator.playSound(settings:get("drySound"))
-		self.cooldown = 60 / stats:get("rpm")
+		self:addCooldown()
+		self.queueFire = 0
 	end
 end
 
@@ -368,9 +367,9 @@ function gunUI:update(dt)
 	)
 
 	--chamber status
-	if gun.chamber then
+	if chamber:loads() > 0 then
 		local color = {255,255,255}
-		if gun.chamber.count == 0 then
+		if chamber:ready() == 0 then
 			color = {255,0,0}
 		end
 		localAnimator.addDrawable(
